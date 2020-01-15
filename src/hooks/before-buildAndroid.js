@@ -6,6 +6,8 @@ module.exports = ($childProcess, $fs, $logger, $platformsDataService, $settingsS
         return;
     }
 
+    console.log("WILL START A CLOUD BUILD")
+
     const buildService = new CircleCIBuildService(
         $childProcess,
         $fs,

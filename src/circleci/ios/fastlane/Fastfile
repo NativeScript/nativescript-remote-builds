@@ -1,0 +1,36 @@
+fastlane_version '2.137.0'
+
+platform :ios do
+ before_all do
+   setup_circle_ci
+ end
+
+ desc 'Build the iOS application.'
+ lane :build do
+    disable_automatic_code_signing(
+      path: "{{IOS_XCODE_PROJ_PATH}}"
+    )
+
+    MY_APP_ID = "{{PROJECT_ID}}"
+    MY_PROFILE = "{{IOS_DEV_PROVISION_NAME}}"
+    MY_TEAM = "{{IOS_TEAM_ID}}"
+
+    match(
+        type: "{{BUILD_TYPE}}"
+    )
+
+    settings_to_override = {
+      :PROVISIONING_PROFILE_SPECIFIER => MY_PROFILE,
+      :DEVELOPMENT_TEAM => MY_TEAM,
+    }
+
+    gym(
+      scheme: "{{PROJECT_NAME}}",
+      workspace: "{{IOS_XCODE_WORKSPACE_PATH}}",
+      export_method: '{{BUILD_TYPE}}',
+      configuration: "{{BUILD_CONFIGURATION}}",
+      xcargs: settings_to_override,
+    )
+ end
+
+end

@@ -1,0 +1,58 @@
+{
+  "name": "nativescript-cloud-builds",
+  "version": "0.1.0",
+  "description": "Run NativeScript apps with local LiveSync without any local Android/iOS setup.",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "node postinstall.js",
+    "preuninstall": "node preuninstall.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DimitarTachev/nativescript-cloud-builds.git"
+  },
+  "keywords": [
+    "nativescript",
+    "tns",
+    "cloud",
+    "run",
+    "livesync",
+    "circle",
+    "circleci",
+    "local",
+    "setup"
+  ],
+  "author": "DimitarTachev",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/DimitarTachev/nativescript-cloud-builds/issues"
+  },
+  "homepage": "https://github.com/DimitarTachev/nativescript-cloud-builds#readme",
+  "nativescript": {
+    "hooks": [
+      {
+        "type": "before-checkEnvironment",
+        "script": "src/hooks/before-checkEnvironment.js",
+        "inject": true
+      },
+      {
+        "type": "before-prepare",
+        "script": "src/hooks/before-prepare.js",
+        "inject": true
+      },
+      {
+        "type": "before-buildAndroid",
+        "script": "src/hooks/before-buildAndroid.js",
+        "inject": true
+      },
+      {
+        "type": "before-buildIOS",
+        "script": "src/hooks/before-buildIOS.js",
+        "inject": true
+      }
+    ]
+  },
+  "dependencies": {
+    "nativescript-hook": "^0.2.5"
+  }
+}

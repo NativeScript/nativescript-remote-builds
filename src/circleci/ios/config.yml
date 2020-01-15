@@ -1,0 +1,71 @@
+version: 2
+jobs:
+  build:
+    macos:
+      xcode: 11.3.0
+    working_directory: ~/{{PROJECT_NAME}}
+    environment:
+      # TODO: set NS_SKIP_ENV_CHECK
+      FL_OUTPUT_DIR: ~/output
+    shell: /bin/bash --login -o pipefail
+    steps:
+      # GLOBAL OPERATIONS
+      - add_ssh_keys:
+          fingerprints:
+            - "d8:25:e3:b4:cd:39:3f:45:29:01:94:8e:5f:15:3b:30"
+      # setup NPM
+      - run: echo 'export PATH=~/npm_prefix/bin:$PATH' >> $BASH_ENV
+      - run: npm config set prefix ~/npm_prefix
+
+      # setup global modules - TNS
+      # - restore_cache:
+      #     keys:
+      #       - global-modules-6.2.2
+      - run: tns --version || (npm i -g nativescript@6.2.2 && tns usage-reporting disable && tns error-reporting disable)
+      # - save_cache:
+      #     # TODO: add platforms cache?
+      #     paths:
+      #       - ~/npm_prefix
+      #     key: global-modules-6.2.2
+
+      # LOCAL OPERATIONS
+
+      - checkout
+
+      # NODE PACKAGES
+      # - restore_cache:
+      #     keys:
+      #       - node-modules-{{ checksum "package.json" }}
+      - run: '[ -d "~/{{PROJECT_NAME}}/node_modules/" ] || (npm install && npm rebuild)'
+      # - save_cache:
+      #     # TODO: add platforms cache?
+      #     paths:
+      #       - node_modules
+      #     key: node-modules-{{ checksum "package.json" }}
+
+      # INSTALL GEMS (fastlane)
+      # - restore_cache:
+      #     key: gems-{{ checksum "Gemfile" }}
+      - run: bundle install --path vendor/bundle
+      # - save_cache:
+      #     key: gems-{{ checksum "Gemfile" }}
+      #     paths:
+      #       - vendor/bundle
+      - run: pip install six
+      - run: pod repo update
+      - run: tns prepare ios
+      - run:
+          name: Fastlane
+          command: bundle exec fastlane ios build
+
+      # store artifacts
+      - store_artifacts:
+          path: ~/output
+      - store_test_results:
+          path: ~/output/scan
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - build

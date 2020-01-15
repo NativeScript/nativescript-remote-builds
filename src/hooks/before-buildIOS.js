@@ -33,7 +33,7 @@ module.exports = ($childProcess, $fs, $logger, $platformsDataService, $settingsS
             "IOS_TEAM_ID": config.iOSTeamId,
             "IOS_APPLE_ID": config.appleId,
             "IOS_DEV_PROVISION_NAME": config.iOSDevProfileName,
-            "IOS_SIGNING_REPO_URL": config.privateRepoForSigning,
+            "IOS_SIGNING_REPO_URL": config.iOSSigningPrivateGithubRepo,
             "IOS_XCODE_PROJ_PATH": path.join(nativeProjectRoot, `${projectData.projectName}.xcodeproj`),
             "IOS_XCODE_WORKSPACE_PATH": path.join(nativeProjectRoot, `${projectData.projectName}.xcworkspace`)
         });

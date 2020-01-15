@@ -53,9 +53,14 @@ class CircleCIBuildService {
 
         const appLocation = platformData.getBuildOutputPath(buildData);
         this.$logger.info("Downloading build result.");
-        const appFileName = this.isAndroid ? `app-${buildData.release ? "release" : "debug"}` : projectData.projectName;
-        const localBuildResult = await this.downloadCircleCIBuild(circleCIJobId, appLocation, appFileName);
-        this.$logger.info(`Successfully downloaded: ${localBuildResult}`);
+        const cloudFilePath = this.isAndroid ? "home/circleci/output/app.apk" : `Users/distiller/output/gym/${projectData.projectName}.ipa`;
+        const outputFileName = this.isAndroid ? `app-${buildData.release ? "release" : "debug"}` : projectData.projectName;
+        const localBuildResult = await this.downloadCircleCIBuild(circleCIJobId, cloudFilePath, appLocation, outputFileName);
+        if (localBuildResult) {
+            this.$logger.info(`Successfully downloaded: ${localBuildResult}`);
+        } else {
+            throw new Error("Failed to download build result.")
+        }
     }
 
     async timeout(ms) {
@@ -68,14 +73,11 @@ class CircleCIBuildService {
         const recentBuilds = JSON.parse(recentBuildsResponse.body);
         const targetBuild = _.find(recentBuilds, (b) => { return b.vcs_revision.trim() === gitRevision; });
         if (!targetBuild) {
-            // console.log("reccursion: ", recentBuilds, gitRevision);
             await this.timeout(100);
             return this.getCircleCIJobNumber(gitRevision);
         }
 
-        // console.log(targetBuild, gitRevision, targetBuild.build_num);
-
-        console.log(`A cloud build has started. Open ${targetBuild.build_url} for more details.`);
+        this.$logger.info(`A cloud build has started. Open ${targetBuild.build_url} for more details.`);
 
         return targetBuild.build_num;
     }
@@ -92,19 +94,18 @@ class CircleCIBuildService {
         return build.status === "success";
     }
 
-    async downloadCircleCIBuild(jobNumber, apkLocation, apkFileName) {
+    async downloadCircleCIBuild(jobNumber, cloudFilePath, outputLocation, outputFileName) {
         const artifactsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.githubRepository}/${jobNumber}/artifacts`);
         const artifacts = JSON.parse(artifactsResponse.body);
 
         const appExtension = this.isAndroid ? ".apk" : ".ipa";
-        const appLocation = this.isAndroid ? "home/circleci/output/app.apk" : "Users/distiller/output/gym/nativescriptcirclecilivesync.ipa";
-        const apkArtifact = _.find(artifacts, (a) => { return a.path.trim() === appLocation; });
+        const apkArtifact = _.find(artifacts, (a) => { return a.path.trim() === cloudFilePath; });
         if (!apkArtifact) {
             return null;
         }
 
         const apkDownloadUrl = apkArtifact.url;
-        const targetFileName = path.join(apkLocation, `${apkFileName}${appExtension}`);
+        const targetFileName = path.join(outputLocation, `${outputFileName}${appExtension}`);
         this.$fs.createDirectory(path.dirname(targetFileName));
         const targetFile = this.$fs.createWriteStream(targetFileName);
 

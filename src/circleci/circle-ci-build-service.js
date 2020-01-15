@@ -14,14 +14,14 @@ class CircleCIBuildService {
         this.gitService = new GitService(this.$childProcess, this.$fs, this.$logger, this.$settingsService.getProfileDir());
     }
 
-    async build(args, repoForCloudBuilding, circleCiApiAccessToken, additionalMappedFiles, additionalPlaceholders) {
+    async build(args, cloudSyncGithubRepository, circleCiApiAccessToken, additionalMappedFiles, additionalPlaceholders) {
         // projectRoot: string, projectData: IProjectData, buildData: IAndroidBuildData
         const [projectRoot, projectData, buildData] = args;
         this.circleCiApiAccessToken = circleCiApiAccessToken;
-        this.remoteUrl = repoForCloudBuilding;
+        this.remoteUrl = cloudSyncGithubRepository;
         const githubSshUrlStart = "git@github.com:";
         if (!this.remoteUrl.startsWith(githubSshUrlStart)) {
-            throw new Error(`"repoForCloudBuilding" should be a valid github ssh URL. Received: ${this.remoteUrl}`);
+            throw new Error(`"cloudSyncGithubRepository" should be a valid github ssh URL. Received: ${this.remoteUrl}`);
         }
 
         this.githubRepository = this.remoteUrl.replace(/\.git/g, "").substring(githubSshUrlStart.length);

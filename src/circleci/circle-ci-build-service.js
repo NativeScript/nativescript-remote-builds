@@ -96,8 +96,6 @@ class CircleCIBuildService {
         const artifactsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.githubRepository}/${jobNumber}/artifacts`);
         const artifacts = JSON.parse(artifactsResponse.body);
 
-        // TODO: download based on the target platform
-
         const appExtension = this.isAndroid ? ".apk" : ".ipa";
         const appLocation = this.isAndroid ? "home/circleci/output/app.apk" : "Users/distiller/output/gym/nativescriptcirclecilivesync.ipa";
         const apkArtifact = _.find(artifacts, (a) => { return a.path.trim() === appLocation; });

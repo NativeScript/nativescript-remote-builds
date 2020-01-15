@@ -1,16 +1,8 @@
 const GitService = require("../services/git-service").GitService;
 const path = require("path");
-const config = require("../config");
 
 class CircleCIBuildService {
     constructor($childProcess, $fs, $logger, $platformsDataService, $settingsService, $httpClient, platform) {
-        this.remoteUrl = config.repoForCloudBuilding;
-        const githubSshUrlStart = "git@github.com:";
-        if (!this.remoteUrl.startsWith(githubSshUrlStart)) {
-            throw new Error(`"repoForCloudBuilding" should be a valid github ssh URL. Received: ${this.remoteUrl}`);
-        }
-
-        this.githubRepository = this.remoteUrl.replace(/\.git/g, "").substring(githubSshUrlStart.length);
         this.$childProcess = $childProcess;
         this.$fs = $fs;
         this.$logger = $logger;
@@ -22,9 +14,17 @@ class CircleCIBuildService {
         this.gitService = new GitService(this.$childProcess, this.$fs, this.$logger, this.$settingsService.getProfileDir());
     }
 
-    async build(args, additionalMappedFiles, additionalPlaceholders) {
+    async build(args, repoForCloudBuilding, circleCiApiAccessToken, additionalMappedFiles, additionalPlaceholders) {
         // projectRoot: string, projectData: IProjectData, buildData: IAndroidBuildData
         const [projectRoot, projectData, buildData] = args;
+        this.circleCiApiAccessToken = circleCiApiAccessToken;
+        this.remoteUrl = repoForCloudBuilding;
+        const githubSshUrlStart = "git@github.com:";
+        if (!this.remoteUrl.startsWith(githubSshUrlStart)) {
+            throw new Error(`"repoForCloudBuilding" should be a valid github ssh URL. Received: ${this.remoteUrl}`);
+        }
+
+        this.githubRepository = this.remoteUrl.replace(/\.git/g, "").substring(githubSshUrlStart.length);
         const platformData = this.$platformsDataService.getPlatformData(this.platform, projectData);
         var mappedFiles = { [`node_modules/nativescript-cloud-builds/src/circleci/${this.platform}/config.yml`]: "./.circleci/config.yml" };
         if (additionalMappedFiles) {
@@ -64,7 +64,7 @@ class CircleCIBuildService {
 
     async getCircleCIJobNumber(gitRevision) {
         // TODO: accept the token as param
-        const recentBuildsResponse = await this.$httpClient.httpRequest("https://circleci.com/api/v1.1/recent-builds?circle-token=24a8fc55a938af9c6ba163b61994aedf52639d60");
+        const recentBuildsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/recent-builds?circle-token=${this.circleCiApiAccessToken}`);
         const recentBuilds = JSON.parse(recentBuildsResponse.body);
         const targetBuild = _.find(recentBuilds, (b) => { return b.vcs_revision.trim() === gitRevision; });
         if (!targetBuild) {

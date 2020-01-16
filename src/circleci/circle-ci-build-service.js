@@ -1,54 +1,28 @@
 const GitService = require("../services/git-service").GitService;
 const path = require("path");
 const constants = require("../common/constants");
+const BuildServiceBase = require("../services/build-service-base").BuildServiceBase;
 
-class CircleCIBuildService {
-    constructor($childProcess, $fs, $logger, $platformsDataService, $settingsService, $httpClient, platform) {
-        this.$childProcess = $childProcess;
-        this.$fs = $fs;
-        this.$logger = $logger;
-        this.$platformsDataService = $platformsDataService;
-        this.$settingsService = $settingsService;
-        this.$httpClient = $httpClient;
-        this.platform = platform;
-        this.isAndroid = this.platform === "android";
-        this.gitService = new GitService(this.$childProcess, this.$fs, this.$logger, this.$settingsService.getProfileDir());
-    }
+class CircleCIBuildService extends BuildServiceBase {
+    // constructor($childProcess, $fs, $logger, $platformsDataService, $settingsService, $httpClient, platform) {
+    //     super($childProcess, $fs, $logger, $platformsDataService, $settingsService, $httpClient, platform)
+    // }
 
-    async build(args, cloudSyncGithubRepository, circleCiApiAccessToken, additionalMappedFiles, additionalPlaceholders) {
+    async build(cliArgs, cloudSyncGithubRepository, circleCiApiAccessToken, additionalMappedFiles, additionalPlaceholders) {
         // projectRoot: string, projectData: IProjectData, buildData: IAndroidBuildData
-        const [projectRoot, projectData, buildData] = args;
+        const [projectRoot, projectData, buildData] = cliArgs;
         this.circleCiApiAccessToken = circleCiApiAccessToken;
-        this.remoteUrl = cloudSyncGithubRepository;
-        const githubSshUrlStart = "git@github.com:";
-        if (!this.remoteUrl.startsWith(githubSshUrlStart)) {
-            throw new Error(`"cloudSyncGithubRepository" should be a valid github ssh URL. Received: ${this.remoteUrl}`);
-        }
 
-        this.githubRepository = this.remoteUrl.replace(/\.git/g, "").substring(githubSshUrlStart.length);
-        const platformData = this.$platformsDataService.getPlatformData(this.platform, projectData);
+        // TODO: validate CircleCI related config values
         var mappedFiles = {
-            [`node_modules/nativescript-cloud-builds/src/circleci/${this.platform}/config.yml`]: "./.circleci/config.yml",
-            [`node_modules/nativescript-cloud-builds/src/common/safe-config.json`]: constants.configFileName
+            [`node_modules/nativescript-cloud-builds/src/circleci/${this.platform}/config.yml`]: "./.circleci/config.yml"
         };
+
         if (additionalMappedFiles) {
             mappedFiles = Object.assign(mappedFiles, additionalMappedFiles);
         }
-        var placeholders = {
-            "PROJECT_NAME": projectData.projectName,
-            "PROJECT_ID": projectData.projectIdentifiers[this.platform],
-            "BUILD_TYPE": "development", // TODO: base on the CLI args
-            "BUILD_CONFIGURATION": "Debug" // TODO: base on CLI args
-        };
-        if (additionalPlaceholders) {
-            placeholders = Object.assign(placeholders, additionalPlaceholders);
-        }
-        const commitRevision = await this.gitService.gitPushChanges(
-            { projectDir: projectData.projectDir, projectId: projectData.projectIdentifiers[this.platform] },
-            { httpRemoteUrl: this.remoteUrl },
-            mappedFiles,
-            placeholders);
 
+        const commitRevision = await super.pushToSyncRepository(cliArgs, cloudSyncGithubRepository, mappedFiles, additionalPlaceholders);
         const circleCIJobId = await this.getCircleCIJobNumber(commitRevision);
         const isSuccessfulBuild = await this.isSuccessfulBuild(circleCIJobId);
         if (!isSuccessfulBuild) {

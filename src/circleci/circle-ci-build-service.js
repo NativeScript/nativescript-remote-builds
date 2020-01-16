@@ -67,14 +67,19 @@ class CircleCIBuildService {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    async getCircleCIJobNumber(gitRevision) {
-        // TODO: accept the token as param
+    async getCircleCIJobNumber(gitRevision, retryCount) {
         const recentBuildsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/recent-builds?circle-token=${this.circleCiApiAccessToken}`);
         const recentBuilds = JSON.parse(recentBuildsResponse.body);
         const targetBuild = _.find(recentBuilds, (b) => { return b.vcs_revision.trim() === gitRevision; });
+        if (!targetBuild && (!retryCount || retryCount < 60)) {
+            await this.timeout(500);
+            retryCount = retryCount || 0;
+            retryCount++;
+            return this.getCircleCIJobNumber(gitRevision, retryCount);
+        }
+
         if (!targetBuild) {
-            await this.timeout(100);
-            return this.getCircleCIJobNumber(gitRevision);
+            throw new Error(`Timeout while waiting for a CircleCI job. Make sure that the '${this.remoteUrl}' project is enabled in CircleCI`)
         }
 
         this.$logger.info(`A cloud build has started. Open ${targetBuild.build_url} for more details.`);

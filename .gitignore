@@ -33,3 +33,4 @@ typings/
 
 # Sensitive Data
 *.nscloudbuilds.json
+*package-lock.json

@@ -1,4 +1,5 @@
 const GitService = require("../services/git-service").GitService;
+const constants = require("../common/constants");
 
 class BuildServiceBase {
     constructor($childProcess, $fs, $logger, $platformsDataService, $settingsService, $httpClient, platform) {

@@ -1,6 +1,4 @@
-const GitService = require("../services/git-service").GitService;
 const path = require("path");
-const constants = require("../common/constants");
 const BuildServiceBase = require("../services/build-service-base").BuildServiceBase;
 
 class CircleCIBuildService extends BuildServiceBase {

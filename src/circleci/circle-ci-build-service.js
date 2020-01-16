@@ -2,10 +2,6 @@ const path = require("path");
 const BuildServiceBase = require("../services/build-service-base").BuildServiceBase;
 
 class CircleCIBuildService extends BuildServiceBase {
-    // constructor($childProcess, $fs, $logger, $platformsDataService, $settingsService, $httpClient, platform) {
-    //     super($childProcess, $fs, $logger, $platformsDataService, $settingsService, $httpClient, platform)
-    // }
-
     async build(cliArgs, cloudSyncGithubRepository, circleCiApiAccessToken, additionalMappedFiles, additionalPlaceholders) {
         // projectRoot: string, projectData: IProjectData, buildData: IAndroidBuildData
         const [projectRoot, projectData, buildData] = cliArgs;
@@ -27,6 +23,7 @@ class CircleCIBuildService extends BuildServiceBase {
             throw new Error("Cloud build failed.");
         }
 
+        const platformData = this.$platformsDataService.getPlatformData(this.platform, projectData);
         const appLocation = platformData.getBuildOutputPath(buildData);
         this.$logger.info("Downloading build result.");
         const cloudFilePath = this.isAndroid ? "home/circleci/output/app.apk" : `Users/distiller/output/gym/${projectData.projectName}.ipa`;

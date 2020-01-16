@@ -10,9 +10,9 @@ class GitService {
     }
 
     async gitPushChanges(projectSettings, remoteUrl, mappedFiles, placeholders) {
-        if (!this.isGitRepository(projectSettings)) {
-            await this.gitInit(projectSettings);
-        }
+        // a workaround for a sporadic "git exited with code 1"
+        this.cleanGitRepository(projectSettings);
+        await this.gitInit(projectSettings);
         const isRemoteAdded = await this.gitCheckIfRemoteIsAdded(projectSettings, GitService.REMOTE_NAME);
         if (isRemoteAdded) {
             const isGitRemoteCorrect = await this.isGitRemoteSetToCorrectUrl(projectSettings, remoteUrl);
@@ -146,6 +146,12 @@ class GitService {
     }
     isGitRepository(projectSettings) {
         return this.$fs.exists(this.getGitDirPath(projectSettings));
+    }
+    cleanGitRepository(projectSettings) {
+        const gitDir = this.getGitDirPath(projectSettings);
+        if (this.$fs.exists(gitDir)) {
+            this.$fs.deleteDirectory(gitDir);
+        }
     }
     getGitDirPath(projectSettings) {
         return path.join(this.getGitDirBasePath(), projectSettings.projectId);

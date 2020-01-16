@@ -164,7 +164,8 @@ class GitService {
         this.$logger.trace(`Ensure ${gitIgnorePath} exists.`);
         if (!this.$fs.exists(gitIgnorePath)) {
             this.$logger.trace(`${gitIgnorePath} does not exist. Creating a default one.`);
-            this.$fs.copyFile(`./${GitService.TEMPLATE_GIT_IGNORE_FILE_NAME}`, gitIgnorePath);
+            // TODO: test missing git ignore
+            this.$fs.copyFile(`../common/basic-gitignore`, gitIgnorePath);
         }
     }
     hasNothingToCommit(stdout) {

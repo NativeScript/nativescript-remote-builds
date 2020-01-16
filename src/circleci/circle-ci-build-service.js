@@ -1,5 +1,6 @@
 const GitService = require("../services/git-service").GitService;
 const path = require("path");
+const constants = require("../common/constants");
 
 class CircleCIBuildService {
     constructor($childProcess, $fs, $logger, $platformsDataService, $settingsService, $httpClient, platform) {
@@ -26,7 +27,10 @@ class CircleCIBuildService {
 
         this.githubRepository = this.remoteUrl.replace(/\.git/g, "").substring(githubSshUrlStart.length);
         const platformData = this.$platformsDataService.getPlatformData(this.platform, projectData);
-        var mappedFiles = { [`node_modules/nativescript-cloud-builds/src/circleci/${this.platform}/config.yml`]: "./.circleci/config.yml" };
+        var mappedFiles = {
+            [`node_modules/nativescript-cloud-builds/src/circleci/${this.platform}/config.yml`]: "./.circleci/config.yml",
+            [`node_modules/nativescript-cloud-builds/src/common/safe-config.json`]: constants.configFileName
+        };
         if (additionalMappedFiles) {
             mappedFiles = Object.assign(mappedFiles, additionalMappedFiles);
         }

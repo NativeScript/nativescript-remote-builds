@@ -36,7 +36,7 @@ module.exports = ($childProcess, $fs, $logger, $platformsDataService, $settingsS
             "IOS_SIGNING_REPO_URL": config.iOSSigningPrivateGithubRepository,
             "IOS_XCODE_PROJ_PATH": path.join(nativeProjectRoot, `${projectData.projectName}.xcodeproj`),
             "IOS_XCODE_WORKSPACE_PATH": path.join(nativeProjectRoot, `${projectData.projectName}.xcworkspace`),
-            "BUILD_FOR_SIMULATOR": buildData.buildForDevice
+            "BUILD_FOR_SIMULATOR": !buildData.buildForDevice
         });
     };
 }

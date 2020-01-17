@@ -9,6 +9,6 @@ The `.nscloudbuilds.json`file is not committed as it contains a sensitive data. 
     "appleId": "dimitar.tachev@progress.com",
     "iOSDevProfileName": "match Development org.nativescript.tsApp1",
     "iOSTeamId": "W7TGC3P93K",
-    "iOSSigningPrivateGithubRepo": "git@github.com:DimitarTachev/ios-signing.git"
+    "iOSSigningPrivateGithubRepository": "git@github.com:DimitarTachev/ios-signing.git"
 }
 ```

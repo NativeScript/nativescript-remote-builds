@@ -21,11 +21,6 @@ module.exports = ($childProcess, $fs, $logger, $platformsDataService, $settingsS
 
     return (args) => {
         var [nativeProjectRoot, projectData, buildData] = args;
-        if (buildData.emulator) {
-            // let the Xcode build for Simulators as you cannot run a simulator without a local setup
-            return;
-        }
-
         const config = configService.getConfig(projectData.projectDir);
         nativeProjectRoot = path.relative(projectData.projectDir, nativeProjectRoot);
 
@@ -40,7 +35,8 @@ module.exports = ($childProcess, $fs, $logger, $platformsDataService, $settingsS
             "IOS_DEV_PROVISION_NAME": config.iOSDevProfileName,
             "IOS_SIGNING_REPO_URL": config.iOSSigningPrivateGithubRepository,
             "IOS_XCODE_PROJ_PATH": path.join(nativeProjectRoot, `${projectData.projectName}.xcodeproj`),
-            "IOS_XCODE_WORKSPACE_PATH": path.join(nativeProjectRoot, `${projectData.projectName}.xcworkspace`)
+            "IOS_XCODE_WORKSPACE_PATH": path.join(nativeProjectRoot, `${projectData.projectName}.xcworkspace`),
+            "BUILD_FOR_SIMULATOR": buildData.buildForDevice
         });
     };
 }

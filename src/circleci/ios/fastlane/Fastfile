@@ -29,6 +29,10 @@ platform :ios do
       workspace: "{{IOS_XCODE_WORKSPACE_PATH}}",
       export_method: '{{BUILD_TYPE}}',
       configuration: "{{BUILD_CONFIGURATION}}",
+      destination: {{BUILD_FOR_SIMULATOR}} ? 'generic/platform=iOS Simulator' : 'generic/platform=iOS',
+      skip_package_ipa: {{BUILD_FOR_SIMULATOR}} ? true : false,
+      archive_path: './fl_output/app',
+      output_directory: './fl_output',
       xcargs: settings_to_override,
     )
  end

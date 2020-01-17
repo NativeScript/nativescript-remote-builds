@@ -57,8 +57,10 @@ jobs:
       - run:
           name: Fastlane
           command: bundle exec fastlane ios build
-      - run: mv
-
+      - store_artifacts:
+          path: ~/fl_output
+      - store_artifacts:
+          path: ~/output
       - store_artifacts:
           path: ~/fl_output/app.xcarchive/Products/Applications/{{PROJECT_NAME}}.app
           destination: ~/output/{{PROJECT_NAME}}.app

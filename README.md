@@ -1,25 +1,30 @@
 # nativescript-cloud-builds
 A NativeScript plugin for Circle CI based `tns run android/ios` without env setup.
 
+## Prerequisites
+
+Setup a [CircleCI](https://circleci.com/) account and integrate your GitHub organization.
+
 ## Installation
 
+> cd {{yourNativeScriptAppRoot}}
 > npm i https://github.com/DimitarTachev/nativescript-cloud-builds/tarball/master
 
 ## Setup
 
-1) Login in CircleCI and integrate your GitHub organization
-2) Create a `.nscloudbuilds.json` file in your app root directory with the following content:
+1) Create a `.nscloudbuilds.json` file in your app root directory with the following content:
 ```
 {
     "cloudSyncGithubRepository": "{{a github repository with enable CircleCI integration}}"
 }
 ```
 
-> WARNING: The `{{cloudSyncGithubRepository}}` will be used to sync your local code changes with the cloud. If the repository is public, make sure that you don't have any sensitive data (e.g. secrets) which are not git ignored in your local app.  
+> WARNING: The `{{cloudSyncGithubRepository}}` repository should be [integrated with CircleCI](https://circleci.com/docs/2.0/project-build/#adding-projects) and it will be used to sync your local code changes with the cloud. If the repository is public, make sure that you don't have any sensitive data (e.g. secrets) which are not git ignored in your local app.  
 
 > NOTE: The `.nscloudbuilds.json` will NOT be pushed in the `{{cloudSyncGithubRepository}}` and you could also git ignore it if you assume its content as a sensitive data.
-3) Add the `CIRCLE_CI_API_ACCESS_TOKEN` env variable to your local machine. You could generate one from your [Personal API Tokens](https://circleci.com/account/api) page in Circle CI.
+2) Add the `CIRCLE_CI_API_ACCESS_TOKEN` env variable to your local machine. You could generate one from your [Personal API Tokens](https://circleci.com/account/api) page in Circle CI.
 
+> WARNING: You have to be logged in in order to access the [Personal API Tokens](https://circleci.com/account/api) page.  
 
 ## iOS Specific Setup
 

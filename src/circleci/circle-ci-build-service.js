@@ -2,9 +2,12 @@ const path = require("path");
 const BuildServiceBase = require("../services/build-service-base").BuildServiceBase;
 
 class CircleCIBuildService extends BuildServiceBase {
-    async build(cliArgs, cloudSyncGithubRepository, circleCiApiAccessToken, additionalMappedFiles, additionalPlaceholders) {
+    async build(cliArgs, cloudSyncGithubRepository, additionalMappedFiles, additionalPlaceholders) {
         // projectRoot: string, projectData: IProjectData, buildData: IAndroidBuildData
         const [projectRoot, projectData, buildData] = cliArgs;
+        if (!process.env.CIRCLE_CI_API_ACCESS_TOKEN) {
+            throw new Error("You have to set the CIRCLE_CI_API_ACCESS_TOKEN env variable on your local machine in order to run cloud builds in Circle CI.");
+        }
         this.circleCiApiAccessToken = circleCiApiAccessToken;
 
         // TODO: validate CircleCI related config values

@@ -24,7 +24,7 @@ module.exports = ($childProcess, $fs, $logger, $platformsDataService, $settingsS
         const config = configService.getConfig(projectData.projectDir);
         nativeProjectRoot = path.relative(projectData.projectDir, nativeProjectRoot);
 
-        return buildService.build(args, config.cloudSyncGithubRepository, config.circleCiApiAccessToken, {
+        return buildService.build(args, config.cloudSyncGithubRepository, {
             "node_modules/nativescript-cloud-builds/src/circleci/ios/fastlane/Appfile": "./fastlane/Appfile",
             "node_modules/nativescript-cloud-builds/src/circleci/ios/fastlane/Fastfile": "./fastlane/Fastfile",
             "node_modules/nativescript-cloud-builds/src/circleci/ios/fastlane/Matchfile": "./fastlane/Matchfile",

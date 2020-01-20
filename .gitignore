@@ -32,5 +32,4 @@ typings/
 !.vscode/extensions.json
 
 # Sensitive Data
-*.nscloudbuilds.json
 *package-lock.json

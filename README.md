@@ -11,14 +11,14 @@ A NativeScript plugin for Circle CI based `tns run android/ios` without env setu
 2) Create a `.nscloudbuilds.json` file in your app root directory with the following content:
 ```
 {
-    "cloudSyncGithubRepository": "{{a github repository with enable CircleCI integration}}",
-    "circleCiApiAccessToken": "{{a circle ci API token for your account}}",
+    "cloudSyncGithubRepository": "{{a github repository with enable CircleCI integration}}"
 }
 ```
 
 > WARNING: The `{{cloudSyncGithubRepository}}` will be used to sync your local code changes with the cloud. If the repository is public, make sure that you don't have any sensitive data (e.g. secrets) which are not git ignored in your local app.  
 
-> NOTE: The `.nscloudbuilds.json` will NOT be pushed in the `{{cloudSyncGithubRepository}}` and you could also git ignore it if your app is in a public repository.
+> NOTE: The `.nscloudbuilds.json` will NOT be pushed in the `{{cloudSyncGithubRepository}}` and you could also git ignore it if you assume its content as a sensitive data.
+3) Add the `CIRCLE_CI_API_ACCESS_TOKEN` env variable to your local machine. You could generate one from your [Personal API Tokens](https://circleci.com/account/api) page in Circle CI.
 
 
 ## iOS Specific Setup

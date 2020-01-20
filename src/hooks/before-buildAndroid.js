@@ -21,6 +21,6 @@ module.exports = ($childProcess, $fs, $logger, $platformsDataService, $settingsS
         var [nativeProjectRoot, projectData, buildData] = args;
         const config = configService.getConfig(projectData.projectDir);
 
-        return buildService.build(args, config.cloudSyncGithubRepository, config.circleCiApiAccessToken);
+        return buildService.build(args, config.cloudSyncGithubRepository);
     };
 }

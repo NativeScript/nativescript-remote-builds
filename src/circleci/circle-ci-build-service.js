@@ -8,7 +8,7 @@ class CircleCIBuildService extends BuildServiceBase {
         if (!process.env.CIRCLE_CI_API_ACCESS_TOKEN) {
             throw new Error("You have to set the CIRCLE_CI_API_ACCESS_TOKEN env variable on your local machine in order to run cloud builds in Circle CI.");
         }
-        this.circleCiApiAccessToken = circleCiApiAccessToken;
+        this.circleCiApiAccessToken = process.env.CIRCLE_CI_API_ACCESS_TOKEN;
 
         // TODO: validate CircleCI related config values
         var mappedFiles = {

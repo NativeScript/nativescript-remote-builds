@@ -31,9 +31,8 @@ platform :ios do
       configuration: "{{BUILD_CONFIGURATION}}",
       destination: {{BUILD_FOR_SIMULATOR}} ? 'generic/platform=iOS Simulator' : 'generic/platform=iOS',
       skip_package_ipa: {{BUILD_FOR_SIMULATOR}} ? true : false,
-      skip_archive: {{BUILD_FOR_SIMULATOR}} ? false : true,
-      archive_path: '~/fl_output/app',
-      output_directory: '~/fl_output',
+      archive_path: File.expand_path('~/fl_output/app'),
+      output_directory: File.expand_path('~/fl_output'),
       xcargs: settings_to_override,
     )
 

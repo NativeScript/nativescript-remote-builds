@@ -7,8 +7,8 @@ Setup a [CircleCI](https://circleci.com/) account and integrate your GitHub orga
 
 ## Installation
 
-> cd {{yourNativeScriptAppRoot}}
-> npm i https://github.com/DimitarTachev/nativescript-cloud-builds/tarball/master
+1) `cd {{yourNativeScriptAppRoot}}`
+2) `npm i https://github.com/DimitarTachev/nativescript-cloud-builds/tarball/master`
 
 ## Setup
 

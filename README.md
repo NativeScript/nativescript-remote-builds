@@ -15,7 +15,7 @@ Setup a [CircleCI](https://circleci.com/) account and integrate your GitHub orga
 1) Create a `.nscloudbuilds.json` file in your app root directory with the following content:
 ```
 {
-    "cloudSyncGithubRepository": "{{a github repository with enable CircleCI integration}}"
+    "cloudSyncGithubRepository": "{{a github repository with enabled CircleCI integration}}"
 }
 ```
 
@@ -38,7 +38,7 @@ In order to use iOS cloud build you need to provide a few more `.nscloudbuilds.j
 
 1) Run the `fastlane match development` command, follow the `Git Repository` flow. 
 
-> INFO: You could read more about `fastlane match` and the development provisioning profile generation in the following article: https://docs.fastlane.tools/actions/match/
+> NOTE: You could read more about `fastlane match` and the development provisioning profile generation in the following article: https://docs.fastlane.tools/actions/match/
 
 2) Add the following configurations in your `.nscloudbuilds.json`:
 ```

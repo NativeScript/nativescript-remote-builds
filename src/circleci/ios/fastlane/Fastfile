@@ -34,6 +34,13 @@ platform :ios do
       archive_path: File.expand_path('~/fl_output/{{PROJECT_NAME}}'),
       xcargs: settings_to_override,
     )
+
+    if ({{BUILD_FOR_SIMULATOR}})
+      zip(
+        path: File.expand_path("~/fl_output/{{PROJECT_NAME}}.xcarchive/Products/Applications/{{PROJECT_NAME}}.app"),
+        output_path: File.expand_path("~/fl_output/{{PROJECT_NAME}}.app.zip")
+      )
+    end
  end
 
 end

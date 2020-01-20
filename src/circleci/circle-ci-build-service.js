@@ -29,7 +29,7 @@ class CircleCIBuildService extends BuildServiceBase {
         const isIOSSimulator = !this.isAndroid && !buildData.buildForDevice;
         const cloudFilePath = this.isAndroid ? "home/circleci/output/app.apk" :
             isIOSSimulator ?
-                `Users/distiller/fl_output/${projectData.projectName}.xcarchive` :
+                `Users/distiller/fl_output/${projectData.projectName}.app.zip` :
                 `Users/distiller/fl_output/${projectData.projectName}.ipa`;
 
         const outputFileName = this.isAndroid ? `app-${buildData.release ? "release" : "debug"}` : projectData.projectName;
@@ -81,7 +81,7 @@ class CircleCIBuildService extends BuildServiceBase {
         const artifactsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.githubRepository}/${jobNumber}/artifacts`);
         const artifacts = JSON.parse(artifactsResponse.body);
 
-        const appExtension = this.isAndroid ? ".apk" : isIOSSimulator ? ".xcarchive" : ".ipa";
+        const appExtension = this.isAndroid ? ".apk" : isIOSSimulator ? ".app.zip" : ".ipa";
         const apkArtifact = _.find(artifacts, (a) => { return a.path.trim() === cloudFilePath; });
         if (!apkArtifact) {
             return null;

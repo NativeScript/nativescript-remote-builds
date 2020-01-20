@@ -19,7 +19,9 @@ Setup a [CircleCI](https://circleci.com/) account and integrate your GitHub orga
 }
 ```
 
-> WARNING: The `{{cloudSyncGithubRepository}}` repository should be [integrated with CircleCI](https://circleci.com/docs/2.0/project-build/#adding-projects) and it will be used to sync your local code changes with the cloud. If the repository is public, make sure that you don't have any sensitive data (e.g. secrets) which are not git ignored in your local app.  
+If your NativeScript app is already pushed to a GitHub repository [integrated with CircleCI](https://circleci.com/docs/2.0/project-build/#adding-projects), you could set the same repository to `{{cloudSyncGithubRepository}}`. The plugin will create temporary branches named `circle-ci{{uniqueid}}` for each cloud operation and will not affect you current branches. If you don't have an already configured GitHub repository for your NativeScript app, you could pass a newly created repository [integrated with CircleCI](https://circleci.com/docs/2.0/project-build/#adding-projects).
+
+> WARNING: The `{{cloudSyncGithubRepository}}` repository will be used to sync your local code changes with the cloud. If the repository is public, make sure that you don't have any sensitive data (e.g. secrets) which are not git ignored in your local app.  
 
 > NOTE: The `.nscloudbuilds.json` will NOT be pushed in the `{{cloudSyncGithubRepository}}` and you could also git ignore it if you assume its content as a sensitive data.
 2) Add the `CIRCLE_CI_API_ACCESS_TOKEN` env variable to your local machine. You could generate one from your [Personal API Tokens](https://circleci.com/account/api) page in Circle CI.

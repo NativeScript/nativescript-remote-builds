@@ -31,17 +31,9 @@ platform :ios do
       configuration: "{{BUILD_CONFIGURATION}}",
       destination: {{BUILD_FOR_SIMULATOR}} ? 'generic/platform=iOS Simulator' : 'generic/platform=iOS',
       skip_package_ipa: {{BUILD_FOR_SIMULATOR}} ? true : false,
-      archive_path: File.expand_path('~/fl_output/app'),
-      output_directory: File.expand_path('~/fl_output'),
+      archive_path: File.expand_path('~/fl_output/{{PROJECT_NAME}}'),
       xcargs: settings_to_override,
     )
-
-    if ({{BUILD_FOR_SIMULATOR}})
-      zip(
-        path: "~/fl_output/app.xcarchive/Products/Applications/{{PROJECT_NAME}}.app",
-        output_path: "~/output/{{PROJECT_NAME}}.app.zip"
-      )
-    end
  end
 
 end

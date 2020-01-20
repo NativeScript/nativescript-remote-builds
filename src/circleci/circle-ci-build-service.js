@@ -26,9 +26,14 @@ class CircleCIBuildService extends BuildServiceBase {
         const platformData = this.$platformsDataService.getPlatformData(this.platform, projectData);
         const appLocation = platformData.getBuildOutputPath(buildData);
         this.$logger.info("Downloading build result.");
-        const cloudFilePath = this.isAndroid ? "home/circleci/output/app.apk" : `Users/distiller/output/gym/${projectData.projectName}.ipa`;
+        const isIOSSimulator = !this.isAndroid && !buildData.buildForDevice;
+        const cloudFilePath = this.isAndroid ? "home/circleci/output/app.apk" :
+            isIOSSimulator ?
+                `Users/distiller/fl_output/${projectData.projectName}.xcarchive` :
+                `Users/distiller/fl_output/${projectData.projectName}.ipa`;
+
         const outputFileName = this.isAndroid ? `app-${buildData.release ? "release" : "debug"}` : projectData.projectName;
-        const localBuildResult = await this.downloadCircleCIBuild(circleCIJobId, cloudFilePath, appLocation, outputFileName);
+        const localBuildResult = await this.downloadCircleCIBuild(circleCIJobId, cloudFilePath, appLocation, outputFileName, isIOSSimulator);
         if (localBuildResult) {
             this.$logger.info(`Successfully downloaded: ${localBuildResult}`);
         } else {
@@ -72,11 +77,11 @@ class CircleCIBuildService extends BuildServiceBase {
         return build.status === "success";
     }
 
-    async downloadCircleCIBuild(jobNumber, cloudFilePath, outputLocation, outputFileName) {
+    async downloadCircleCIBuild(jobNumber, cloudFilePath, outputLocation, outputFileName, isIOSSimulator) {
         const artifactsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.githubRepository}/${jobNumber}/artifacts`);
         const artifacts = JSON.parse(artifactsResponse.body);
 
-        const appExtension = this.isAndroid ? ".apk" : ".ipa";
+        const appExtension = this.isAndroid ? ".apk" : isIOSSimulator ? ".xcarchive" : ".ipa";
         const apkArtifact = _.find(artifacts, (a) => { return a.path.trim() === cloudFilePath; });
         if (!apkArtifact) {
             return null;
@@ -91,6 +96,10 @@ class CircleCIBuildService extends BuildServiceBase {
             url: apkDownloadUrl,
             pipeTo: targetFile
         });
+
+        if (isIOSSimulator) {
+            await this.$fs.unzip(targetFileName, outputLocation);
+        }
 
         return targetFile.path;
     }

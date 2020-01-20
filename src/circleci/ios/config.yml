@@ -60,6 +60,9 @@ jobs:
       - store_artifacts:
           path: ~/fl_output/{{PROJECT_NAME}}.ipa
           destination: ~/output/{{PROJECT_NAME}}.ipa
+      - store_artifacts:
+          path: ~/fl_output/{{PROJECT_NAME}}.xcarchive
+          destination: ~/output/{{PROJECT_NAME}}.xcarchive
 
 workflows:
   version: 2

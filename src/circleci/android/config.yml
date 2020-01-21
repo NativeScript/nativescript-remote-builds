@@ -41,6 +41,10 @@ jobs:
       #       - v1-dependencies-
       - run: npm install
       - run: npm rebuild
+      - run: bundle install --path vendor/bundle
+      - run:
+          name: Fastlane
+          command: bundle exec fastlane android build
 
       # TNS BUILD
       - run: tns build android --copy-to ~/output/app.apk

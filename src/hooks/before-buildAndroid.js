@@ -7,20 +7,27 @@ module.exports = ($childProcess, $fs, $logger, $platformsDataService, $settingsS
         return;
     }
 
-    const configService = new ConfigService();
-    const buildService = new CircleCIBuildService(
-        $childProcess,
-        $fs,
-        $logger,
-        $platformsDataService,
-        $settingsService,
-        $httpClient,
-        "android");
+    // TODO: release configurations based on --release
+    // TODO: handle keystore args
 
     return (args) => {
         var [nativeProjectRoot, projectData, buildData] = args;
+        const configService = new ConfigService();
         const config = configService.getConfig(projectData.projectDir);
+        const buildService = new CircleCIBuildService(
+            $childProcess,
+            $fs,
+            $logger,
+            $platformsDataService,
+            $settingsService,
+            $httpClient,
+            "android",
+            config.cloudSyncGithubRepository);
 
-        return buildService.build(args, config.cloudSyncGithubRepository);
+        buildService.updateEnvVariable("test1", "test2");
+        return buildService.build(args, {
+            "node_modules/nativescript-cloud-builds/src/fastlane/android/Fastfile": "./fastlane/Fastfile",
+            "node_modules/nativescript-cloud-builds/src/fastlane/Gemfile": "./Gemfile",
+        });
     };
 }

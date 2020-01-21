@@ -1,4 +1,4 @@
-fastlane_version '2.137.0'
+fastlane_version '2.140.0'
 
 platform :ios do
  before_all do
@@ -29,13 +29,13 @@ platform :ios do
       workspace: "{{IOS_XCODE_WORKSPACE_PATH}}",
       export_method: '{{BUILD_TYPE}}',
       configuration: "{{BUILD_CONFIGURATION}}",
-      destination: {{BUILD_FOR_SIMULATOR}} ? 'generic/platform=iOS Simulator' : 'generic/platform=iOS',
-      skip_package_ipa: {{BUILD_FOR_SIMULATOR}} ? true : false,
+      destination: {{IOS_BUILD_FOR_SIMULATOR}} ? 'generic/platform=iOS Simulator' : 'generic/platform=iOS',
+      skip_package_ipa: {{IOS_BUILD_FOR_SIMULATOR}} ? true : false,
       archive_path: File.expand_path('~/fl_output/{{PROJECT_NAME}}'),
       xcargs: settings_to_override,
     )
 
-    if ({{BUILD_FOR_SIMULATOR}})
+    if ({{IOS_BUILD_FOR_SIMULATOR}})
       zip(
         path: File.expand_path("~/fl_output/{{PROJECT_NAME}}.xcarchive/Products/Applications/{{PROJECT_NAME}}.app"),
         output_path: File.expand_path("~/fl_output/{{PROJECT_NAME}}.app.zip")

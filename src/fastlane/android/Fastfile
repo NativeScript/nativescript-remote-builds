@@ -1,0 +1,19 @@
+fastlane_version '2.140.0'
+
+platform :android do
+  before_all do
+    setup_circle_ci
+  end
+
+  desc 'Build the Android application.'
+  lane :build do
+    
+    sh("tns", "build", "android", "--release", "--clean", "--env.production",
+      "--key-store-path", "../certs/hubby-chef-prod.keystore",
+      "--key-store-password", ENV["KEYSTORE_PASSWORD"],
+      "--key-store-alias", ENV["KEYSTORE_ALIAS"],
+      "--key-store-alias-password", ENV["KEYSTORE_ALIAS_PASSWORD"]
+    )
+  end
+ 
+ end

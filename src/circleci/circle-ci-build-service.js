@@ -2,13 +2,9 @@ const path = require("path");
 const BuildServiceBase = require("../services/build-service-base").BuildServiceBase;
 
 class CircleCIBuildService extends BuildServiceBase {
-    async build(cliArgs, cloudSyncGithubRepository, additionalMappedFiles, additionalPlaceholders) {
+    async build(cliArgs, additionalMappedFiles, additionalPlaceholders) {
         // projectRoot: string, projectData: IProjectData, buildData: IAndroidBuildData
         const [projectRoot, projectData, buildData] = cliArgs;
-        if (!process.env.CIRCLE_CI_API_ACCESS_TOKEN) {
-            throw new Error("You have to set the CIRCLE_CI_API_ACCESS_TOKEN env variable on your local machine in order to run cloud builds in Circle CI.");
-        }
-        this.circleCiApiAccessToken = process.env.CIRCLE_CI_API_ACCESS_TOKEN;
 
         // TODO: validate CircleCI related config values
         var mappedFiles = {
@@ -19,7 +15,7 @@ class CircleCIBuildService extends BuildServiceBase {
             mappedFiles = Object.assign(mappedFiles, additionalMappedFiles);
         }
 
-        const commitRevision = await super.pushToSyncRepository(cliArgs, cloudSyncGithubRepository, mappedFiles, additionalPlaceholders);
+        const commitRevision = await super.pushToSyncRepository(cliArgs, this.remoteUrl, mappedFiles, additionalPlaceholders);
         const circleCIJobId = await this.getCircleCIJobNumber(commitRevision);
         const isSuccessfulBuild = await this.isSuccessfulBuild(circleCIJobId);
         if (!isSuccessfulBuild) {
@@ -105,6 +101,21 @@ class CircleCIBuildService extends BuildServiceBase {
         }
 
         return targetFile.path;
+    }
+
+    async updateEnvVariable(envName, envValue) {
+        const response = await this.$httpClient.httpRequest({
+            url: `https://circleci.com/api/v1.1/project/github/${this.githubRepository}/envvar?circle-token=${this.circleCiApiAccessToken}`,
+            method: "POST",
+            body: JSON.stringify({ "name": envName, "value": envValue }),
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8'
+            }
+        });
+
+        if (response.response.statusCode !== 201) {
+            throw new Error(`Unable to update CirlceCI environment variables for project "this.githubRepository"`);
+        }
     }
 }
 

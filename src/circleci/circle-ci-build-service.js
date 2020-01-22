@@ -51,8 +51,7 @@ class CircleCIBuildService extends BuildServiceBase {
                 await this.updateCLIEnvVariable("clean", "1");
             }
             if (buildData.keyStorePath) {
-                // base64 encode
-                const base64KeyStore = await this.$fs.readFileSync(buildData.keyStorePath, { encoding: 'base64' });
+                const base64KeyStore = await this.$fs.readFile(buildData.keyStorePath, { encoding: 'base64' });
                 await this.updateCLIEnvVariable("keyStore", base64KeyStore);
             }
             if (buildData.keyStorePassword) {
@@ -134,7 +133,7 @@ class CircleCIBuildService extends BuildServiceBase {
 
     async updateCLIEnvVariable(name, value) {
         // TODO: add lodash dep to the plugin
-        return updateEnvVariable(`CLI_ARG_${_.snakeCase(name).toUpperCase()}`, value);
+        return this.updateEnvVariable(`CLI_ARG_${_.snakeCase(name).toUpperCase()}`, value);
     }
 
     async updateEnvVariable(envName, envValue) {

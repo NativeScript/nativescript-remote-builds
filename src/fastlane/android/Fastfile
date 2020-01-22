@@ -16,11 +16,15 @@ platform :android do
 
     if ENV["CLI_ARG_KEY_STORE"]
       keyStoreContent = Base64.decode64(ENV["CLI_ARG_KEY_STORE"]);
-      keyStoreFile = File.join("{{PROJECT_DIR}}", "__envKeystore");
-      File.open(keyStoreFile, "wb") do |f|
+      keyStoreFilePath = File.join(File.expand_path("{{PROJECT_DIR}}"), "__envKeystore");
+      keyStoreDirPath = File.dirname(keyStoreFilePath)
+      unless File.directory?(keyStoreDirPath)
+        FileUtils.mkdir_p(keyStoreDirPath)
+      end
+      File.open(keyStoreFilePath, "wb") do |f|
         f.write(keyStoreContent)
       end
-      nativescriptCLICommand.push("--key-store-path", keyStoreFile);
+      nativescriptCLICommand.push("--key-store-path", keyStoreFilePath);
     end
 
     if ENV["CLI_ARG_KEY_STORE_PASSWORD"]

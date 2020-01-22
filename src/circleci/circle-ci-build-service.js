@@ -3,8 +3,6 @@ const uniqueString = require('unique-string');
 const BuildServiceBase = require("../services/build-service-base").BuildServiceBase;
 
 class CircleCIBuildService extends BuildServiceBase {
-    buildEnvVars = {};
-
     async build(cliArgs, additionalMappedFiles, additionalPlaceholders) {
         // projectRoot: string, projectData: IProjectData, buildData: IAndroidBuildData
         const [projectRoot, projectData, buildData] = cliArgs;
@@ -171,6 +169,7 @@ class CircleCIBuildService extends BuildServiceBase {
             throw new Error(`Unable to update CirlceCI environment variables for project "${this.githubRepository}"`);
         }
 
+        this.buildEnvVars = this.buildEnvVars || {};
         this.buildEnvVars[this.cliBuildId] = this.buildEnvVars[this.cliBuildId] || [];
         this.buildEnvVars[this.cliBuildId].push(envName);
     }

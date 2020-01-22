@@ -16,7 +16,7 @@ platform :android do
 
     if ENV["CLI_ARG_KEY_STORE"]
       keyStoreContent = Base64.decode64(ENV["CLI_ARG_KEY_STORE"]);
-      keyStoreFile = File.join({{PROJECT_DIR}}, "__envKeystore");
+      keyStoreFile = File.join("{{PROJECT_DIR}}", "__envKeystore");
       File.open(keyStoreFile, "wb") do |f|
         f.write(keyStoreContent)
       end

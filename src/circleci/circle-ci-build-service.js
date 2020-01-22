@@ -3,12 +3,14 @@ const uniqueString = require('unique-string');
 const BuildServiceBase = require("../services/build-service-base").BuildServiceBase;
 
 class CircleCIBuildService extends BuildServiceBase {
+    buildEnvVars = {};
+
     async build(cliArgs, additionalMappedFiles, additionalPlaceholders) {
         // projectRoot: string, projectData: IProjectData, buildData: IAndroidBuildData
         const [projectRoot, projectData, buildData] = cliArgs;
         this.cliBuildId = uniqueString();
-
-        await this.prepareCLIArgs(buildData);
+        // TODO: test if the repo is not integrated with circle ci.
+        await this.uploadCLIArgsAsEnvVars(buildData);
 
         // TODO: validate CircleCI related config values
         var mappedFiles = {
@@ -30,6 +32,7 @@ class CircleCIBuildService extends BuildServiceBase {
         const commitRevision = await super.pushToSyncRepository(cliArgs, mappedFiles, placeholders);
         const circleCIJobId = await this.getCircleCIJobNumber(commitRevision);
         const isSuccessfulBuild = await this.isSuccessfulBuild(circleCIJobId);
+        await this.cleanEnvVars();
         if (!isSuccessfulBuild) {
             throw new Error("Cloud build failed.");
         }
@@ -52,7 +55,15 @@ class CircleCIBuildService extends BuildServiceBase {
         }
     }
 
-    async prepareCLIArgs(buildData) {
+    async cleanEnvVars() {
+        if (this.buildEnvVars[this.cliBuildId] && this.buildEnvVars[this.cliBuildId].length) {
+            for (const envVar of this.buildEnvVars[this.cliBuildId]) {
+                await this.deleteEnvVariable(envVar);
+            }
+        }
+    }
+
+    async uploadCLIArgsAsEnvVars(buildData) {
         if (this.isAndroid) {
             if (buildData.release) {
                 await this.updateCLIEnvVariable("release", "1");
@@ -157,7 +168,21 @@ class CircleCIBuildService extends BuildServiceBase {
         });
 
         if (response.response.statusCode !== 201) {
-            throw new Error(`Unable to update CirlceCI environment variables for project "this.githubRepository"`);
+            throw new Error(`Unable to update CirlceCI environment variables for project "${this.githubRepository}"`);
+        }
+
+        this.buildEnvVars[this.cliBuildId] = this.buildEnvVars[this.cliBuildId] || [];
+        this.buildEnvVars[this.cliBuildId].push(envName);
+    }
+
+    async deleteEnvVariable(envName) {
+        const response = await this.$httpClient.httpRequest({
+            url: `https://circleci.com/api/v1.1/project/github/${this.githubRepository}/envvar/${envName}?circle-token=${this.circleCiApiAccessToken}`,
+            method: "DELETE"
+        });
+
+        if (response.response.statusCode !== 200) {
+            throw new Error(`Unable to remove CirlceCI environment variables for project "${this.githubRepository}"`);
         }
     }
 }

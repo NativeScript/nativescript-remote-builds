@@ -20,7 +20,7 @@ class CircleCIBuildService extends BuildServiceBase {
         }
 
         var placeholders = {
-            "CLI_BUILD_ID": uniqueString(),
+            "CLI_BUILD_ID": this.cliBuildId,
         };
 
         if (additionalPlaceholders) {
@@ -143,7 +143,7 @@ class CircleCIBuildService extends BuildServiceBase {
 
     async updateCLIEnvVariable(name, value) {
         // TODO: add lodash dep to the plugin
-        return this.updateEnvVariable(`${this.cliBuildId}_CLI_ARG_${_.snakeCase(name).toUpperCase()}`, value);
+        return this.updateEnvVariable(`CLI_ARG_${_.snakeCase(name).toUpperCase()}_${this.cliBuildId}`, value);
     }
 
     async updateEnvVariable(envName, envValue) {

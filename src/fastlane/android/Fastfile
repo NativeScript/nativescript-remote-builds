@@ -1,7 +1,7 @@
 fastlane_version '2.140.0'
 
 def getCLIArgEnvName (currentArgs, argName)
-  return "{{CLI_BUILD_ID}}_CLI_ARG_" + argName.underscore.upcase;
+  return "CLI_ARG_" + argName.underscore.upcase + "_{{CLI_BUILD_ID}}";
 end
 
 platform :android do

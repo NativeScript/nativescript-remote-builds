@@ -69,7 +69,7 @@ class GitService {
         }
 
         await this.gitCommit(projectSettings);
-        // await this.gitPush(projectSettings);
+        await this.gitPush(projectSettings);
         revision = await this.getCurrentRevision(projectSettings);
         return revision;
     }

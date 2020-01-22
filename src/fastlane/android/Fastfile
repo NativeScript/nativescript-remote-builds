@@ -1,21 +1,25 @@
 fastlane_version '2.140.0'
 
+def getCLIArgEnvName (currentArgs, argName)
+  return "{{CLI_BUILD_ID}}_CLI_ARG_" + argName.underscore.upcase;
+end
+
 platform :android do
   desc 'Build the Android application.'
   lane :build do
 
     nativescriptCLICommand = ["tns", "build", "android", "--copy-to", "{{OUTPUT_DIR}}/app.apk"];
-    if ENV["CLI_ARG_RELEASE"]
+    if ENV[getCLIArgEnvName("release")]
       nativescriptCLICommand.push("--release");
     end
 
-    # TODO: reuse for cache skipping 
-    if ENV["CLI_ARG_CLEAN"]
+    # TODO: reuse for cache skipping?
+    if ENV[getCLIArgEnvName("clean")]
       nativescriptCLICommand.push("--clean");
     end
 
-    if ENV["CLI_ARG_KEY_STORE"]
-      keyStoreContent = Base64.decode64(ENV["CLI_ARG_KEY_STORE"]);
+    if ENV[getCLIArgEnvName("key-store")]
+      keyStoreContent = Base64.decode64(ENV[getCLIArgEnvName("key-store")]);
       keyStoreFilePath = File.join(File.expand_path("{{PROJECT_DIR}}"), "__envKeystore");
       keyStoreDirPath = File.dirname(keyStoreFilePath)
       unless File.directory?(keyStoreDirPath)
@@ -27,16 +31,16 @@ platform :android do
       nativescriptCLICommand.push("--key-store-path", keyStoreFilePath);
     end
 
-    if ENV["CLI_ARG_KEY_STORE_PASSWORD"]
-      nativescriptCLICommand.push("--key-store-password", Shellwords.shellescape(ENV["CLI_ARG_KEY_STORE_PASSWORD"]));
+    if ENV[getCLIArgEnvName("key-store-password")]
+      nativescriptCLICommand.push("--key-store-password", Shellwords.shellescape(ENV[getCLIArgEnvName("key-store-password")]));
     end
 
-    if ENV["CLI_ARG_KEY_STORE_ALIAS"]
-      nativescriptCLICommand.push("--key-store-alias", Shellwords.shellescape(ENV["CLI_ARG_KEY_STORE_ALIAS"]));
+    if ENV[getCLIArgEnvName("key-store-alias")]
+      nativescriptCLICommand.push("--key-store-alias", Shellwords.shellescape(ENV[getCLIArgEnvName("key-store-alias")]));
     end
 
-    if ENV["CLI_ARG_KEY_STORE_ALIAS_PASSWORD"]
-      nativescriptCLICommand.push("--key-store-alias-password", Shellwords.shellescape(ENV["CLI_ARG_KEY_STORE_ALIAS_PASSWORD"]));
+    if ENV[getCLIArgEnvName("key-store-alias-password")]
+      nativescriptCLICommand.push("--key-store-alias-password", Shellwords.shellescape(ENV[getCLIArgEnvName("key-store-alias-password")]));
     end
 
     sh(nativescriptCLICommand);

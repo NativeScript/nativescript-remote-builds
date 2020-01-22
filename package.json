@@ -53,6 +53,7 @@
     ]
   },
   "dependencies": {
-    "nativescript-hook": "^0.2.5"
+    "nativescript-hook": "^0.2.5",
+    "unique-string": "^2.0.0"
   }
 }

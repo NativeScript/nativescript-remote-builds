@@ -5,6 +5,7 @@ class CircleCIBuildService extends BuildServiceBase {
     async build(cliArgs, additionalMappedFiles, additionalPlaceholders) {
         // projectRoot: string, projectData: IProjectData, buildData: IAndroidBuildData
         const [projectRoot, projectData, buildData] = cliArgs;
+        this.cliBuildId = uniqueString();
 
         await this.prepareCLIArgs(buildData);
 
@@ -17,7 +18,15 @@ class CircleCIBuildService extends BuildServiceBase {
             mappedFiles = Object.assign(mappedFiles, additionalMappedFiles);
         }
 
-        const commitRevision = await super.pushToSyncRepository(cliArgs, mappedFiles, additionalPlaceholders);
+        var placeholders = {
+            "CLI_BUILD_ID": uniqueString(),
+        };
+
+        if (additionalPlaceholders) {
+            placeholders = Object.assign(placeholders, additionalPlaceholders);
+        }
+
+        const commitRevision = await super.pushToSyncRepository(cliArgs, mappedFiles, placeholders);
         const circleCIJobId = await this.getCircleCIJobNumber(commitRevision);
         const isSuccessfulBuild = await this.isSuccessfulBuild(circleCIJobId);
         if (!isSuccessfulBuild) {
@@ -133,7 +142,7 @@ class CircleCIBuildService extends BuildServiceBase {
 
     async updateCLIEnvVariable(name, value) {
         // TODO: add lodash dep to the plugin
-        return this.updateEnvVariable(`CLI_ARG_${_.snakeCase(name).toUpperCase()}`, value);
+        return this.updateEnvVariable(`${this.cliBuildId}_CLI_ARG_${_.snakeCase(name).toUpperCase()}`, value);
     }
 
     async updateEnvVariable(envName, envValue) {

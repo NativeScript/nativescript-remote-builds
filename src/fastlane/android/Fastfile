@@ -1,7 +1,15 @@
 fastlane_version '2.140.0'
 
-def getCLIArgEnvName (currentArgs, argName)
-  return "CLI_ARG_" + argName.underscore.upcase + "_{{CLI_BUILD_ID}}";
+def underscore (string)
+  return string.gsub(/::/, '/').
+  gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+  gsub(/([a-z\d])([A-Z])/,'\1_\2').
+  tr("-", "_").
+  upcase
+end
+
+def getCLIArgEnvName (argName)
+  return "CLI_ARG_" + underscore(argName) + "_{{CLI_BUILD_ID}}";
 end
 
 platform :android do

@@ -1,19 +1,41 @@
 fastlane_version '2.140.0'
 
 platform :android do
-  before_all do
-    setup_circle_ci
-  end
-
   desc 'Build the Android application.'
   lane :build do
-    
-    sh("tns", "build", "android", "--release", "--clean", "--env.production",
-      "--key-store-path", "../certs/hubby-chef-prod.keystore",
-      "--key-store-password", ENV["KEYSTORE_PASSWORD"],
-      "--key-store-alias", ENV["KEYSTORE_ALIAS"],
-      "--key-store-alias-password", ENV["KEYSTORE_ALIAS_PASSWORD"]
-    )
+
+    nativescriptCLICommand = ["tns", "build", "android", "--copy-to", "{{OUTPUT_DIR}}/app.apk"];
+    if ENV["CLI_ARG_RELEASE"]
+      nativescriptCLICommand.push("--release");
+    end
+
+    # TODO: reuse for cache skipping 
+    if ENV["CLI_ARG_CLEAN"]
+      nativescriptCLICommand.push("--clean");
+    end
+
+    if ENV["CLI_ARG_KEY_STORE"]
+      keyStoreContent = Base64.decode64(ENV["CLI_ARG_KEY_STORE"]);
+      keyStoreFile = File.join({{PROJECT_DIR}}, "__envKeystore");
+      File.open(keyStoreFile, "wb") do |f|
+        f.write(keyStoreContent)
+      end
+      nativescriptCLICommand.push("--key-store-path", keyStoreFile);
+    end
+
+    if ENV["CLI_ARG_KEY_STORE_PASSWORD"]
+      nativescriptCLICommand.push("--key-store-password", ENV["CLI_ARG_KEY_STORE_PASSWORD"]);
+    end
+
+    if ENV["CLI_ARG_KEY_STORE_ALIAS"]
+      nativescriptCLICommand.push("--key-store-alias", ENV["CLI_ARG_KEY_STORE_ALIAS"]);
+    end
+
+    if ENV["CLI_ARG_KEY_STORE_ALIAS_PASSWORD"]
+      nativescriptCLICommand.push("--key-store-alias-password", ENV["CLI_ARG_KEY_STORE_ALIAS_PASSWORD"]);
+    end
+
+    sh(nativescriptCLICommand);
   end
  
  end

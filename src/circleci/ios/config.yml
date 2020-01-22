@@ -3,7 +3,7 @@ jobs:
   build:
     macos:
       xcode: 11.3.0
-    working_directory: ~/{{PROJECT_NAME}}
+    working_directory: "{{PROJECT_DIR}}"
     environment:
       # TODO: set NS_SKIP_ENV_CHECK
       FL_OUTPUT_DIR: ~/fl_output
@@ -36,7 +36,7 @@ jobs:
       # - restore_cache:
       #     keys:
       #       - node-modules-{{ checksum "package.json" }}
-      - run: '[ -d "~/{{PROJECT_NAME}}/node_modules/" ] || (npm install && npm rebuild)'
+      - run: '[ -d "{{PROJECT_DIR}}/node_modules/" ] || (npm install && npm rebuild)'
       # - save_cache:
       #     # TODO: add platforms cache?
       #     paths:
@@ -59,10 +59,10 @@ jobs:
           command: bundle exec fastlane ios build
       - store_artifacts:
           path: ~/fl_output/gym/{{PROJECT_NAME}}.ipa
-          destination: ~/output/{{PROJECT_NAME}}.ipa
+          destination: "{{OUTPUT_DIR}}/{{PROJECT_NAME}}.ipa"
       - store_artifacts:
           path: ~/fl_output/{{PROJECT_NAME}}.app.zip
-          destination: ~/output/{{PROJECT_NAME}}.app.zip
+          destination: "{{OUTPUT_DIR}}/{{PROJECT_NAME}}.app.zip"
 
 workflows:
   version: 2

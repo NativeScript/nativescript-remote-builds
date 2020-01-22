@@ -24,7 +24,6 @@ module.exports = ($childProcess, $fs, $logger, $platformsDataService, $settingsS
             "android",
             config.cloudSyncGithubRepository);
 
-        buildService.updateEnvVariable("test1", "test2");
         return buildService.build(args, {
             "node_modules/nativescript-cloud-builds/src/fastlane/android/Fastfile": "./fastlane/Fastfile",
             "node_modules/nativescript-cloud-builds/src/fastlane/Gemfile": "./Gemfile",

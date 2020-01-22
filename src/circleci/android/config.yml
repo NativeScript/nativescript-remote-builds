@@ -14,7 +14,7 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/mongo:3.4.4
 
-    working_directory: ~/{{PROJECT_NAME}}
+    working_directory: "{{PROJECT_DIR}}"
 
     steps:
       # GLOBAL OPERATIONS
@@ -47,11 +47,11 @@ jobs:
           command: bundle exec fastlane android build
 
       # TNS BUILD
-      - run: tns build android --copy-to ~/output/app.apk
+      - run: tns build android --copy-to {{OUTPUT_DIR}}/app.apk
 
       # Expose artifacts
       - store_artifacts:
-          path: ~/output
+          path: "{{OUTPUT_DIR}}"
       # CACHE
       # - save_cache:
       #     # TODO: add platforms cache?

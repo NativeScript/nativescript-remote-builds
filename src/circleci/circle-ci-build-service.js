@@ -6,6 +6,8 @@ class CircleCIBuildService extends BuildServiceBase {
         // projectRoot: string, projectData: IProjectData, buildData: IAndroidBuildData
         const [projectRoot, projectData, buildData] = cliArgs;
 
+        await this.prepareCLIArgs(buildData);
+
         // TODO: validate CircleCI related config values
         var mappedFiles = {
             [`node_modules/nativescript-cloud-builds/src/circleci/${this.platform}/config.yml`]: "./.circleci/config.yml"
@@ -15,7 +17,7 @@ class CircleCIBuildService extends BuildServiceBase {
             mappedFiles = Object.assign(mappedFiles, additionalMappedFiles);
         }
 
-        const commitRevision = await super.pushToSyncRepository(cliArgs, this.remoteUrl, mappedFiles, additionalPlaceholders);
+        const commitRevision = await super.pushToSyncRepository(cliArgs, mappedFiles, additionalPlaceholders);
         const circleCIJobId = await this.getCircleCIJobNumber(commitRevision);
         const isSuccessfulBuild = await this.isSuccessfulBuild(circleCIJobId);
         if (!isSuccessfulBuild) {
@@ -37,6 +39,33 @@ class CircleCIBuildService extends BuildServiceBase {
             this.$logger.info(`Successfully downloaded: ${localBuildResult}`);
         } else {
             throw new Error("Failed to download build result.")
+        }
+    }
+
+    async prepareCLIArgs(buildData) {
+        if (this.isAndroid) {
+            if (buildData.release) {
+                await this.updateCLIEnvVariable("release", "1");
+            }
+            if (buildData.clean) {
+                await this.updateCLIEnvVariable("clean", "1");
+            }
+            if (buildData.keyStorePath) {
+                // base64 encode
+                const base64KeyStore = await this.$fs.readFileSync(buildData.keyStorePath, { encoding: 'base64' });
+                await this.updateCLIEnvVariable("keyStore", base64KeyStore);
+            }
+            if (buildData.keyStorePassword) {
+                await this.updateCLIEnvVariable("keyStorePassword", buildData.keyStorePassword);
+            }
+            if (buildData.keyStoreAlias) {
+                await this.updateCLIEnvVariable("keyStoreAlias", buildData.keyStoreAlias);
+            }
+            if (buildData.keyStoreAliasPassword) {
+                await this.updateCLIEnvVariable("keyStoreAliasPassword", buildData.keyStoreAliasPassword);
+            }
+        } else {
+            // TODO: handle iOS
         }
     }
 
@@ -101,6 +130,11 @@ class CircleCIBuildService extends BuildServiceBase {
         }
 
         return targetFile.path;
+    }
+
+    async updateCLIEnvVariable(name, value) {
+        // TODO: add lodash dep to the plugin
+        return updateEnvVariable(`CLI_ARG_${_.snakeCase(name).toUpperCase()}`, value);
     }
 
     async updateEnvVariable(envName, envValue) {

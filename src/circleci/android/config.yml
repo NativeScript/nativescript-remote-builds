@@ -46,9 +46,6 @@ jobs:
           name: Fastlane
           command: bundle exec fastlane android build
 
-      # TNS BUILD
-      - run: tns build android --copy-to {{OUTPUT_DIR}}/app.apk
-
       # Expose artifacts
       - store_artifacts:
           path: "{{OUTPUT_DIR}}"

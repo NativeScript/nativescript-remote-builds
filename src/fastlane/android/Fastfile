@@ -28,15 +28,15 @@ platform :android do
     end
 
     if ENV["CLI_ARG_KEY_STORE_PASSWORD"]
-      nativescriptCLICommand.push("--key-store-password", ENV["CLI_ARG_KEY_STORE_PASSWORD"]);
+      nativescriptCLICommand.push("--key-store-password", Shellwords.shellescape(ENV["CLI_ARG_KEY_STORE_PASSWORD"]));
     end
 
     if ENV["CLI_ARG_KEY_STORE_ALIAS"]
-      nativescriptCLICommand.push("--key-store-alias", ENV["CLI_ARG_KEY_STORE_ALIAS"]);
+      nativescriptCLICommand.push("--key-store-alias", Shellwords.shellescape(ENV["CLI_ARG_KEY_STORE_ALIAS"]));
     end
 
     if ENV["CLI_ARG_KEY_STORE_ALIAS_PASSWORD"]
-      nativescriptCLICommand.push("--key-store-alias-password", ENV["CLI_ARG_KEY_STORE_ALIAS_PASSWORD"]);
+      nativescriptCLICommand.push("--key-store-alias-password", Shellwords.shellescape(ENV["CLI_ARG_KEY_STORE_ALIAS_PASSWORD"]));
     end
 
     sh(nativescriptCLICommand);

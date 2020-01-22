@@ -1,4 +1,5 @@
 const path = require("path");
+const uniqueString = require('unique-string');
 const BuildServiceBase = require("../services/build-service-base").BuildServiceBase;
 
 class CircleCIBuildService extends BuildServiceBase {

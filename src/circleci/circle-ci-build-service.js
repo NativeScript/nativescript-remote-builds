@@ -67,6 +67,9 @@ class CircleCIBuildService extends BuildServiceBase {
     }
 
     async uploadCLIArgsAsEnvVars(buildData, cliBuildId) {
+        // TODO: handle prepare args
+        await this.updateCLIEnvVariable("log", this.$logger.getLevel(), cliBuildId);
+
         if (this.isAndroid) {
             if (buildData.release) {
                 await this.updateCLIEnvVariable("release", "1", cliBuildId);

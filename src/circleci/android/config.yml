@@ -48,9 +48,18 @@ jobs:
           key: gems-{{ checksum "Gemfile" }}
           paths:
             - vendor/bundle
+
+      - restore_cache:
+          key: gradle-{{ checksum "package.json" }}
+
       - run:
           name: Fastlane
           command: bundle exec fastlane android build
+
+      - save_cache:
+          key: gradle-{{ checksum "package.json" }}
+          paths:
+            - ~/.gradle
 
       # Expose artifacts
       - store_artifacts:

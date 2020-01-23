@@ -21,6 +21,11 @@ platform :android do
       nativescriptCLICommand.push("--release");
     end
 
+    logEnvVar = getCLIArgEnvName("log");
+    if ENV[logEnvVar]
+      nativescriptCLICommand.push("--log", "\"$#{logEnvVar}\"");
+    end
+
     # TODO: reuse for cache skipping?
     if ENV[getCLIArgEnvName("clean")]
       nativescriptCLICommand.push("--clean");

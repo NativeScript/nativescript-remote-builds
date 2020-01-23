@@ -20,12 +20,12 @@ jobs:
       # setup global modules - TNS
       - restore_cache:
           keys:
-            - global-modules-{{CLI_VERSION}}
+            - global-modules-mac-{{CLI_VERSION}}
       - run: tns --version || npm i -g nativescript@{{CLI_VERSION}}
       - save_cache:
           paths:
             - ~/npm_prefix
-          key: global-modules-{{CLI_VERSION}}
+          key: global-modules-mac-{{CLI_VERSION}}
       - run: tns usage-reporting disable
       - run: tns error-reporting disable
 
@@ -43,11 +43,11 @@ jobs:
 
       # INSTALL GEMS (fastlane)
       - restore_cache:
-          key: gems-{{ checksum "Gemfile" }}
+          key: gems-mac-{{ checksum "Gemfile" }}
       # INSTALL GEMS (fastlane)
       - run: bundle install --path vendor/bundle
       - save_cache:
-          key: gems-{{ checksum "Gemfile" }}
+          key: gems-mac-{{ checksum "Gemfile" }}
           paths:
             - vendor/bundle
       - run: pip install six

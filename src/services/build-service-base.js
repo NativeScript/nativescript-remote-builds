@@ -19,7 +19,7 @@ class BuildServiceBase {
         }
 
         this.githubRepository = this.remoteUrl.replace(/\.git/g, "").substring(githubSshUrlStart.length);
-
+        this.$staticConfig = $staticConfig;
         this.$childProcess = $childProcess;
         this.$fs = $fs;
         this.$logger = $logger;
@@ -46,7 +46,7 @@ class BuildServiceBase {
             "PROJECT_ID": projectData.projectIdentifiers[this.platform],
             "BUILD_TYPE": "development", // TODO: base on the CLI args
             "BUILD_CONFIGURATION": "Debug", // TODO: base on CLI args
-            "CLI_VERSION": $staticConfig.version
+            "CLI_VERSION": this.$staticConfig.version
         };
 
         if (additionalPlaceholders) {

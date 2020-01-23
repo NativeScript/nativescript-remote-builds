@@ -24,7 +24,6 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
             config.cloudSyncGithubRepository);
         nativeProjectRoot = path.relative(projectData.projectDir, nativeProjectRoot);
 
-        // TODO: circle CI based on config value + move files inside
         return buildService.build(args, {
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Appfile": "./fastlane/Appfile",
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Fastfile": "./fastlane/Fastfile",
@@ -37,7 +36,9 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
             "IOS_SIGNING_REPO_URL": config.iOSSigningPrivateGithubRepository,
             "IOS_XCODE_PROJ_PATH": path.join(nativeProjectRoot, `${projectData.projectName}.xcodeproj`),
             "IOS_XCODE_WORKSPACE_PATH": path.join(nativeProjectRoot, `${projectData.projectName}.xcworkspace`),
-            "IOS_BUILD_FOR_SIMULATOR": !buildData.buildForDevice
+            "IOS_BUILD_FOR_SIMULATOR": !buildData.buildForDevice,
+            "IOS_BUILD_TYPE": "development",
+            "IOS_BUILD_CONFIGURATION": buildData.release ? "Release" : "Debug"
         });
     };
 }

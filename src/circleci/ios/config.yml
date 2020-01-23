@@ -37,7 +37,6 @@ jobs:
       #       - node-modules-{{ checksum "package.json" }}
       - run: '[ -d "{{PROJECT_DIR}}/node_modules/" ] || (npm install && npm rebuild)'
       # - save_cache:
-      #     # TODO: add platforms cache?
       #     paths:
       #       - node_modules
       #     key: node-modules-{{ checksum "package.json" }}
@@ -45,6 +44,7 @@ jobs:
       # INSTALL GEMS (fastlane)
       - restore_cache:
           key: gems-{{ checksum "Gemfile" }}
+      # INSTALL GEMS (fastlane)
       - run: bundle install --path vendor/bundle
       - save_cache:
           key: gems-{{ checksum "Gemfile" }}

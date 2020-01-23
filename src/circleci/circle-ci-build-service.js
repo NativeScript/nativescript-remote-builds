@@ -69,14 +69,14 @@ class CircleCIBuildService extends BuildServiceBase {
     async uploadCLIArgsAsEnvVars(buildData, cliBuildId) {
         // TODO: handle prepare args
         await this.updateCLIEnvVariable("log", this.$logger.getLevel(), cliBuildId);
+        if (buildData.release) {
+            await this.updateCLIEnvVariable("release", "1", cliBuildId);
+        }
+        if (buildData.clean) {
+            await this.updateCLIEnvVariable("clean", "1", cliBuildId);
+        }
 
         if (this.isAndroid) {
-            if (buildData.release) {
-                await this.updateCLIEnvVariable("release", "1", cliBuildId);
-            }
-            if (buildData.clean) {
-                await this.updateCLIEnvVariable("clean", "1", cliBuildId);
-            }
             if (buildData.keyStorePath) {
                 const base64KeyStore = await this.$fs.readFile(buildData.keyStorePath, { encoding: 'base64' });
                 await this.updateCLIEnvVariable("keyStore", base64KeyStore, cliBuildId);
@@ -90,8 +90,6 @@ class CircleCIBuildService extends BuildServiceBase {
             if (buildData.keyStoreAliasPassword) {
                 await this.updateCLIEnvVariable("keyStoreAliasPassword", buildData.keyStoreAliasPassword, cliBuildId);
             }
-        } else {
-            // TODO: handle iOS
         }
     }
 

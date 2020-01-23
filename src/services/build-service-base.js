@@ -44,8 +44,6 @@ class BuildServiceBase {
             "PROJECT_DIR": `~/${projectData.projectName}`,
             "OUTPUT_DIR": "~/output",
             "PROJECT_ID": projectData.projectIdentifiers[this.platform],
-            "BUILD_TYPE": "development", // TODO: base on the CLI args
-            "BUILD_CONFIGURATION": "Debug", // TODO: base on CLI args
             "CLI_VERSION": this.$staticConfig.version
         };
 

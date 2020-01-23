@@ -19,6 +19,18 @@ platform :ios do
 
  desc 'Build the iOS application.'
  lane :build do
+  nativescriptCLICommand = ["tns", "prepare", "ios"];
+  if ENV[getCLIArgEnvName("release")]
+    nativescriptCLICommand.push("--release");
+  end
+
+  logEnvVar = getCLIArgEnvName("log");
+  if ENV[logEnvVar]
+    nativescriptCLICommand.push("--log", "\"$#{logEnvVar}\"");
+  end
+  
+  sh(nativescriptCLICommand);
+
     disable_automatic_code_signing(
       path: "{{IOS_XCODE_PROJ_PATH}}"
     )
@@ -35,18 +47,6 @@ platform :ios do
       :PROVISIONING_PROFILE_SPECIFIER => MY_PROFILE,
       :DEVELOPMENT_TEAM => MY_TEAM,
     }
-
-    nativescriptCLICommand = ["tns", "prepare", "ios"];
-    if ENV[getCLIArgEnvName("release")]
-      nativescriptCLICommand.push("--release");
-    end
-
-    logEnvVar = getCLIArgEnvName("log");
-    if ENV[logEnvVar]
-      nativescriptCLICommand.push("--log", "\"$#{logEnvVar}\"");
-    end
-    
-    sh(nativescriptCLICommand);
 
     gym(
       scheme: "{{PROJECT_NAME}}",

@@ -52,7 +52,6 @@ jobs:
             - vendor/bundle
       - run: pip install six
       - run: pod repo update
-      - run: tns prepare ios
       - run:
           name: Fastlane
           command: bundle exec fastlane ios build

@@ -1,5 +1,17 @@
 fastlane_version '2.140.0'
 
+def underscore (string)
+  return string.gsub(/::/, '/').
+  gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+  gsub(/([a-z\d])([A-Z])/,'\1_\2').
+  tr("-", "_").
+  upcase
+end
+
+def getCLIArgEnvName (argName)
+  return "CLI_ARG_" + underscore(argName) + "_{{CLI_BUILD_ID}}";
+end
+
 platform :ios do
  before_all do
    setup_circle_ci
@@ -23,6 +35,18 @@ platform :ios do
       :PROVISIONING_PROFILE_SPECIFIER => MY_PROFILE,
       :DEVELOPMENT_TEAM => MY_TEAM,
     }
+
+    nativescriptCLICommand = ["tns", "prepare", "ios"];
+    if ENV[getCLIArgEnvName("release")]
+      nativescriptCLICommand.push("--release");
+    end
+
+    logEnvVar = getCLIArgEnvName("log");
+    if ENV[logEnvVar]
+      nativescriptCLICommand.push("--log", "\"$#{logEnvVar}\"");
+    end
+    
+    sh(nativescriptCLICommand);
 
     gym(
       scheme: "{{PROJECT_NAME}}",

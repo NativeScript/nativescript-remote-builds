@@ -39,16 +39,19 @@ platform :android do
       nativescriptCLICommand.push("--key-store-path", keyStoreFilePath);
     end
 
-    if ENV[getCLIArgEnvName("key-store-password")]
-      nativescriptCLICommand.push("--key-store-password", Shellwords.shellescape(ENV[getCLIArgEnvName("key-store-password")]));
+    keyStorePassEnvVar = getCLIArgEnvName("key-store-password");
+    if ENV[keyStorePassEnvVar]
+      nativescriptCLICommand.push("--key-store-password", "\"$#{keyStorePassEnvVar}\"");
     end
 
-    if ENV[getCLIArgEnvName("key-store-alias")]
-      nativescriptCLICommand.push("--key-store-alias", Shellwords.shellescape(ENV[getCLIArgEnvName("key-store-alias")]));
+    keyStoreAliasEnvVar = getCLIArgEnvName("key-store-alias");
+    if ENV[keyStoreAliasEnvVar]
+      nativescriptCLICommand.push("--key-store-alias", "\"$#{keyStoreAliasEnvVar}\"");
     end
 
-    if ENV[getCLIArgEnvName("key-store-alias-password")]
-      nativescriptCLICommand.push("--key-store-alias-password", Shellwords.shellescape(ENV[getCLIArgEnvName("key-store-alias-password")]));
+    keyStoreAliasPassEnvVar = getCLIArgEnvName("key-store-alias-password");
+    if ENV[keyStoreAliasPassEnvVar]
+      nativescriptCLICommand.push("--key-store-alias-password", "\"$#{keyStoreAliasPassEnvVar}\"");
     end
 
     sh(nativescriptCLICommand);

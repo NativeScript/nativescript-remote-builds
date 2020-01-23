@@ -16,7 +16,7 @@ platform :ios do
     MY_TEAM = "{{IOS_TEAM_ID}}"
 
     match(
-        type: "{{BUILD_TYPE}}"
+        type: "{{IOS_BUILD_TYPE}}"
     )
 
     settings_to_override = {
@@ -27,8 +27,8 @@ platform :ios do
     gym(
       scheme: "{{PROJECT_NAME}}",
       workspace: "{{IOS_XCODE_WORKSPACE_PATH}}",
-      export_method: '{{BUILD_TYPE}}',
-      configuration: "{{BUILD_CONFIGURATION}}",
+      export_method: '{{IOS_BUILD_TYPE}}',
+      configuration: "{{IOS_BUILD_CONFIGURATION}}",
       destination: {{IOS_BUILD_FOR_SIMULATOR}} ? 'generic/platform=iOS Simulator' : 'generic/platform=iOS',
       skip_package_ipa: {{IOS_BUILD_FOR_SIMULATOR}} ? true : false,
       archive_path: File.expand_path('~/fl_output/{{PROJECT_NAME}}'),

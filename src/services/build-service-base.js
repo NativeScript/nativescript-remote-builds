@@ -31,7 +31,7 @@ class BuildServiceBase {
         this.gitService = new GitService(this.$childProcess, this.$fs, this.$logger, this.$settingsService.getProfileDir());
     }
 
-    async pushToSyncRepository(args, additionalMappedFiles, additionalPlaceholders) {
+    async pushToSyncRepository(args, additionalMappedFiles, additionalPlaceholders, cliBuildId) {
         const [projectRoot, projectData, buildData] = args;
         var mappedFiles = {
             [`node_modules/nativescript-cloud-builds/src/common/safe-config.json`]: constants.configFileName
@@ -56,7 +56,8 @@ class BuildServiceBase {
             { projectDir: projectData.projectDir, projectId: projectData.projectIdentifiers[this.platform] },
             { httpRemoteUrl: this.remoteUrl },
             mappedFiles,
-            placeholders);
+            placeholders,
+            cliBuildId);
 
         return commitRevision;
     }

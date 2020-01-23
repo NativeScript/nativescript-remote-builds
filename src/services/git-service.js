@@ -9,7 +9,7 @@ class GitService {
         this.profileDir = profileDir;
     }
 
-    async gitPushChanges(projectSettings, remoteUrl, mappedFiles, placeholders) {
+    async gitPushChanges(projectSettings, remoteUrl, mappedFiles, placeholders, cliBuildId) {
         // a workaround for a sporadic "git exited with code 1"
         this.cleanGitRepository(projectSettings);
         await this.gitInit(projectSettings);
@@ -32,17 +32,17 @@ class GitService {
         }
 
         try {
-            await this.executeCommand(projectSettings, ["checkout", GitService.BRANCH_NAME]);
+            await this.executeCommand(projectSettings, ["checkout", GitService.BRANCH_NAME_PREFIX + cliBuildId]);
         }
         catch (error) {
-            await this.executeCommand(projectSettings, ["checkout", "-b", GitService.BRANCH_NAME]);
+            await this.executeCommand(projectSettings, ["checkout", "-b", GitService.BRANCH_NAME_PREFIX + cliBuildId]);
         }
         const statusResult = await this.gitStatus(projectSettings);
         this.$logger.trace(`Result of git status: ${statusResult}.`);
         let revision;
         if (this.hasNothingToCommit(statusResult.stdout)) {
             this.$logger.trace("Nothing to commit. Just push force the branch.");
-            await this.gitPush(projectSettings);
+            await this.gitPush(projectSettings, cliBuildId);
             revision = await this.getCurrentRevision(projectSettings);
             return revision;
         }
@@ -69,10 +69,19 @@ class GitService {
         }
 
         await this.gitCommit(projectSettings);
-        await this.gitPush(projectSettings);
+        await this.gitPush(projectSettings, cliBuildId);
         revision = await this.getCurrentRevision(projectSettings);
         return revision;
     }
+
+    async gitDeleteBranch(projectSettings, cliBuildId) {
+        // remove local branch
+        await this.executeCommand(projectSettings, ["branch", "-D", GitService.BRANCH_NAME_PREFIX + cliBuildId])
+        // remove remote branch
+        const env = _.assign({}, process.env);
+        return this.executeCommand(projectSettings, ["push", "-d", GitService.REMOTE_NAME, GitService.BRANCH_NAME_PREFIX + cliBuildId], { env, cwd: projectSettings.projectDir });
+    }
+
     async getCurrentRevision(projectSettings) {
         const revisionCommandResult = await this.executeCommand(projectSettings, ["rev-parse", "HEAD"]);
         return revisionCommandResult.stdout.trim();
@@ -106,9 +115,9 @@ class GitService {
     async gitStatus(projectSettings) {
         return this.executeCommand(projectSettings, ["status"]);
     }
-    async gitPush(projectSettings) {
+    async gitPush(projectSettings, cliBuildId) {
         const env = _.assign({}, process.env);
-        return this.executeCommand(projectSettings, ["push", "--force", GitService.REMOTE_NAME, GitService.BRANCH_NAME], { env, cwd: projectSettings.projectDir });
+        return this.executeCommand(projectSettings, ["push", "--force", GitService.REMOTE_NAME, GitService.BRANCH_NAME_PREFIX + cliBuildId], { env, cwd: projectSettings.projectDir });
     }
     async gitRemoteAdd(projectSettings, remoteUrl) {
         return this.executeCommand(projectSettings, ["remote", "add", GitService.REMOTE_NAME, remoteUrl.httpRemoteUrl]);
@@ -173,7 +182,7 @@ class GitService {
 }
 
 GitService.REMOTE_NAME = "circleci";
-GitService.BRANCH_NAME = "circle-ci" + Date.now();
+GitService.BRANCH_NAME_PREFIX = "circle-ci-";
 GitService.GIT_DIR_NAME = ".circle-ci-git";
 GitService.GIT_IGNORE_FILE_NAME = ".gitignore";
 GitService.TEMPLATE_GIT_IGNORE_FILE_NAME = "defaultGitIgnore";

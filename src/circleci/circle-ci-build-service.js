@@ -6,9 +6,9 @@ class CircleCIBuildService extends BuildServiceBase {
     async build(cliArgs, additionalMappedFiles, additionalPlaceholders) {
         // projectRoot: string, projectData: IProjectData, buildData: IAndroidBuildData
         const [projectRoot, projectData, buildData] = cliArgs;
-        this.cliBuildId = uniqueString();
+        const cliBuildId = uniqueString();
         // TODO: test if the repo is not integrated with circle ci.
-        await this.uploadCLIArgsAsEnvVars(buildData);
+        await this.uploadCLIArgsAsEnvVars(buildData, cliBuildId);
 
         // TODO: validate CircleCI related config values
         var mappedFiles = {
@@ -20,17 +20,22 @@ class CircleCIBuildService extends BuildServiceBase {
         }
 
         var placeholders = {
-            "CLI_BUILD_ID": this.cliBuildId,
+            "CLI_BUILD_ID": cliBuildId,
         };
 
         if (additionalPlaceholders) {
             placeholders = Object.assign(placeholders, additionalPlaceholders);
         }
 
-        const commitRevision = await super.pushToSyncRepository(cliArgs, mappedFiles, placeholders);
+        const commitRevision = await super.pushToSyncRepository(cliArgs, mappedFiles, placeholders, cliBuildId);
         const circleCIJobId = await this.getCircleCIJobNumber(commitRevision);
         const isSuccessfulBuild = await this.isSuccessfulBuild(circleCIJobId);
-        await this.cleanEnvVars();
+        await this.cleanEnvVars(cliBuildId);
+        await this.gitService.gitDeleteBranch(
+            { projectDir: projectData.projectDir, projectId: projectData.projectIdentifiers[this.platform] },
+            cliBuildId
+        )
+
         if (!isSuccessfulBuild) {
             throw new Error("Cloud build failed.");
         }
@@ -53,34 +58,34 @@ class CircleCIBuildService extends BuildServiceBase {
         }
     }
 
-    async cleanEnvVars() {
-        if (this.buildEnvVars[this.cliBuildId] && this.buildEnvVars[this.cliBuildId].length) {
-            for (const envVar of this.buildEnvVars[this.cliBuildId]) {
+    async cleanEnvVars(cliBuildId) {
+        if (this.buildEnvVars[cliBuildId] && this.buildEnvVars[cliBuildId].length) {
+            for (const envVar of this.buildEnvVars[cliBuildId]) {
                 await this.deleteEnvVariable(envVar);
             }
         }
     }
 
-    async uploadCLIArgsAsEnvVars(buildData) {
+    async uploadCLIArgsAsEnvVars(buildData, cliBuildId) {
         if (this.isAndroid) {
             if (buildData.release) {
-                await this.updateCLIEnvVariable("release", "1");
+                await this.updateCLIEnvVariable("release", "1", cliBuildId);
             }
             if (buildData.clean) {
-                await this.updateCLIEnvVariable("clean", "1");
+                await this.updateCLIEnvVariable("clean", "1", cliBuildId);
             }
             if (buildData.keyStorePath) {
                 const base64KeyStore = await this.$fs.readFile(buildData.keyStorePath, { encoding: 'base64' });
-                await this.updateCLIEnvVariable("keyStore", base64KeyStore);
+                await this.updateCLIEnvVariable("keyStore", base64KeyStore, cliBuildId);
             }
             if (buildData.keyStorePassword) {
-                await this.updateCLIEnvVariable("keyStorePassword", buildData.keyStorePassword);
+                await this.updateCLIEnvVariable("keyStorePassword", buildData.keyStorePassword, cliBuildId);
             }
             if (buildData.keyStoreAlias) {
-                await this.updateCLIEnvVariable("keyStoreAlias", buildData.keyStoreAlias);
+                await this.updateCLIEnvVariable("keyStoreAlias", buildData.keyStoreAlias, cliBuildId);
             }
             if (buildData.keyStoreAliasPassword) {
-                await this.updateCLIEnvVariable("keyStoreAliasPassword", buildData.keyStoreAliasPassword);
+                await this.updateCLIEnvVariable("keyStoreAliasPassword", buildData.keyStoreAliasPassword, cliBuildId);
             }
         } else {
             // TODO: handle iOS
@@ -150,12 +155,12 @@ class CircleCIBuildService extends BuildServiceBase {
         return targetFile.path;
     }
 
-    async updateCLIEnvVariable(name, value) {
+    async updateCLIEnvVariable(name, value, cliBuildId) {
         // TODO: add lodash dep to the plugin
-        return this.updateEnvVariable(`CLI_ARG_${_.snakeCase(name).toUpperCase()}_${this.cliBuildId}`, value);
+        return this.updateEnvVariable(`CLI_ARG_${_.snakeCase(name).toUpperCase()}_${cliBuildId}`, value, cliBuildId);
     }
 
-    async updateEnvVariable(envName, envValue) {
+    async updateEnvVariable(envName, envValue, cliBuildId) {
         const response = await this.$httpClient.httpRequest({
             url: `https://circleci.com/api/v1.1/project/github/${this.githubRepository}/envvar?circle-token=${this.circleCiApiAccessToken}`,
             method: "POST",
@@ -170,8 +175,8 @@ class CircleCIBuildService extends BuildServiceBase {
         }
 
         this.buildEnvVars = this.buildEnvVars || {};
-        this.buildEnvVars[this.cliBuildId] = this.buildEnvVars[this.cliBuildId] || [];
-        this.buildEnvVars[this.cliBuildId].push(envName);
+        this.buildEnvVars[cliBuildId] = this.buildEnvVars[cliBuildId] || [];
+        this.buildEnvVars[cliBuildId].push(envName);
     }
 
     async deleteEnvVariable(envName) {

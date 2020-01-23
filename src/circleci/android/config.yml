@@ -24,24 +24,30 @@ jobs:
       - run: npm config set prefix ~/npm_prefix
 
       # setup TNS
-      # TODO: CACHE
-      - run: npm i -g nativescript
+      - restore_cache:
+          keys:
+            - global-modules-{{CLI_VERSION}}
+      - run: tns --version || npm i -g nativescript@{{CLI_VERSION}}
+      - save_cache:
+          paths:
+            - ~/npm_prefix
+          key: global-modules-{{CLI_VERSION}}
       - run: tns usage-reporting disable
       - run: tns error-reporting disable
-
-      # LOCAL OPERATIONS
 
       - checkout
 
       # NODE PACKAGES
-      # - restore_cache:
-      #     keys:
-      #       - v1-dependencies-{{ checksum "package.json" }}
-      #       # fallback to using the latest cache if no exact match is found
-      #       - v1-dependencies-
       - run: npm install
       - run: npm rebuild
+      - restore_cache:
+          key: gems-{{ checksum "Gemfile" }}
+      # INSTALL GEMS (fastlane)
       - run: bundle install --path vendor/bundle
+      - save_cache:
+          key: gems-{{ checksum "Gemfile" }}
+          paths:
+            - vendor/bundle
       - run:
           name: Fastlane
           command: bundle exec fastlane android build

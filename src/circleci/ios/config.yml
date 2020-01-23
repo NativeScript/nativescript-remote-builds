@@ -5,30 +5,29 @@ jobs:
       xcode: 11.3.0
     working_directory: "{{PROJECT_DIR}}"
     environment:
-      # TODO: set NS_SKIP_ENV_CHECK
       FL_OUTPUT_DIR: ~/fl_output
     shell: /bin/bash --login -o pipefail
     steps:
       # GLOBAL OPERATIONS
       - add_ssh_keys:
           fingerprints:
+            # TODO: test if needed?
             - "d8:25:e3:b4:cd:39:3f:45:29:01:94:8e:5f:15:3b:30"
       # setup NPM
       - run: echo 'export PATH=~/npm_prefix/bin:$PATH' >> $BASH_ENV
       - run: npm config set prefix ~/npm_prefix
 
       # setup global modules - TNS
-      # - restore_cache:
-      #     keys:
-      #       - global-modules-6.2.2
-      - run: tns --version || (npm i -g nativescript@6.2.2 && tns usage-reporting disable && tns error-reporting disable)
-      # - save_cache:
-      #     # TODO: add platforms cache?
-      #     paths:
-      #       - ~/npm_prefix
-      #     key: global-modules-6.2.2
-
-      # LOCAL OPERATIONS
+      - restore_cache:
+          keys:
+            - global-modules-{{CLI_VERSION}}
+      - run: tns --version || npm i -g nativescript@{{CLI_VERSION}}
+      - save_cache:
+          paths:
+            - ~/npm_prefix
+          key: global-modules-{{CLI_VERSION}}
+      - run: tns usage-reporting disable
+      - run: tns error-reporting disable
 
       - checkout
 
@@ -44,13 +43,13 @@ jobs:
       #     key: node-modules-{{ checksum "package.json" }}
 
       # INSTALL GEMS (fastlane)
-      # - restore_cache:
-      #     key: gems-{{ checksum "Gemfile" }}
+      - restore_cache:
+          key: gems-{{ checksum "Gemfile" }}
       - run: bundle install --path vendor/bundle
-      # - save_cache:
-      #     key: gems-{{ checksum "Gemfile" }}
-      #     paths:
-      #       - vendor/bundle
+      - save_cache:
+          key: gems-{{ checksum "Gemfile" }}
+          paths:
+            - vendor/bundle
       - run: pip install six
       - run: pod repo update
       - run: tns prepare ios

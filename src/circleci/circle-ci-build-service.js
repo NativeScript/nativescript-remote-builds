@@ -67,11 +67,9 @@ class CircleCIBuildService extends BuildServiceBase {
     }
 
     async uploadCLIArgsAsEnvVars(buildData, cliBuildId) {
+        // TODO: pass dynamic list of arg names to the templates
         // TODO: handle prepare args
-        const env = this.getEnvString(buildData.env);
-        // TODO: remove (debug purpose)
-        this.$logger.info("ENV STRING: ", env);
-        await this.updateCLIEnvVariable("envArgs", env, cliBuildId);
+        this.handleEnv(buildData.env);
         await this.updateCLIEnvVariable("log", this.$logger.getLevel(), cliBuildId);
         if (buildData.release) {
             await this.updateCLIEnvVariable("release", "1", cliBuildId);
@@ -104,8 +102,7 @@ class CircleCIBuildService extends BuildServiceBase {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    getEnvString(envObj) {
-        const args = [];
+    handleEnv(envObj) {
         Object.keys(envObj).map(item => {
             let envValue = envObj[item];
             if (typeof envValue === "undefined") {
@@ -113,18 +110,16 @@ class CircleCIBuildService extends BuildServiceBase {
             }
             if (typeof envValue === "boolean") {
                 if (envValue) {
-                    args.push(`--env.${item}`);
+                    await this.updateCLIEnvVariable(`--env.${item}`, "1", cliBuildId);
                 }
             } else {
                 if (!Array.isArray(envValue)) {
                     envValue = [envValue];
                 }
 
-                envValue.map(value => args.push(`--env.${item}=${value}`));
+                await this.updateCLIEnvVariable(`--env.${item}`, value, cliBuildId);
             }
         });
-
-        return args.join(" ");
     }
 
     async getCircleCIJobNumber(gitRevision, retryCount) {

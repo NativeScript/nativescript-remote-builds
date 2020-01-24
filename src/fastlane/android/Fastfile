@@ -35,6 +35,60 @@ platform :android do
       nativescriptCLICommand.push("--hmr");
     end
 
+    if ENV[getCLIArgEnvName("env.snapshot")]
+      nativescriptCLICommand.push("--env.snapshot");
+    end
+
+    if ENV[getCLIArgEnvName("env.production")]
+      nativescriptCLICommand.push("--env.production");
+    end
+
+    if ENV[getCLIArgEnvName("env.uglify")]
+      nativescriptCLICommand.push("--env.uglify");
+    end
+
+    if ENV[getCLIArgEnvName("env.sourceMap")]
+      nativescriptCLICommand.push("--env.sourceMap");
+    end
+
+    if ENV[getCLIArgEnvName("env.hiddenSourceMap")]
+      nativescriptCLICommand.push("--env.hiddenSourceMap");
+    end
+
+    if ENV[getCLIArgEnvName("env.hmr")]
+      nativescriptCLICommand.push("--env.hmr");
+    end
+
+    if ENV[getCLIArgEnvName("env.unitTesting")]
+      nativescriptCLICommand.push("--env.unitTesting");
+    end
+
+    if ENV[getCLIArgEnvName("env.verbose")]
+      nativescriptCLICommand.push("--env.verbose");
+    end
+
+    if ENV[getCLIArgEnvName("env.snapshotInDocker")]
+      nativescriptCLICommand.push("--env.snapshotInDocker");
+    end
+
+    if ENV[getCLIArgEnvName("env.skipSnapshotTools")]
+      nativescriptCLICommand.push("--env.skipSnapshotTools");
+    end
+
+    if ENV[getCLIArgEnvName("env.compileSnapshot")]
+      nativescriptCLICommand.push("--env.compileSnapshot");
+    end
+
+    appPathEnvVar = getCLIArgEnvName("env.appPath");
+    if ENV[appPathEnvVar]
+      nativescriptCLICommand.push("--env.appPath", "\"$#{appPathEnvVar}\"");
+    end
+
+    appResourcesPathEnvVar = getCLIArgEnvName("env.appResourcesPath");
+    if ENV[appResourcesPathEnvVar]
+      nativescriptCLICommand.push("--env.appResourcesPath", "\"$#{appResourcesPathEnvVar}\"");
+    end
+
     keyStoreEnvVar = getCLIArgEnvName("key-store");
     if ENV[keyStoreEnvVar]
       keyStoreContent = Base64.decode64(ENV[keyStoreEnvVar]);

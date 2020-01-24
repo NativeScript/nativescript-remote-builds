@@ -32,6 +32,10 @@ platform :android do
       nativescriptCLICommand.push("--clean");
     end
 
+    if ENV[getCLIArgEnvName("aab")]
+      nativescriptCLICommand.push("--aab");
+    end
+
     if ENV[getCLIArgEnvName("hmr")]
       nativescriptCLICommand.push("--hmr");
     end

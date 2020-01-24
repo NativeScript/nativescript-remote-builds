@@ -107,7 +107,7 @@ class CircleCIBuildService extends BuildServiceBase {
     getEnvString(envObj) {
         const args = [];
         Object.keys(envObj).map(item => {
-            let envValue = envData[item];
+            let envValue = envObj[item];
             if (typeof envValue === "undefined") {
                 return;
             }

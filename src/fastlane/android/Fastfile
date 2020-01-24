@@ -31,8 +31,17 @@ platform :android do
       nativescriptCLICommand.push("--clean");
     end
 
-    if ENV[getCLIArgEnvName("key-store")]
-      keyStoreContent = Base64.decode64(ENV[getCLIArgEnvName("key-store")]);
+    if ENV[getCLIArgEnvName("hmr")]
+      nativescriptCLICommand.push("--hmr");
+    end
+
+    if ENV[getCLIArgEnvName("hmr")]
+      nativescriptCLICommand.push("--hmr");
+    end
+
+    keyStoreEnvVar = getCLIArgEnvName("key-store");
+    if ENV[keyStoreEnvVar]
+      keyStoreContent = Base64.decode64(ENV[keyStoreEnvVar]);
       keyStoreFilePath = File.join(File.expand_path("{{PROJECT_DIR}}"), "__envKeystore");
       keyStoreDirPath = File.dirname(keyStoreFilePath)
       unless File.directory?(keyStoreDirPath)
@@ -42,6 +51,11 @@ platform :android do
         f.write(keyStoreContent)
       end
       nativescriptCLICommand.push("--key-store-path", keyStoreFilePath);
+    end
+
+    envArgsEnvVar = getCLIArgEnvName("env-args");
+    if ENV[envArgsEnvVar]
+      nativescriptCLICommand.push("$#{envArgsEnvVar}");
     end
 
     keyStorePassEnvVar = getCLIArgEnvName("key-store-password");

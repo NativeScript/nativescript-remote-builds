@@ -68,9 +68,14 @@ class CircleCIBuildService extends BuildServiceBase {
 
     async uploadCLIArgsAsEnvVars(buildData, cliBuildId) {
         // TODO: handle prepare args
+        const env = this.getEnvString(buildData.env);
+        await this.updateCLIEnvVariable("envArgs", env, cliBuildId);
         await this.updateCLIEnvVariable("log", this.$logger.getLevel(), cliBuildId);
         if (buildData.release) {
             await this.updateCLIEnvVariable("release", "1", cliBuildId);
+        }
+        if (buildData.hmr) {
+            await this.updateCLIEnvVariable("hmr", "1", cliBuildId);
         }
         if (buildData.clean) {
             await this.updateCLIEnvVariable("clean", "1", cliBuildId);
@@ -95,6 +100,29 @@ class CircleCIBuildService extends BuildServiceBase {
 
     async timeout(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    getEnvString(envObj) {
+        const args = [];
+        envObj.map(item => {
+            let envValue = envData[item];
+            if (typeof envValue === "undefined") {
+                return;
+            }
+            if (typeof envValue === "boolean") {
+                if (envValue) {
+                    args.push(`--env.${item}`);
+                }
+            } else {
+                if (!Array.isArray(envValue)) {
+                    envValue = [envValue];
+                }
+
+                envValue.map(value => args.push(`--env.${item}=${value}`));
+            }
+        });
+
+        return args.join(" ");
     }
 
     async getCircleCIJobNumber(gitRevision, retryCount) {

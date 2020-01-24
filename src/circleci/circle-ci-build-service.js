@@ -50,7 +50,7 @@ class CircleCIBuildService extends BuildServiceBase {
                 `${projectData.projectName}.ipa`;
 
         const outputFileName = this.isAndroid ? `app-${buildData.release ? "release" : "debug"}` : projectData.projectName;
-        const localBuildResult = await this.downloadCircleCIBuild(circleCIJobId, cloudFilePath, appLocation, outputFileName, isIOSSimulator);
+        const localBuildResult = await this.downloadCircleCIBuild(circleCIJobId, cloudFilePath, appLocation, outputFileName, isIOSSimulator, buildData.androidBundle);
         if (localBuildResult) {
             this.$logger.info(`Successfully downloaded: ${localBuildResult}`);
         } else {
@@ -78,6 +78,9 @@ class CircleCIBuildService extends BuildServiceBase {
         }
         if (buildData.clean) {
             await this.updateCLIEnvVariable("clean", "1", cliBuildId);
+        }
+        if (buildData.androidBundle) {
+            await this.updateCLIEnvVariable("aab", "1", cliBuildId);
         }
 
         if (this.isAndroid) {
@@ -155,7 +158,7 @@ class CircleCIBuildService extends BuildServiceBase {
         return build.status === "success";
     }
 
-    async downloadCircleCIBuild(jobNumber, cloudFilePath, outputLocation, outputFileName, isIOSSimulator) {
+    async downloadCircleCIBuild(jobNumber, cloudFilePath, outputLocation, outputFileName, isIOSSimulator, isAndroidBundle) {
         const artifactsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.githubRepository}/${jobNumber}/artifacts`);
         const artifacts = JSON.parse(artifactsResponse.body);
 
@@ -168,18 +171,33 @@ class CircleCIBuildService extends BuildServiceBase {
         const apkDownloadUrl = apkArtifact.url;
         const targetFileName = path.join(outputLocation, `${outputFileName}${appExtension}`);
         this.$fs.createDirectory(path.dirname(targetFileName));
-        const targetFile = this.$fs.createWriteStream(targetFileName);
+        var targetFile = this.$fs.createWriteStream(targetFileName);
 
         await this.$httpClient.httpRequest({
             url: apkDownloadUrl,
             pipeTo: targetFile
         });
 
+        var appPath = targetFile.path;
         if (isIOSSimulator) {
             await this.$fs.unzip(targetFileName, outputLocation);
+            // we are archiving the app folder for simulators in the cloud
+            // <path-to-the-app>.app.zip => <path-to-the-app>.app
+            appPath = this.removeExtension(targetFileName);
         }
 
-        return targetFile.path;
+        if (isAndroidBundle) {
+            // we are passing --copy-to=<path>.apk in the cloud (even when --aab is passed)
+            // <path-to-the-app>.apk => <path-to-the-app>.aab
+            appPath = this.removeExtension(targetFile.path) + '.aab';
+            this.$fs.rename(targetFile.path, appPath);
+        }
+
+        return appPath;
+    }
+
+    removeExtension(filePath) {
+        return path.join(path.dirname(outputPath), path.basename(outputPath, path.extname(outputPath)));
     }
 
     async updateCLIEnvVariable(name, value, cliBuildId) {

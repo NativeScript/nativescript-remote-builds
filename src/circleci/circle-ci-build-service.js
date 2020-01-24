@@ -102,26 +102,26 @@ class CircleCIBuildService extends BuildServiceBase {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    async handleEnv(envObj) {
-        const handleEnvParam = async item => {
+    async handleEnv(envObj, cliBuildId) {
+        const handleEnvParam = async (item, buildId) => {
             let envValue = envObj[item];
             if (typeof envValue === "undefined") {
                 return;
             }
             if (typeof envValue === "boolean") {
                 if (envValue) {
-                    await this.updateCLIEnvVariable(`--env.${item}`, "1", cliBuildId);
+                    await this.updateCLIEnvVariable(`--env.${item}`, "1", buildId);
                 }
             } else {
                 if (!Array.isArray(envValue)) {
                     envValue = [envValue];
                 }
 
-                await this.updateCLIEnvVariable(`--env.${item}`, value, cliBuildId);
+                await this.updateCLIEnvVariable(`--env.${item}`, value, buildId);
             }
         }
 
-        return Promise.all(Object.keys(envObj).map(item => handleEnvParam(item)));
+        return Promise.all(Object.keys(envObj).map(item => handleEnvParam(item, cliBuildId)));
     }
 
     async getCircleCIJobNumber(gitRevision, retryCount) {

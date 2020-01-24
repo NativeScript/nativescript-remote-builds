@@ -69,6 +69,8 @@ class CircleCIBuildService extends BuildServiceBase {
     async uploadCLIArgsAsEnvVars(buildData, cliBuildId) {
         // TODO: handle prepare args
         const env = this.getEnvString(buildData.env);
+        // TODO: remove (debug purpose)
+        this.$logger.info("ENV STRING: ", env);
         await this.updateCLIEnvVariable("envArgs", env, cliBuildId);
         await this.updateCLIEnvVariable("log", this.$logger.getLevel(), cliBuildId);
         if (buildData.release) {

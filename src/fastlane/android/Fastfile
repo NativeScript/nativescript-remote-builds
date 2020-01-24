@@ -35,10 +35,6 @@ platform :android do
       nativescriptCLICommand.push("--hmr");
     end
 
-    if ENV[getCLIArgEnvName("hmr")]
-      nativescriptCLICommand.push("--hmr");
-    end
-
     keyStoreEnvVar = getCLIArgEnvName("key-store");
     if ENV[keyStoreEnvVar]
       keyStoreContent = Base64.decode64(ENV[keyStoreEnvVar]);

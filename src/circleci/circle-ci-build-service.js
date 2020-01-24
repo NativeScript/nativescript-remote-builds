@@ -197,7 +197,7 @@ class CircleCIBuildService extends BuildServiceBase {
     }
 
     removeExtension(filePath) {
-        return path.join(path.dirname(outputPath), path.basename(outputPath, path.extname(outputPath)));
+        return path.join(path.dirname(filePath), path.basename(filePath, path.extname(filePath)));
     }
 
     async updateCLIEnvVariable(name, value, cliBuildId) {

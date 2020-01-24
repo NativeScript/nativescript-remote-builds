@@ -24,7 +24,7 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
 
         return buildService.build(args, {
             "node_modules/nativescript-cloud-builds/src/fastlane/android/Fastfile": "./fastlane/Fastfile",
-            "node_modules/nativescript-cloud-builds/src/fastlane/Gemfile": "./Gemfile",
+            "node_modules/nativescript-cloud-builds/src/fastlane/android/Gemfile": "./Gemfile",
         });
     };
 }

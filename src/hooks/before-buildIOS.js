@@ -28,7 +28,7 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Appfile": "./fastlane/Appfile",
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Fastfile": "./fastlane/Fastfile",
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Matchfile": "./fastlane/Matchfile",
-            "node_modules/nativescript-cloud-builds/src/fastlane/Gemfile": "./Gemfile",
+            "node_modules/nativescript-cloud-builds/src/fastlane/ios/Gemfile": "./Gemfile",
         }, {
             "IOS_TEAM_ID": config.iOSTeamId,
             "IOS_APPLE_ID": config.appleId,

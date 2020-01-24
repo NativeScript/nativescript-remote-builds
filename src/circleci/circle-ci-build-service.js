@@ -69,7 +69,7 @@ class CircleCIBuildService extends BuildServiceBase {
     async uploadCLIArgsAsEnvVars(buildData, cliBuildId) {
         // TODO: pass dynamic list of arg names to the templates
         // TODO: handle prepare args
-        this.handleEnv(buildData.env);
+        await this.handleEnv(buildData.env);
         await this.updateCLIEnvVariable("log", this.$logger.getLevel(), cliBuildId);
         if (buildData.release) {
             await this.updateCLIEnvVariable("release", "1", cliBuildId);
@@ -102,7 +102,7 @@ class CircleCIBuildService extends BuildServiceBase {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    handleEnv(envObj) {
+    async handleEnv(envObj) {
         Object.keys(envObj).map(item => {
             let envValue = envObj[item];
             if (typeof envValue === "undefined") {

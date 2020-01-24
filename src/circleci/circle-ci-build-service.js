@@ -68,7 +68,6 @@ class CircleCIBuildService extends BuildServiceBase {
 
     async uploadCLIArgsAsEnvVars(buildData, cliBuildId) {
         // TODO: pass dynamic list of arg names to the templates
-        // TODO: handle prepare args
         await this.handleEnv(buildData.env, cliBuildId);
         await this.updateCLIEnvVariable("log", this.$logger.getLevel(), cliBuildId);
         if (buildData.release) {

@@ -103,7 +103,7 @@ class CircleCIBuildService extends BuildServiceBase {
     }
 
     async handleEnv(envObj) {
-        return Promise.all(Object.keys(envObj).map(async item => {
+        const handleEnvParam = async item => {
             let envValue = envObj[item];
             if (typeof envValue === "undefined") {
                 return;
@@ -119,7 +119,9 @@ class CircleCIBuildService extends BuildServiceBase {
 
                 await this.updateCLIEnvVariable(`--env.${item}`, value, cliBuildId);
             }
-        }));
+        }
+
+        return Promise.all(Object.keys(envObj).map(item => handleEnvParam(item)));
     }
 
     async getCircleCIJobNumber(gitRevision, retryCount) {

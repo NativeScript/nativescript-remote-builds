@@ -41,7 +41,7 @@ platform :ios do
     MY_TEAM = "{{IOS_TEAM_ID}}"
 
     match(
-        type: "{{IOS_PROVISION_TYPE}}"
+        type: "{{IOS_BUILD_TYPE}}"
     )
 
     settings_to_override = {

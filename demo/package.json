@@ -1,6 +1,6 @@
 {
   "nativescript": {
-    "id": "org.nativescript.tsApp1",
+    "id": "org.nativescript.cloudTest",
     "tns-android": {
       "version": "6.3.1"
     },
@@ -15,9 +15,15 @@
   "dependencies": {
     "@nativescript/theme": "~2.2.1",
     "nativescript-cloud-builds": "https://github.com/DimitarTachev/nativescript-cloud-builds/tarball/master",
+    "nativescript-unit-test-runner": "^0.7.0",
     "tns-core-modules": "~6.3.0"
   },
   "devDependencies": {
+    "@types/jasmine": "3.5.0",
+    "karma": "4.4.1",
+    "karma-jasmine": "3.1.0",
+    "karma-nativescript-launcher": "0.4.0",
+    "karma-webpack": "3.0.5",
     "nativescript-dev-webpack": "~1.4.0",
     "typescript": "~3.5.3"
   },

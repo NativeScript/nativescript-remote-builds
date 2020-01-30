@@ -25,6 +25,7 @@ export class HelloWorldModel extends Observable {
     }
 
     onTap() {
+        console.log("test click");
         this._counter--;
         this.updateMessage();
     }

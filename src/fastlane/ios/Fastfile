@@ -40,6 +40,11 @@ platform :ios do
         type: "{{IOS_PROVISION_TYPE}}"
     )
 
+    settings_to_override = {
+      :PROVISIONING_PROFILE_SPECIFIER => "{{IOS_DEV_PROVISION_NAME}}",
+      :DEVELOPMENT_TEAM => "{{IOS_TEAM_ID}}"
+    }
+
     gym(
       scheme: "{{PROJECT_NAME}}",
       workspace: "{{IOS_XCODE_WORKSPACE_PATH}}",
@@ -48,6 +53,7 @@ platform :ios do
       destination: {{IOS_BUILD_FOR_SIMULATOR}} ? 'generic/platform=iOS Simulator' : 'generic/platform=iOS',
       skip_package_ipa: {{IOS_BUILD_FOR_SIMULATOR}} ? true : false,
       archive_path: File.expand_path('~/fl_output/{{PROJECT_NAME}}'),
+      xcargs: settings_to_override,
     )
 
     if ({{IOS_BUILD_FOR_SIMULATOR}})
@@ -60,7 +66,7 @@ platform :ios do
     if ({{IOS_PUBLISH_TO_TESTFLIGHT}})
       upload_to_testflight(
         skip_submission: true,
-        apple_id: "{{IOS_APPLE_ID}}",
+        apple_id: "1497136415",
         app_identifier: "{{PROJECT_ID}}",
         ipa: "~/fl_output/{{PROJECT_NAME}}.ipa",
         skip_waiting_for_build_processing: true

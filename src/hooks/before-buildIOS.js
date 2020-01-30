@@ -25,7 +25,6 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
         nativeProjectRoot = path.relative(projectData.projectDir, nativeProjectRoot);
 
         return buildService.build(args, {
-            "node_modules/nativescript-cloud-builds/src/fastlane/ios/Appfile": "./fastlane/Appfile",
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Fastfile": "./fastlane/Fastfile",
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Matchfile": "./fastlane/Matchfile",
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Gemfile": "./Gemfile",

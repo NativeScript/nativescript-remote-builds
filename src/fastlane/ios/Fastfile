@@ -36,18 +36,9 @@ platform :ios do
       path: "{{IOS_XCODE_PROJ_PATH}}"
     )
 
-    MY_APP_ID = "{{PROJECT_ID}}"
-    #MY_PROFILE = "{{IOS_DEV_PROVISION_NAME}}"
-    MY_TEAM = "{{IOS_TEAM_ID}}"
-
     match(
         type: "{{IOS_PROVISION_TYPE}}"
     )
-
-    #:PROVISIONING_PROFILE_SPECIFIER => MY_PROFILE,
-    settings_to_override = {
-      :DEVELOPMENT_TEAM => MY_TEAM,
-    }
 
     gym(
       scheme: "{{PROJECT_NAME}}",
@@ -57,7 +48,6 @@ platform :ios do
       destination: {{IOS_BUILD_FOR_SIMULATOR}} ? 'generic/platform=iOS Simulator' : 'generic/platform=iOS',
       skip_package_ipa: {{IOS_BUILD_FOR_SIMULATOR}} ? true : false,
       archive_path: File.expand_path('~/fl_output/{{PROJECT_NAME}}'),
-      xcargs: settings_to_override,
     )
 
     if ({{IOS_BUILD_FOR_SIMULATOR}})

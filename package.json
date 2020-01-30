@@ -49,6 +49,11 @@
         "type": "before-buildIOS",
         "script": "src/hooks/before-buildIOS.js",
         "inject": true
+      },
+      {
+        "type": "before-resolveCommand",
+        "script": "src/hooks/before-resolveCommand.js",
+        "inject": true
       }
     ]
   },

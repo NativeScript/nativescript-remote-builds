@@ -37,7 +37,8 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
             "IOS_BUILD_FOR_SIMULATOR": !buildData.buildForDevice,
             "IOS_PROVISION_TYPE": config.provisionType || (buildData.release ? "appstore" : "development"),
             "IOS_BUILD_TYPE": config.buildType || (buildData.release ? "app-store" : "development"),
-            "IOS_BUILD_CONFIGURATION": buildData.release ? "Release" : "Debug"
+            "IOS_BUILD_CONFIGURATION": buildData.release ? "Release" : "Debug",
+            "IOS_PUBLISH_TO_TESTFLIGHT": !!(buildData.env && buildData.env.cloudPublish)
         });
     };
 }

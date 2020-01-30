@@ -56,6 +56,16 @@ platform :ios do
         output_path: File.expand_path("~/fl_output/{{PROJECT_NAME}}.app.zip")
       )
     end
+
+    if ({{IOS_PUBLISH_TO_TESTFLIGHT}})
+      upload_to_testflight(
+        skip_submission: true,
+        apple_id: "{{IOS_APPLE_ID}}",
+        app_identifier: "{{PROJECT_ID}}",
+        ipa: "~/fl_output/{{PROJECT_NAME}}.ipa",
+        skip_waiting_for_build_processing: true
+      ) 
+    end
  end
 
 end

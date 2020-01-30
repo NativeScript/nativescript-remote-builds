@@ -37,15 +37,15 @@ platform :ios do
     )
 
     MY_APP_ID = "{{PROJECT_ID}}"
-    MY_PROFILE = "{{IOS_DEV_PROVISION_NAME}}"
+    #MY_PROFILE = "{{IOS_DEV_PROVISION_NAME}}"
     MY_TEAM = "{{IOS_TEAM_ID}}"
 
     match(
         type: "{{IOS_PROVISION_TYPE}}"
     )
 
+    #:PROVISIONING_PROFILE_SPECIFIER => MY_PROFILE,
     settings_to_override = {
-      :PROVISIONING_PROFILE_SPECIFIER => MY_PROFILE,
       :DEVELOPMENT_TEAM => MY_TEAM,
     }
 

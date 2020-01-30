@@ -1,3 +1,0 @@
-app_identifier "{{PROJECT_ID}}"
-apple_id "{{IOS_APPLE_ID}}"
-team_id "{{IOS_TEAM_ID}}"

@@ -30,6 +30,7 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Matchfile": "./fastlane/Matchfile",
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Gemfile": "./Gemfile",
         }, {
+            "IOS_TEAM_ID": config.iOSTeamId || "",
             "IOS_APPLE_ID": config.appleId,
             "IOS_SIGNING_REPO_URL": config.iOSSigningPrivateGithubRepository,
             "IOS_XCODE_PROJ_PATH": path.join(nativeProjectRoot, `${projectData.projectName}.xcodeproj`),

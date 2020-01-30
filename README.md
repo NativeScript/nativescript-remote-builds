@@ -48,7 +48,8 @@ In order to use iOS cloud build you need to provide a few more `.nscloudbuilds.j
 ```
 ...
     "appleId": "{{the apple id used for the fastlane match configurations}}",
-    "iOSSigningPrivateGithubRepository": "{{a private github repository to keep the iOS provisioning profiles used by fastlane}}"
+    "iOSSigningPrivateGithubRepository": "{{a private github repository to keep the iOS provisioning profiles used by fastlane}}",
+    "iOSTeamId": "{{[OPTIONAL] the team id used in the fastlane match setup}}"
 ...
 ```
 

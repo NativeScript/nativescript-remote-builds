@@ -31,7 +31,7 @@ platform :ios do
   end
   
   match(
-    type: "{{IOS_PROVISION_TYPE}}"
+    type: "{{IOS_PROVISION_TYPE}}",
     app_identifier: "{{PROJECT_ID}}"
   )
   nativescriptCLICommand.push("--provision", "\"#{ENV["sigh_org.nativescript.cloudTest_{{IOS_PROVISION_TYPE}}"]}\"")

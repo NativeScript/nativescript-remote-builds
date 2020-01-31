@@ -5,6 +5,9 @@ module.exports = (hookArgs) => {
         var [commandName, commandArguments, argv] = args;
         if (commandName === "publish") {
             commandName = "build";
+            // TODO: if not existing
+            argv.push("--for-device");
+            argv.push("--release");
             argv.push("--env.cloudPublish");
         }
 

@@ -24,6 +24,12 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
             config.cloudSyncGithubRepository);
         nativeProjectRoot = path.relative(projectData.projectDir, nativeProjectRoot);
 
+        const publishToTestflight = !!(buildData.env && buildData.env.cloudPublish);
+        const buildForSimulator = !buildData.buildForDevice;
+        if (publishToTestflight && (!buildData.release || buildForSimulator)) {
+            $logger.fail("Only release builds for device can be published!");
+        }
+
         return buildService.build(args, {
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Fastfile": "./fastlane/Fastfile",
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Matchfile": "./fastlane/Matchfile",
@@ -35,11 +41,11 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
             "IOS_SIGNING_REPO_URL": config.iOSSigningPrivateGithubRepository,
             "IOS_XCODE_PROJ_PATH": path.join(nativeProjectRoot, `${projectData.projectName}.xcodeproj`),
             "IOS_XCODE_WORKSPACE_PATH": path.join(nativeProjectRoot, `${projectData.projectName}.xcworkspace`),
-            "IOS_BUILD_FOR_SIMULATOR": !buildData.buildForDevice,
+            "IOS_BUILD_FOR_SIMULATOR": buildForSimulator,
             "IOS_PROVISION_TYPE": config.provisionType || (buildData.release ? "appstore" : "development"),
             "IOS_BUILD_TYPE": config.buildType || (buildData.release ? "app-store" : "development"),
             "IOS_BUILD_CONFIGURATION": buildData.release ? "Release" : "Debug",
-            "IOS_PUBLISH_TO_TESTFLIGHT": !!(buildData.env && buildData.env.cloudPublish)
+            "IOS_PUBLISH_TO_TESTFLIGHT": publishToTestflight
         });
     };
 }

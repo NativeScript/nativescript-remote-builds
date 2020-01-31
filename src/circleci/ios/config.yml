@@ -58,7 +58,7 @@ jobs:
           name: Fastlane
           command: bundle exec fastlane ios build
       - store_artifacts:
-          path: ~/fl_output/gym/{{PROJECT_NAME}}.ipa
+          path: ~/fl_output/{{PROJECT_NAME}}.ipa
           destination: "{{OUTPUT_DIR}}/{{PROJECT_NAME}}.ipa"
       - store_artifacts:
           path: ~/fl_output/{{PROJECT_NAME}}.app.zip

@@ -1,8 +1,6 @@
 {
     "cloudSyncGithubRepository": "git@github.com:DimitarTachev/nativescript-circle-ci-livesync.git",
     "appleId": "dimitar.tachev@progress.com",
-    "iOSTeamId": "R58QAA9NR8",
     "appstoreConnectAppId": "1497136415",
-    "iOSDevProfileName": "match AppStore org.nativescript.cloudTest",
     "iOSSigningPrivateGithubRepository": "git@github.com:DimitarTachev/ios-signing.git"
 }

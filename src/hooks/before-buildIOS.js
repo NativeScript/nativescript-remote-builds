@@ -30,6 +30,11 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
             $logger.fail("Only release builds for device can be published!");
         }
 
+        const appstoreConnectAppId = config.appstoreConnectAppId;
+        if (publishToTestflight && !appstoreConnectAppId) {
+            $logger.fail("appstoreConnectAppId (in .nscloudbuilds.json) required when publishing!");
+        }
+
         return buildService.build(args, {
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Fastfile": "./fastlane/Fastfile",
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Matchfile": "./fastlane/Matchfile",
@@ -45,7 +50,8 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
             "IOS_PROVISION_TYPE": config.provisionType || (buildData.release ? "appstore" : "development"),
             "IOS_BUILD_TYPE": config.buildType || (buildData.release ? "app-store" : "development"),
             "IOS_BUILD_CONFIGURATION": buildData.release ? "Release" : "Debug",
-            "IOS_PUBLISH_TO_TESTFLIGHT": publishToTestflight
+            "IOS_PUBLISH_TO_TESTFLIGHT": publishToTestflight,
+            "IOS_APPSTORE_CONNECT_APP_ID": appstoreConnectAppId
         });
     };
 }

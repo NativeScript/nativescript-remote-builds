@@ -45,7 +45,8 @@ platform :ios do
     configuration: "{{IOS_BUILD_CONFIGURATION}}",
     destination: {{IOS_BUILD_FOR_SIMULATOR}} ? 'generic/platform=iOS Simulator' : 'generic/platform=iOS',
     skip_package_ipa: {{IOS_BUILD_FOR_SIMULATOR}} ? true : false,
-    archive_path: File.expand_path('~/fl_output/{{PROJECT_NAME}}')
+    archive_path: File.expand_path('~/fl_output/{{PROJECT_NAME}}'),
+    output_directory: File.expand_path('~/fl_output')
   )
 
   if ({{IOS_BUILD_FOR_SIMULATOR}})
@@ -58,7 +59,9 @@ platform :ios do
   if ({{IOS_PUBLISH_TO_TESTFLIGHT}})
     upload_to_testflight(
       skip_submission: true,
+      username: "{{IOS_APPLE_ID}}",
       app_identifier: "{{PROJECT_ID}}",
+      apple_id: "{{IOS_APPSTORE_CONNECT_APP_ID}}",
       ipa: "~/fl_output/{{PROJECT_NAME}}.ipa",
       skip_waiting_for_build_processing: true
     )

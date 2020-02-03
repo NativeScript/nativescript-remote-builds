@@ -1,5 +1,7 @@
 const GitService = require("../services/git-service").GitService;
 const constants = require("../common/constants");
+const uniqueString = require('unique-string');
+const path = require("path");
 
 class GitBuildService {
     constructor($staticConfig,
@@ -82,7 +84,7 @@ class GitBuildService {
             placeholders = Object.assign(placeholders, additionalPlaceholders);
         }
 
-        const commitRevision = await super.pushToSyncRepository(cliArgs, mappedFiles, placeholders, cliBuildId);
+        const commitRevision = await this.pushToSyncRepository(cliArgs, mappedFiles, placeholders, cliBuildId);
         const circleCIJobId = await this.ciService.getBuildNumber(commitRevision);
         const isSuccessfulBuild = await this.ciService.isSuccessfulBuild(circleCIJobId);
         await this.cleanEnvVars(cliBuildId);
@@ -108,7 +110,7 @@ class GitBuildService {
         const appExtension = this.isAndroid ? ".apk" : isIOSSimulator ? ".app.zip" : ".ipa";
         const targetFilePath = path.join(localAppDirectory, `${outputFileName}${appExtension}`);
         let localBuildResult = await this.ciService.downloadBuildArtefact(circleCIJobId, cloudFilePath, targetFilePath);
-        localBuildResult = await this.handleDownloadedApp(localAppDirectory, localBuildResult, isIOSSimulator, targetFilePath, buildData.androidBundle);
+        localBuildResult = await this.handleDownloadedApp(localAppDirectory, localBuildResult, isIOSSimulator, buildData.androidBundle);
     }
 
     async handleDownloadedApp(localAppDirectory, localAppPath, isIOSSimulator, isAndroidBundle) {

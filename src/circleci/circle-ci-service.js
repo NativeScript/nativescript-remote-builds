@@ -1,5 +1,7 @@
+const path = require("path");
+
 class CircleCIService {
-    constructor($httpClient, $fs, gitRepository) {
+    constructor($httpClient, $fs, $logger, gitRepository) {
         if (!process.env.CIRCLE_CI_API_ACCESS_TOKEN) {
             throw new Error("You have to set the CIRCLE_CI_API_ACCESS_TOKEN env variable on your local machine in order to run cloud builds in Circle CI.");
         }
@@ -7,6 +9,7 @@ class CircleCIService {
         this.circleCiApiAccessToken = process.env.CIRCLE_CI_API_ACCESS_TOKEN;
         this.$httpClient = $httpClient;
         this.$fs = $fs;
+        this.$logger = $logger;
         this.gitRepository = gitRepository;
     }
 
@@ -18,7 +21,7 @@ class CircleCIService {
             await this.timeout(500);
             retryCount = retryCount || 0;
             retryCount++;
-            return this.getCircleCIJobNumber(gitRevision, retryCount);
+            return this.getBuildNumber(gitRevision, retryCount);
         }
 
         if (!targetBuild) {
@@ -55,7 +58,7 @@ class CircleCIService {
         var targetFile = this.$fs.createWriteStream(destinationFilePath);
 
         await this.$httpClient.httpRequest({
-            url: apkDownloadUrl,
+            url: apkArtifact.url,
             pipeTo: targetFile
         });
 

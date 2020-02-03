@@ -26,6 +26,7 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
             new CircleCIService(
                 $httpClient,
                 $fs,
+                $logger,
                 config.cloudSyncGitRepository
             ));
         nativeProjectRoot = path.relative(projectData.projectDir, nativeProjectRoot);

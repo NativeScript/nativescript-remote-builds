@@ -11,7 +11,7 @@ class ConfigService {
         try {
             this.config = require(configLocation);
             const githubSshUrlStart = "git@github.com:";
-            if (!this.config.sshCloudSyncGitRepository.startsWith(githubSshUrlStart)) {
+            if (!this.config.sshCloudSyncGitRepository || !this.config.sshCloudSyncGitRepository.startsWith(githubSshUrlStart)) {
                 throw new Error(`"sshCloudSyncGitRepository" should be a valid github ssh URL. Received: ${this.config.sshCloudSyncGitRepository}`);
             }
 

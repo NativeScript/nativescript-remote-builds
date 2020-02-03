@@ -1,5 +1,6 @@
-const CircleCIBuildService = require("../circleci/circle-ci-build-service").CircleCIBuildService;
+const GitBuildService = require("../services/git-build-service").GitBuildService;
 const ConfigService = require("../services/config-service").ConfigService;
+const CircleCIService = require("../circleci/circle-ci-service").CircleCIService
 const path = require("path");
 
 module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataService, $settingsService, $httpClient) => {
@@ -12,7 +13,7 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
         var [nativeProjectRoot, projectData, buildData] = args;
         const configService = new ConfigService();
         const config = configService.getConfig(projectData.projectDir);
-        const buildService = new CircleCIBuildService(
+        const buildService = new GitBuildService(
             $staticConfig,
             $childProcess,
             $fs,
@@ -21,7 +22,12 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
             $settingsService,
             $httpClient,
             "ios",
-            config.cloudSyncGithubRepository);
+            config.sshCloudSyncGitRepository,
+            new CircleCIService(
+                $httpClient,
+                $fs,
+                config.cloudSyncGitRepository
+            ));
         nativeProjectRoot = path.relative(projectData.projectDir, nativeProjectRoot);
 
         const publishToTestflight = !!(buildData.env && buildData.env.cloudPublish);

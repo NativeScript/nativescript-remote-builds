@@ -10,6 +10,12 @@ class ConfigService {
         const configLocation = path.join(projectDir, constants.configFileName);
         try {
             this.config = require(configLocation);
+            const githubSshUrlStart = "git@github.com:";
+            if (!this.config.sshCloudSyncGitRepository.startsWith(githubSshUrlStart)) {
+                throw new Error(`"sshCloudSyncGitRepository" should be a valid github ssh URL. Received: ${this.config.sshCloudSyncGitRepository}`);
+            }
+
+            this.config.cloudSyncGitRepository = this.config.sshCloudSyncGitRepository.replace(/\.git/g, "").substring(githubSshUrlStart.length);
         } catch (e) {
             throw new Error(`${configLocation} is required.`);
         }

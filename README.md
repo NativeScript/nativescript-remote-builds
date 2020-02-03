@@ -16,16 +16,16 @@ A NativeScript plugin for Circle CI based `tns run android/ios` without env setu
 1) Create a `.nscloudbuilds.json` file in your app root directory with the following content:
 ```
 {
-    "cloudSyncGithubRepository": "{{an SSH GitHub repository url with enabled CircleCI integration}}"
+    "sshCloudSyncGitRepository": "{{an SSH GitHub repository url with enabled CircleCI integration}}"
 }
 ```
 
-* If your NativeScript app is already pushed to a GitHub repository [integrated with CircleCI](https://circleci.com/docs/2.0/project-build/#adding-projects), you could reuse the same repository as `{{cloudSyncGithubRepository}}`. The plugin will create temporary branches named `circle-ci{{uniqueid}}` for each cloud operation and will not affect you current branches.
+* If your NativeScript app is already pushed to a GitHub repository [integrated with CircleCI](https://circleci.com/docs/2.0/project-build/#adding-projects), you could reuse the same repository as `{{sshCloudSyncGitRepository}}`. The plugin will create temporary branches named `circle-ci{{uniqueId}}` for each cloud operation and will not affect you current branches.
 * If you don't have an already configured GitHub repository for your NativeScript app, you could pass a newly created repository [integrated with CircleCI](https://circleci.com/docs/2.0/project-build/#adding-projects).
 
-> WARNING: The `{{cloudSyncGithubRepository}}` repository will be used to sync your local code changes with the cloud. If the repository is public, make sure that you don't have any sensitive data (e.g. secrets) which are not git ignored in your local app.  
+> WARNING: The `{{sshCloudSyncGitRepository}}` repository will be used to sync your local code changes with the cloud. If the repository is public, make sure that you don't have any sensitive data (e.g. secrets) which are not git ignored in your local app.  
 
-> NOTE: The `.nscloudbuilds.json` will NOT be pushed in the `{{cloudSyncGithubRepository}}` and you could also git ignore it if you assume its content as a sensitive data.
+> NOTE: The `.nscloudbuilds.json` will NOT be pushed in the `{{sshCloudSyncGitRepository}}` and you could also git ignore it if you assume its content as a sensitive data.
 2) Set the `CIRCLE_CI_API_ACCESS_TOKEN` env variable to your local machine. You could generate one from your [Personal API Tokens](https://circleci.com/account/api) page in Circle CI. Take a look at [this article](https://circleci.com/docs/2.0/managing-api-tokens/#creating-a-personal-api-token) for more details.
 
 > WARNING: You have to be logged in in order to access the [Personal API Tokens](https://circleci.com/account/api) page.  
@@ -54,9 +54,9 @@ In order to use iOS cloud build you need to provide a few more `.nscloudbuilds.j
 ...
 ```
 
-3) Add a private SSH key (without password) for accessing the `{{iOSSigningPrivateGithubRepository}}` in your CircleCI `{{cloudSyncGithubRepository}}` `SSH Permissions` settings.
+3) Add a private SSH key (without password) for accessing the `{{iOSSigningPrivateGithubRepository}}` in your CircleCI `{{sshCloudSyncGitRepository}}` `SSH Permissions` settings.
 
-4) Add a `MATCH_PASSWORD` env variable with your `fastlane match` password in your CircleCI `{{cloudSyncGithubRepository}}` `Environment Variables` settings.
+4) Add a `MATCH_PASSWORD` env variable with your `fastlane match` password in your CircleCI `{{sshCloudSyncGitRepository}}` `Environment Variables` settings.
 
 ## Usage
 

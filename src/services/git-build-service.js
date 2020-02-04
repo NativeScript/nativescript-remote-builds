@@ -76,8 +76,14 @@ class GitBuildService {
             mappedFiles = Object.assign(mappedFiles, additionalMappedFiles);
         }
 
+        const publish = !!(buildData.env && buildData.env.cloudPublish);
+        if (publish && (!buildData.release || !buildData.buildForDevice)) {
+            $logger.fail("Only release builds for device can be published!");
+        }
+
         var placeholders = {
             "CLI_BUILD_ID": cliBuildId,
+            "PUBLISH": publish,
         };
 
         if (additionalPlaceholders) {

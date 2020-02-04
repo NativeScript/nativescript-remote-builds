@@ -56,7 +56,7 @@ platform :ios do
     )
   end
 
-  if ({{IOS_PUBLISH_TO_TESTFLIGHT}})
+  if ({{PUBLISH}})
     upload_to_testflight(
       skip_submission: true,
       username: "{{IOS_APPLE_ID}}",

@@ -24,7 +24,7 @@
     "karma-jasmine": "3.1.0",
     "karma-nativescript-launcher": "0.4.0",
     "karma-webpack": "3.0.5",
-    "nativescript-dev-webpack": "~1.4.0",
+    "nativescript-dev-webpack": "^1.5.0",
     "typescript": "~3.5.3"
   },
   "gitHead": "fa98f785df3fba482e5e2a0c76f4be1fa6dc7a14",

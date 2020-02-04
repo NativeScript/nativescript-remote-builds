@@ -137,7 +137,7 @@ platform :android do
         track_promote_to: 'beta',
         json_key_data: Base64.decode64(ENV["PLAYSTORE_ACCOUNT_JSON_DATA"]),
         # TODO: support aab and remove the rename from the client
-        apk: '{{OUTPUT_DIR}}/app.apk'
+        apk: File.expand_path('{{OUTPUT_DIR}}/app.apk')
       )
     end
   end

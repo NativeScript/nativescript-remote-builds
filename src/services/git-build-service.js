@@ -100,26 +100,23 @@ class GitBuildService {
         )
 
         if (!isSuccessfulBuild) {
-            throw new Error("Cloud build failed.");
+            throw new Error("Cloud build failed. Open the link above for more details.");
         }
 
         const platformData = this.$platformsDataService.getPlatformData(this.platform, projectData);
         const localAppDirectory = platformData.getBuildOutputPath(buildData);
         this.$logger.info("Downloading build result.");
         const isIOSSimulator = !this.isAndroid && !buildData.buildForDevice;
-        const cloudFilePath = this.isAndroid ? "app.apk" :
-            isIOSSimulator ?
-                `${projectData.projectName}.app.zip` :
-                `${projectData.projectName}.ipa`;
 
         const outputFileName = this.isAndroid ? `app-${buildData.release ? "release" : "debug"}` : projectData.projectName;
-        const appExtension = this.isAndroid ? ".apk" : isIOSSimulator ? ".app.zip" : ".ipa";
+        const appExtension = this.isAndroid ? (buildData.androidBundle ? ".aab" : ".apk") : (isIOSSimulator ? ".app.zip" : ".ipa");
+        const cloudFileName = this.isAndroid ? `app${appExtension}` : `${projectData.projectName}${appExtension}`;
         const targetFilePath = path.join(localAppDirectory, `${outputFileName}${appExtension}`);
-        let localBuildResult = await this.ciService.downloadBuildArtefact(circleCIJobId, cloudFilePath, targetFilePath);
-        localBuildResult = await this.handleDownloadedApp(localAppDirectory, localBuildResult, isIOSSimulator, buildData.androidBundle);
+        let localBuildResult = await this.ciService.downloadBuildArtefact(circleCIJobId, cloudFileName, targetFilePath);
+        localBuildResult = await this.handleDownloadedApp(localAppDirectory, localBuildResult, isIOSSimulator);
     }
 
-    async handleDownloadedApp(localAppDirectory, localAppPath, isIOSSimulator, isAndroidBundle) {
+    async handleDownloadedApp(localAppDirectory, localAppPath, isIOSSimulator) {
         if (localAppPath) {
             if (isIOSSimulator) {
                 await this.$fs.unzip(localAppPath, localAppDirectory);
@@ -127,18 +124,12 @@ class GitBuildService {
                 // <path-to-the-app>.app.zip => <path-to-the-app>.app
                 localAppPath = this.removeExtension(localAppPath);
             }
-            if (isAndroidBundle) {
-                // we are passing --copy-to=<path>.apk in the cloud (even when --aab is passed)
-                // <path-to-the-app>.apk => <path-to-the-app>.aab
-                const aabPath = this.removeExtension(localAppPath) + '.aab';
-                this.$fs.rename(localAppPath, aabPath);
-                localAppPath = aabPath;
-            }
             this.$logger.info(`Successfully downloaded: ${localAppPath}`);
         }
         else {
             throw new Error("Failed to download build result.");
         }
+
         return localAppPath;
     }
 

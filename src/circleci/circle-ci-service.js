@@ -45,12 +45,12 @@ class CircleCIService {
         return build.status === "success";
     }
 
-    async downloadBuildArtefact(buildNumber, cloudFilePath, destinationFilePath) {
+    async downloadBuildArtefact(buildNumber, cloudFileName, destinationFilePath) {
         const artifactsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.gitRepository}/${buildNumber}/artifacts`);
         const artifacts = JSON.parse(artifactsResponse.body);
 
-        const apkArtifact = _.find(artifacts, (a) => { return a.path.trim().indexOf(cloudFilePath) > -1; });
-        if (!apkArtifact) {
+        const appArtifact = _.find(artifacts, (a) => { return a.path.trim().indexOf(cloudFileName) > -1; });
+        if (!appArtifact) {
             return null;
         }
 
@@ -58,7 +58,7 @@ class CircleCIService {
         var targetFile = this.$fs.createWriteStream(destinationFilePath);
 
         await this.$httpClient.httpRequest({
-            url: apkArtifact.url,
+            url: appArtifact.url,
             pipeTo: targetFile
         });
 

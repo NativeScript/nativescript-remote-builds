@@ -11,11 +11,11 @@ class ConfigService {
         try {
             this.config = require(configLocation);
             const githubSshUrlStart = "git@github.com:";
-            if (!this.config.sshCloudSyncGitRepository || !this.config.sshCloudSyncGitRepository.startsWith(githubSshUrlStart)) {
-                throw new Error(`"sshCloudSyncGitRepository" should be a valid github ssh URL. Received: ${this.config.sshCloudSyncGitRepository}`);
+            if (!this.config.circleci || !this.config.circleci.sshCloudSyncGitRepository || !this.config.circleci.sshCloudSyncGitRepository.startsWith(githubSshUrlStart)) {
+                throw new Error(`"circleci.sshCloudSyncGitRepository" should be a valid github ssh URL. Received: ${this.config.sshCloudSyncGitRepository}`);
             }
 
-            this.config.cloudSyncGitRepository = this.config.sshCloudSyncGitRepository.replace(/\.git/g, "").substring(githubSshUrlStart.length);
+            this.config.cloudSyncGitRepositoryName = this.config.circleci.sshCloudSyncGitRepository.replace(/\.git/g, "").substring(githubSshUrlStart.length);
         } catch (e) {
             throw new Error(`${configLocation} is required.`);
         }

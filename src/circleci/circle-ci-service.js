@@ -1,7 +1,7 @@
 const path = require("path");
 
 class CircleCIService {
-    constructor($httpClient, $fs, $logger, gitRepository) {
+    constructor($httpClient, $fs, $logger, gitRepositoryName) {
         if (!process.env.CIRCLE_CI_API_ACCESS_TOKEN) {
             throw new Error("You have to set the CIRCLE_CI_API_ACCESS_TOKEN env variable on your local machine in order to run cloud builds in Circle CI.");
         }
@@ -10,7 +10,7 @@ class CircleCIService {
         this.$httpClient = $httpClient;
         this.$fs = $fs;
         this.$logger = $logger;
-        this.gitRepository = gitRepository;
+        this.gitRepositoryName = gitRepositoryName;
     }
 
     async getBuildNumber(gitRevision, retryCount) {
@@ -25,7 +25,7 @@ class CircleCIService {
         }
 
         if (!targetBuild) {
-            throw new Error(`Timeout while waiting for a CircleCI job. Make sure that the '${this.gitRepository}' project is enabled in CircleCI`)
+            throw new Error(`Timeout while waiting for a CircleCI job. Make sure that the '${this.gitRepositoryName}' project is enabled in CircleCI`)
         }
 
         this.$logger.info(`A cloud build has started. Open ${targetBuild.build_url} for more details.`);
@@ -34,7 +34,7 @@ class CircleCIService {
     }
 
     async isSuccessfulBuild(buildNumber) {
-        const buildResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.gitRepository}/${buildNumber}`);
+        const buildResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${buildNumber}`);
         const build = JSON.parse(buildResponse.body);
         //  :retried, :canceled, :infrastructure_fail, :timeout, :not_run, :running, :failed, :queued, :scheduled, :not_running, :no_tests, :fixed, :success
         if (build.status === "queued" || build.status === "scheduled" || build.status === "running") {
@@ -46,7 +46,7 @@ class CircleCIService {
     }
 
     async downloadBuildArtefact(buildNumber, cloudFileName, destinationFilePath) {
-        const artifactsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.gitRepository}/${buildNumber}/artifacts`);
+        const artifactsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${buildNumber}/artifacts`);
         const artifacts = JSON.parse(artifactsResponse.body);
 
         const appArtifact = _.find(artifacts, (a) => { return a.path.trim().indexOf(cloudFileName) > -1; });
@@ -69,7 +69,7 @@ class CircleCIService {
 
     async updateEnvVariable(envName, envValue) {
         const response = await this.$httpClient.httpRequest({
-            url: `https://circleci.com/api/v1.1/project/github/${this.gitRepository}/envvar?circle-token=${this.circleCiApiAccessToken}`,
+            url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar?circle-token=${this.circleCiApiAccessToken}`,
             method: "POST",
             body: JSON.stringify({ "name": envName, "value": envValue }),
             headers: {
@@ -78,18 +78,18 @@ class CircleCIService {
         });
 
         if (response.response.statusCode !== 201) {
-            throw new Error(`Unable to update CircleCI environment variables for project "${this.gitRepository}"`);
+            throw new Error(`Unable to update CircleCI environment variables for project "${this.gitRepositoryName}"`);
         }
     }
 
     async deleteEnvVariable(envName) {
         const response = await this.$httpClient.httpRequest({
-            url: `https://circleci.com/api/v1.1/project/github/${this.gitRepository}/envvar/${envName}?circle-token=${this.circleCiApiAccessToken}`,
+            url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar/${envName}?circle-token=${this.circleCiApiAccessToken}`,
             method: "DELETE"
         });
 
         if (response.response.statusCode !== 200) {
-            throw new Error(`Unable to remove CircleCI environment variables for project "${this.gitRepository}"`);
+            throw new Error(`Unable to remove CircleCI environment variables for project "${this.gitRepositoryName}"`);
         }
     }
 

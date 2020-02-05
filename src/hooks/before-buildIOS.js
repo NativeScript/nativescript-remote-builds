@@ -22,18 +22,19 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
             $settingsService,
             $httpClient,
             "ios",
-            config.sshCloudSyncGitRepository,
+            config.circleci.sshCloudSyncGitRepository,
             new CircleCIService(
                 $httpClient,
                 $fs,
                 $logger,
-                config.cloudSyncGitRepository
+                config.cloudSyncGitRepositoryName
             ));
         nativeProjectRoot = path.relative(projectData.projectDir, nativeProjectRoot);
 
-        const appstoreConnectAppId = config.appstoreConnectAppId;
+        const appstoreConnectAppId = config.env["IOS_APPSTORE_CONNECT_APP_ID"];
         if (publishToTestflight && !appstoreConnectAppId) {
-            $logger.fail("appstoreConnectAppId (in .nscloudbuilds.json) required when publishing!");
+            // TODO: validate both cloud and local in order to fail
+            $logger.fail("appstoreConnectAppId (in .nscloudbuilds.json) required when publishing iOS apps!");
         }
 
         return buildService.build(args, {
@@ -41,8 +42,6 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Matchfile": "./fastlane/Matchfile",
             "node_modules/nativescript-cloud-builds/src/fastlane/ios/Gemfile": "./Gemfile",
         }, {
-            "IOS_APPLE_ID": config.appleId,
-            "IOS_SIGNING_REPO_URL": config.iOSSigningPrivateGithubRepository,
             "IOS_XCODE_PROJ_PATH": path.join(nativeProjectRoot, `${projectData.projectName}.xcodeproj`),
             "IOS_XCODE_WORKSPACE_PATH": path.join(nativeProjectRoot, `${projectData.projectName}.xcworkspace`),
             "IOS_BUILD_FOR_SIMULATOR": !buildData.buildForDevice,

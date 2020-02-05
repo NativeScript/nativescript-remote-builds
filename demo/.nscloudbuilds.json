@@ -1,6 +1,8 @@
 {
-    "sshCloudSyncGitRepository": "git@github.com:DimitarTachev/nativescript-circle-ci-livesync.git",
-    "appleId": "dimitar.tachev@progress.com",
-    "appstoreConnectAppId": "1497136415",
-    "iOSSigningPrivateGithubRepository": "git@github.com:DimitarTachev/ios-signing.git"
+    "circleci": {
+        "sshCloudSyncGitRepository": "git@github.com:DimitarTachev/nativescript-circle-ci-livesync.git"
+    },
+    "env": {
+        "IOS_APPSTORE_CONNECT_APP_ID": "1497136415"
+    }
 }

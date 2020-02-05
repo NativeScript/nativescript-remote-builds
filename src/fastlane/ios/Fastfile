@@ -59,9 +59,10 @@ platform :ios do
   if ({{PUBLISH}})
     upload_to_testflight(
       skip_submission: true,
-      username: "{{IOS_APPLE_ID}}",
+      # TODO: or app-specific
+      username: ENV["IOS_APPLE_ID"],
       app_identifier: "{{PROJECT_ID}}",
-      apple_id: "{{IOS_APPSTORE_CONNECT_APP_ID}}",
+      apple_id: ENV["IOS_APPSTORE_CONNECT_APP_ID_{{CLI_BUILD_ID}}"],
       ipa: "~/fl_output/{{PROJECT_NAME}}.ipa",
       skip_waiting_for_build_processing: true
     )

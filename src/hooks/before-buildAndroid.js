@@ -21,12 +21,12 @@ module.exports = ($staticConfig, $childProcess, $fs, $logger, $platformsDataServ
             $settingsService,
             $httpClient,
             "android",
-            config.sshCloudSyncGitRepository,
+            config.circleci.sshCloudSyncGitRepository,
             new CircleCIService(
                 $httpClient,
                 $fs,
                 $logger,
-                config.cloudSyncGitRepository
+                config.cloudSyncGitRepositoryName
             ));
 
         return buildService.build(args, {

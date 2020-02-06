@@ -1,5 +1,5 @@
-module.exports = ($childProcess, $fs, $logger, $platformsDataService, $settingsService, $httpClient) => {
-    return (args) => {
+module.exports = () => {
+    return () => {
         // TODO: do not skip if the command is tns doctor
         return {
             canExecute: true

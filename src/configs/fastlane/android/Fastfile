@@ -17,8 +17,10 @@ platform :android do
   desc 'Build the Android application.'
   lane :build do
 
+    buildAppPath = File.expand_path("~/output/{{OUTPUT_APP_FILENAME}}");
     hasAab = ENV[getCLIArgEnvName("aab")] == "1";
-    nativescriptCLICommand = ["tns", "build", "android", "--copy-to", hasAab ? "{{OUTPUT_DIR}}/app.aab" : "{{OUTPUT_DIR}}/app.apk"];
+    shouldPublish = ENV[getCLIArgEnvName("env.cloudPublish")] == "1";
+    nativescriptCLICommand = ["tns", "build", "android", "--copy-to", buildAppPath];
     if ENV[getCLIArgEnvName("release")]
       nativescriptCLICommand.push("--release");
     end
@@ -98,7 +100,7 @@ platform :android do
     keyStoreEnvVar = getCLIArgEnvName("key-store");
     if ENV[keyStoreEnvVar]
       keyStoreContent = Base64.decode64(ENV[keyStoreEnvVar]);
-      keyStoreFilePath = File.join(File.expand_path("{{PROJECT_DIR}}"), "__envKeystore");
+      keyStoreFilePath = File.join(File.expand_path("~/{{PROJECT_NAME}}"), "__envKeystore");
       keyStoreDirPath = File.dirname(keyStoreFilePath)
       unless File.directory?(keyStoreDirPath)
         FileUtils.mkdir_p(keyStoreDirPath)
@@ -131,7 +133,7 @@ platform :android do
 
     sh(nativescriptCLICommand);
 
-    if ({{PUBLISH}})
+    if (shouldPublish)
       upload_to_play_store(
         # TODO: expose track
         package_name: '{{PROJECT_ID}}',
@@ -139,8 +141,8 @@ platform :android do
         release_status: 'draft',
         track_promote_to: 'beta',
         json_key_data: Base64.decode64(ENV["PLAYSTORE_ACCOUNT_JSON_DATA"]),
-        aab: hasAab ? File.expand_path('{{OUTPUT_DIR}}/app.aab') : nil,
-        apk: hasAab ? nil : File.expand_path('{{OUTPUT_DIR}}/app.apk')
+        aab: hasAab ? buildAppPath : nil,
+        apk: hasAab ? nil : buildAppPath
       )
     end
   end

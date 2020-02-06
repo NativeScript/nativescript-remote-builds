@@ -1,5 +1,5 @@
 
-module.exports = (hookArgs) => {
+module.exports = () => {
     return (args) => {
         // commandName: string, commandArguments: string[], argv: string[]
         var [commandName, commandArguments, argv] = args;

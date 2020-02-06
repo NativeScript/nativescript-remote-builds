@@ -1,59 +1,61 @@
 const path = require("path");
+const _ = require("lodash");
 
 class GitService {
-    constructor($childProcess, $fs,
-        $logger, profileDir) {
+    constructor($childProcess, $fs, $logger, gitDirsPath, gitRepoName, workingDirectory) {
         this.$childProcess = $childProcess;
         this.$fs = $fs;
         this.$logger = $logger;
-        this.profileDir = profileDir;
+        this.gitDirsPath = gitDirsPath;
+        this.gitRepoName = gitRepoName;
+        this.workingDirectory = workingDirectory;
     }
 
-    async gitPushChanges(projectSettings, remoteUrl, mappedFiles, placeholders, cliBuildId) {
+    async gitPushChanges(remoteUrl, mappedFiles, placeholders, branchId) {
         // a workaround for a sporadic "git exited with code 1"
-        this.cleanGitRepository(projectSettings);
-        await this.gitInit(projectSettings);
-        const isRemoteAdded = await this.gitCheckIfRemoteIsAdded(projectSettings, GitService.REMOTE_NAME);
+        this.cleanGitRepository();
+        await this.gitInit();
+        const isRemoteAdded = await this.gitCheckIfRemoteIsAdded(GitService.REMOTE_NAME);
         if (isRemoteAdded) {
-            const isGitRemoteCorrect = await this.isGitRemoteSetToCorrectUrl(projectSettings, remoteUrl);
+            const isGitRemoteCorrect = await this.isGitRemoteSetToCorrectUrl(remoteUrl);
             if (!isGitRemoteCorrect) {
-                await this.gitSetRemoteUrl(projectSettings, GitService.REMOTE_NAME, remoteUrl);
+                await this.gitSetRemoteUrl(GitService.REMOTE_NAME, remoteUrl);
             }
         }
         else {
-            await this.gitRemoteAdd(projectSettings, remoteUrl);
+            await this.gitRemoteAdd(remoteUrl);
         }
-        await this.ensureGitIgnoreExists(projectSettings.projectDir);
-        const isAutocrlfFalse = await this.gitCheckIfAutocrlfIsFalse(projectSettings);
+        await this.ensureGitIgnoreExists(this.workingDirectory);
+        const isAutocrlfFalse = await this.gitCheckIfAutocrlfIsFalse();
         if (!isAutocrlfFalse) {
             this.$logger.trace("Setting core.autocrlf to false");
             // Commit line ending as is, do not allow git to change them.
-            await this.executeCommand(projectSettings, ["config", "--local", "core.autocrlf", "false"]);
+            await this.executeCommand(["config", "--local", "core.autocrlf", "false"]);
         }
 
         try {
-            await this.executeCommand(projectSettings, ["checkout", GitService.BRANCH_NAME_PREFIX + cliBuildId]);
+            await this.executeCommand(["checkout", GitService.BRANCH_NAME_PREFIX + branchId]);
         }
         catch (error) {
-            await this.executeCommand(projectSettings, ["checkout", "-b", GitService.BRANCH_NAME_PREFIX + cliBuildId]);
+            await this.executeCommand(["checkout", "-b", GitService.BRANCH_NAME_PREFIX + branchId]);
         }
-        const statusResult = await this.gitStatus(projectSettings);
+        const statusResult = await this.gitStatus();
         this.$logger.trace(`Result of git status: ${statusResult}.`);
         let revision;
         if (this.hasNothingToCommit(statusResult.stdout)) {
             this.$logger.trace("Nothing to commit. Just push force the branch.");
-            await this.gitPush(projectSettings, cliBuildId);
-            revision = await this.getCurrentRevision(projectSettings);
+            await this.gitPush(branchId);
+            revision = await this.getCurrentRevision();
             return revision;
         }
-        await this.gitAdd(projectSettings);
+        await this.gitAdd();
         for (const localFile in mappedFiles) {
             const gitFile = mappedFiles[localFile];
             if (this.$fs.exists(gitFile)) {
-                await this.gitRemoveFile(projectSettings, gitFile);
+                await this.gitRemoveFile(gitFile);
             }
 
-            const gitDir = this.getGitDirPath(projectSettings);
+            const gitDir = this.getGitDirPath();
             const destination = path.join(gitDir, gitFile);
             if (this.$fs.exists(destination)) {
                 this.$fs.deleteDirectory(destination);
@@ -65,69 +67,69 @@ class GitService {
             }
 
             this.$fs.writeFile(destination, fileContent);
-            await this.gitAdd(projectSettings, gitFile, true);
+            await this.gitAdd(gitFile, true);
         }
 
-        await this.gitCommit(projectSettings);
-        await this.gitPush(projectSettings, cliBuildId);
-        revision = await this.getCurrentRevision(projectSettings);
+        await this.gitCommit();
+        await this.gitPush(branchId);
+        revision = await this.getCurrentRevision();
         return revision;
     }
 
-    async gitDeleteBranch(projectSettings, cliBuildId) {
+    async gitDeleteBranch(cliBuildId) {
         // remove local branch
-        await this.executeCommand(projectSettings, ["branch", "-D", GitService.BRANCH_NAME_PREFIX + cliBuildId])
+        await this.executeCommand(["branch", "-D", GitService.BRANCH_NAME_PREFIX + cliBuildId])
         // remove remote branch
         const env = _.assign({}, process.env);
-        return this.executeCommand(projectSettings, ["push", "-d", GitService.REMOTE_NAME, GitService.BRANCH_NAME_PREFIX + cliBuildId], { env, cwd: projectSettings.projectDir });
+        return this.executeCommand(["push", "-d", GitService.REMOTE_NAME, GitService.BRANCH_NAME_PREFIX + cliBuildId], { env, cwd: this.workingDirectory });
     }
 
-    async getCurrentRevision(projectSettings) {
-        const revisionCommandResult = await this.executeCommand(projectSettings, ["rev-parse", "HEAD"]);
+    async getCurrentRevision() {
+        const revisionCommandResult = await this.executeCommand(["rev-parse", "HEAD"]);
         return revisionCommandResult.stdout.trim();
     }
-    async isGitRemoteSetToCorrectUrl(projectSettings, remoteUrl) {
-        const result = await this.executeCommand(projectSettings, ["remote", "-v"]);
+    async isGitRemoteSetToCorrectUrl(remoteUrl) {
+        const result = await this.executeCommand(["remote", "-v"]);
         return result.stdout.indexOf(remoteUrl.httpRemoteUrl) !== -1;
     }
 
-    async gitRemoveFile(projectSettings, relativeFilePath) {
+    async gitRemoveFile(relativeFilePath) {
         // TODO: fix existing fastlane
-        return this.executeCommand(projectSettings, ["rm", "--cached", relativeFilePath]);
+        return this.executeCommand(["rm", "--cached", relativeFilePath]);
     }
 
-    async gitInit(projectSettings) {
-        return this.executeCommand(projectSettings, ["init"]);
+    async gitInit() {
+        return this.executeCommand(["init"]);
     }
-    async gitCommit(projectSettings) {
-        return this.executeCommand(projectSettings, ["commit", `-m "cloud-commit-${new Date().toString()}"`]);
+    async gitCommit() {
+        return this.executeCommand(["commit", `-m "cloud-commit-${new Date().toString()}"`]);
     }
-    async gitAdd(projectSettings, pattern, inGitDir) {
+    async gitAdd(pattern, inGitDir) {
         const args = ["add"];
         if (pattern) {
             args.push(pattern);
         } else {
-            args.push(projectSettings.projectDir)
+            args.push(this.workingDirectory)
         }
 
-        return this.executeCommand(projectSettings, args, null, null, inGitDir);
+        return this.executeCommand(args, null, null, inGitDir);
     }
-    async gitStatus(projectSettings) {
-        return this.executeCommand(projectSettings, ["status"]);
+    async gitStatus() {
+        return this.executeCommand(["status"]);
     }
-    async gitPush(projectSettings, cliBuildId) {
+    async gitPush(cliBuildId) {
         const env = _.assign({}, process.env);
-        return this.executeCommand(projectSettings, ["push", "--force", GitService.REMOTE_NAME, GitService.BRANCH_NAME_PREFIX + cliBuildId], { env, cwd: projectSettings.projectDir });
+        return this.executeCommand(["push", "--force", GitService.REMOTE_NAME, GitService.BRANCH_NAME_PREFIX + cliBuildId], { env, cwd: this.workingDirectory });
     }
-    async gitRemoteAdd(projectSettings, remoteUrl) {
-        return this.executeCommand(projectSettings, ["remote", "add", GitService.REMOTE_NAME, remoteUrl.httpRemoteUrl]);
+    async gitRemoteAdd(remoteUrl) {
+        return this.executeCommand(["remote", "add", GitService.REMOTE_NAME, remoteUrl.httpRemoteUrl]);
     }
-    async gitSetRemoteUrl(projectSettings, remoteName, remoteUrl) {
-        await this.executeCommand(projectSettings, ["remote", "set-url", remoteName, remoteUrl.httpRemoteUrl]);
+    async gitSetRemoteUrl(remoteName, remoteUrl) {
+        await this.executeCommand(["remote", "set-url", remoteName, remoteUrl.httpRemoteUrl]);
     }
-    async gitCheckIfRemoteIsAdded(projectSettings, remoteName) {
+    async gitCheckIfRemoteIsAdded(remoteName) {
         try {
-            await this.executeCommand(projectSettings, ["remote", "get-url", remoteName]);
+            await this.executeCommand(["remote", "get-url", remoteName]);
             return true;
         }
         catch (err) {
@@ -135,9 +137,9 @@ class GitService {
             return false;
         }
     }
-    async gitCheckIfAutocrlfIsFalse(projectSettings) {
+    async gitCheckIfAutocrlfIsFalse() {
         try {
-            const result = await this.executeCommand(projectSettings, ["config", "core.autocrlf"]);
+            const result = await this.executeCommand(["config", "core.autocrlf"]);
             return result && result.stdout && result.stdout.toString().trim().toLowerCase() === "false";
         }
         catch (err) {
@@ -145,35 +147,35 @@ class GitService {
             return false;
         }
     }
-    async executeCommand(projectSettings, args, options, spawnFromEventOptions, inGitDir) {
-        options = options || { cwd: projectSettings.projectDir };
-        const gitDir = this.getGitDirPath(projectSettings);
+    async executeCommand(args, options, spawnFromEventOptions, inGitDir) {
+        options = options || { cwd: this.workingDirectory };
+        const gitDir = this.getGitDirPath();
         this.$fs.ensureDirectoryExists(gitDir);
-        args = [`--git-dir=${gitDir}`, `--work-tree=${inGitDir ? gitDir : projectSettings.projectDir}`].concat(args);
+        args = [`--git-dir=${gitDir}`, `--work-tree=${inGitDir ? gitDir : this.workingDirectory}`].concat(args);
         // TODO: test on Windows
         return this.$childProcess.spawnFromEvent("git", args, "close", options, spawnFromEventOptions);
     }
-    isGitRepository(projectSettings) {
-        return this.$fs.exists(this.getGitDirPath(projectSettings));
+    isGitRepository() {
+        return this.$fs.exists(this.getGitDirPath());
     }
-    cleanGitRepository(projectSettings) {
-        const gitDir = this.getGitDirPath(projectSettings);
+    cleanGitRepository() {
+        const gitDir = this.getGitDirPath();
         if (this.$fs.exists(gitDir)) {
             this.$fs.deleteDirectory(gitDir);
         }
     }
-    getGitDirPath(projectSettings) {
-        return path.join(this.getGitDirBasePath(), projectSettings.projectId);
+    getGitDirPath() {
+        return path.join(this.getGitDirBasePath(), this.gitRepoName);
     }
     getGitDirBasePath() {
-        return path.join(this.profileDir, GitService.GIT_DIR_NAME);
+        return path.join(this.gitDirsPath, GitService.GIT_DIR_NAME);
     }
-    ensureGitIgnoreExists(projectDir) {
-        const gitIgnorePath = path.join(projectDir, GitService.GIT_IGNORE_FILE_NAME);
+    ensureGitIgnoreExists(workingDir) {
+        const gitIgnorePath = path.join(workingDir, GitService.GIT_IGNORE_FILE_NAME);
         this.$logger.trace(`Ensure ${gitIgnorePath} exists.`);
         if (!this.$fs.exists(gitIgnorePath)) {
             this.$logger.trace(`${gitIgnorePath} does not exist. Creating a default one.`);
-            this.$fs.copyFile(path.join(__dirname, "..", "common", "basic-gitignore"), gitIgnorePath);
+            this.$fs.copyFile(path.join(__dirname, "..", "configs", "basic-gitignore"), gitIgnorePath);
         }
     }
     hasNothingToCommit(stdout) {
@@ -185,7 +187,5 @@ GitService.REMOTE_NAME = "circleci";
 GitService.BRANCH_NAME_PREFIX = "circle-ci-";
 GitService.GIT_DIR_NAME = ".circle-ci-git";
 GitService.GIT_IGNORE_FILE_NAME = ".gitignore";
-GitService.TEMPLATE_GIT_IGNORE_FILE_NAME = "defaultGitIgnore";
-
 
 module.exports.GitService = GitService;

@@ -21,7 +21,10 @@ platform :ios do
  desc 'Build the iOS application.'
  lane :build do
   nativescriptCLICommand = ["tns", "prepare", "ios"];
-  if ENV[getCLIArgEnvName("release")]
+  shouldPublish = ENV[getCLIArgEnvName("env.cloudPublish")] == "1";
+  inRelease = ENV[getCLIArgEnvName("release")] == "1";
+  isForDevice = ENV[getCLIArgEnvName("forDevice")] == "1";
+  if inRelease
     nativescriptCLICommand.push("--release");
   end
 
@@ -30,33 +33,43 @@ platform :ios do
     nativescriptCLICommand.push("--log", "\"$#{logEnvVar}\"");
   end
   
+  defaultProvisionType = inRelease ? "appstore" : "development";
+  defaultBuildType = inRelease ? "app-store" : "development";
+  defaultBuildConfiguration = inRelease ? "Release" : "Debug";
+  provisionType = ENV["IOS_PROVISION_TYPE_{{CLI_BUILD_ID}}"] || defaultProvisionType;
+  buildType = ENV["IOS_BUILD_TYPE_{{CLI_BUILD_ID}}"] || defaultBuildType;
+  buildConfiguration = ENV["IOS_BUILD_CONFIGURATION_{{CLI_BUILD_ID}}"] || defaultBuildConfiguration;
+  
+  # TODO: move config here instead of matchfile?
   match(
-    type: "{{IOS_PROVISION_TYPE}}",
+    type: provisionType,
     app_identifier: "{{PROJECT_ID}}"
   )
-  nativescriptCLICommand.push("--provision", "\"#{ENV["sigh_org.nativescript.cloudTest_{{IOS_PROVISION_TYPE}}"]}\"")
+
+  matchProvisionName = ENV["sigh_org.nativescript.cloudTest_#{provisionType}"];
+  nativescriptCLICommand.push("--provision", "\"#{matchProvisionName}\"")
   
   sh(nativescriptCLICommand);
 
   gym(
     scheme: "{{PROJECT_NAME}}",
-    workspace: "{{IOS_XCODE_WORKSPACE_PATH}}",
-    export_method: '{{IOS_BUILD_TYPE}}',
-    configuration: "{{IOS_BUILD_CONFIGURATION}}",
-    destination: {{IOS_BUILD_FOR_SIMULATOR}} ? 'generic/platform=iOS Simulator' : 'generic/platform=iOS',
-    skip_package_ipa: {{IOS_BUILD_FOR_SIMULATOR}} ? true : false,
+    workspace: File.join("{{NATIVE_PROJECT_ROOT}}", "{{PROJECT_NAME}}.xcworkspace"),
+    export_method: buildType,
+    configuration: buildConfiguration,
+    destination: isForDevice ? 'generic/platform=iOS' : 'generic/platform=iOS Simulator',
+    skip_package_ipa: !isForDevice,
     archive_path: File.expand_path('~/fl_output/{{PROJECT_NAME}}'),
     output_directory: File.expand_path('~/fl_output')
   )
 
-  if ({{IOS_BUILD_FOR_SIMULATOR}})
+  if (!isForDevice)
     zip(
       path: File.expand_path("~/fl_output/{{PROJECT_NAME}}.xcarchive/Products/Applications/{{PROJECT_NAME}}.app"),
       output_path: File.expand_path("~/fl_output/{{PROJECT_NAME}}.app.zip")
     )
   end
 
-  if ({{PUBLISH}})
+  if (shouldPublish)
     upload_to_testflight(
       skip_submission: true,
       # TODO: or app-specific

@@ -3,17 +3,13 @@ jobs:
   build:
     macos:
       xcode: 11.3.0
-    working_directory: "{{PROJECT_DIR}}"
+    working_directory: "~/{{PROJECT_NAME}}"
     environment:
       FL_OUTPUT_DIR: ~/fl_output
     shell: /bin/bash --login -o pipefail
     steps:
-      # GLOBAL OPERATIONS
-      - add_ssh_keys:
-          fingerprints:
-            # TODO: test if needed?
-            - "d8:25:e3:b4:cd:39:3f:45:29:01:94:8e:5f:15:3b:30"
       # setup NPM
+      - add_ssh_keys:
       - run: echo 'export PATH=~/npm_prefix/bin:$PATH' >> $BASH_ENV
       - run: npm config set prefix ~/npm_prefix
 
@@ -32,15 +28,8 @@ jobs:
       - checkout
 
       # NODE PACKAGES
-      # - restore_cache:
-      #     keys:
-      #       - node-modules-{{ checksum "package.json" }}
-      - run: '[ -d "{{PROJECT_DIR}}/node_modules/" ] || (npm install && npm rebuild)'
-      # - save_cache:
-      #     paths:
-      #       - node_modules
-      #     key: node-modules-{{ checksum "package.json" }}
-
+      - run: npm install
+      - run: npm rebuild
       # INSTALL GEMS (fastlane)
       - restore_cache:
           key: gems-mac-{{ checksum "Gemfile" }}
@@ -59,10 +48,10 @@ jobs:
           command: bundle exec fastlane ios build
       - store_artifacts:
           path: ~/fl_output/{{PROJECT_NAME}}.ipa
-          destination: "{{OUTPUT_DIR}}/{{PROJECT_NAME}}.ipa"
+          destination: "~/output/{{OUTPUT_APP_FILENAME}}"
       - store_artifacts:
           path: ~/fl_output/{{PROJECT_NAME}}.app.zip
-          destination: "{{OUTPUT_DIR}}/{{PROJECT_NAME}}.app.zip"
+          destination: "~/output/{{OUTPUT_APP_FILENAME}}.zip"
 
 workflows:
   version: 2

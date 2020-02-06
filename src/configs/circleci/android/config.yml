@@ -6,19 +6,11 @@ version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
       - image: circleci/android:api-29-node
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
-
-    working_directory: "{{PROJECT_DIR}}"
+    working_directory: "~/{{PROJECT_NAME}}"
 
     steps:
-      # GLOBAL OPERATIONS
-
       # setup NPM
       - run: echo 'export PATH=~/npm_prefix/bin:$PATH' >> $BASH_ENV
       - run: npm config set prefix ~/npm_prefix
@@ -64,11 +56,4 @@ jobs:
 
       # Expose artifacts
       - store_artifacts:
-          path: "{{OUTPUT_DIR}}"
-      # CACHE
-      # - save_cache:
-      #     # TODO: add platforms cache?
-      #     paths:
-      #       - node_modules
-      #       - ~/.gradle/
-      #     key: v1-dependencies-{{ checksum "package.json" }}
+          path: "~/output"

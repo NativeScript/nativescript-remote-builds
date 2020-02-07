@@ -17,7 +17,6 @@ class CircleCIService {
         this.$logger = $logger;
         this.platform = platform;
         const githubSshUrlStart = "git@github.com:";
-        // TODO: validate all CircleCI related config values
         if (!options || !options.sshCloudSyncGitRepository || !options.sshCloudSyncGitRepository.startsWith(githubSshUrlStart)) {
             throw new Error(`"circleci.sshCloudSyncGitRepository" should be a valid github ssh URL. Received: ${options.sshCloudSyncGitRepository}`);
         }
@@ -29,7 +28,6 @@ class CircleCIService {
 
 
     getCustomFiles() {
-        // TODO: maybe relative to the plugin / __dirname
         const mappedFiles = {
             [`node_modules/nativescript-cloud-builds/src/configs/circleci/${this.platform}/config.yml`]: "./.circleci/config.yml",
         };
@@ -52,7 +50,7 @@ class CircleCIService {
 
         const appArtifact = _.find(artifacts, (a) => { return a.path.trim().indexOf(cloudFileName) > -1; });
         if (!appArtifact) {
-            return null;
+            throw new Error(`"${cloudFileName}" not found in the Circle CI artifacts!`);
         }
 
         const isZip = appArtifact.path.trim().endsWith(".zip");

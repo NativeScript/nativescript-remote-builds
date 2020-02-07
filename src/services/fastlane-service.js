@@ -2,6 +2,7 @@ class FastlaneService {
     constructor() {
     }
 
+    // TODO: ask the current and fastlane service for required envs based on params and validate their existance!
     // TODO: introduce validation
     // const appstoreConnectAppId = config.env["IOS_APPSTORE_CONNECT_APP_ID"];
     // if (publishToTestflight && !appstoreConnectAppId) {

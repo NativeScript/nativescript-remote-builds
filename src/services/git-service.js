@@ -94,7 +94,6 @@ class GitService {
     }
 
     async gitRemoveFile(relativeFilePath) {
-        // TODO: fix existing fastlane
         return this.executeCommand(["rm", "--cached", relativeFilePath]);
     }
 
@@ -152,7 +151,6 @@ class GitService {
         const gitDir = this.getGitDirPath();
         this.$fs.ensureDirectoryExists(gitDir);
         args = [`--git-dir=${gitDir}`, `--work-tree=${inGitDir ? gitDir : this.workingDirectory}`].concat(args);
-        // TODO: test on Windows
         return this.$childProcess.spawnFromEvent("git", args, "close", options, spawnFromEventOptions);
     }
     isGitRepository() {

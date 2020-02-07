@@ -9,7 +9,7 @@ class GitBasedBuildService {
         this.$logger = $logger;
         this.platform = platform;
         this.gitService = gitService;
-        // TODO: validate all methods of ciService
+        // TODO: document all required methods of a ciService
         this.ciService = ciService;
         this.remoteUrl = ciService.sshCloudSyncGitRepository;
     }
@@ -45,8 +45,14 @@ class GitBasedBuildService {
             placeholders,
             cliBuildId);
 
-        // TODO: handle build errors
-        const { buildNumber, isSuccessful } = await this.ciService.build(commitRevision);
+        let buildNumber, isSuccessful;
+        try {
+            ({ buildNumber, isSuccessful }) = await this.ciService.build(commitRevision);
+        } catch (e) {
+            isSuccessful = false;
+            // ignore the error in order to clean the state
+        }
+
         await this.cleanEnvVars(cliBuildId);
         await this.gitService.gitDeleteBranch(cliBuildId);
         if (!isSuccessful) {
@@ -54,9 +60,9 @@ class GitBasedBuildService {
         }
 
         this.$logger.info("Downloading build result.");
-        // TODO: handle download errors
         await this.ciService.downloadBuildArtefact(buildNumber, outputAppFilename, appOutputPath);
         this.$logger.info(`Successfully downloaded: ${appOutputPath}`);
+
     }
 
     async updateCLIArgEnvVariable(argName, value, cliBuildId) {

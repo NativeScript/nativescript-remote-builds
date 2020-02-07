@@ -26,7 +26,8 @@ class CloudBuildService {
             const ciService = new CircleCIService(this.$httpClient, this.$fs, this.$logger, this.platform, config.circleci)
             buildService = new GitBasedBuildService(this.$fs, this.$logger, this.platform, gitService, ciService);
         } else {
-            throw new Error("Unsupported build service: TODO: refer something from the README.");
+            // TODO: refer a README section
+            throw new Error("Unsupported build service.");
         }
 
         const appOutputPath = this._getAppOutputPath(projectData, buildData);

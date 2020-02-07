@@ -11,13 +11,10 @@ class FastlaneService {
 
     getCustomFiles(platform) {
         const mappedFiles = {
+            "node_modules/nativescript-cloud-builds/src/configs/fastlane/common/utils.rb": "./fastlane/common/utils.rb",
             [`node_modules/nativescript-cloud-builds/src/configs/fastlane/${platform}/Fastfile`]: "./fastlane/Fastfile",
             [`node_modules/nativescript-cloud-builds/src/configs/fastlane/${platform}/Gemfile`]: "./Gemfile",
         };
-
-        if (platform === "ios") {
-            mappedFiles["node_modules/nativescript-cloud-builds/src/configs/fastlane/ios/Matchfile"] = "./fastlane/Matchfile";
-        }
 
         return mappedFiles;
     }

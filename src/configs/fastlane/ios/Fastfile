@@ -1,17 +1,5 @@
 fastlane_version '2.140.0'
-
-def underscore (string)
-  return string.gsub(/::/, '/').
-  gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
-  gsub(/([a-z\d])([A-Z])/,'\1_\2').
-  tr("-", "_").
-  tr(".", "_").
-  upcase
-end
-
-def getCLIArgEnvName (argName)
-  return "CLI_ARG_" + underscore(argName) + "_{{CLI_BUILD_ID}}";
-end
+require_relative './common/utils'
 
 platform :ios do
  before_all do
@@ -21,31 +9,31 @@ platform :ios do
  desc 'Build the iOS application.'
  lane :build do
   nativescriptCLICommand = ["tns", "prepare", "ios"];
-  shouldPublish = ENV[getCLIArgEnvName("env.cloudPublish")] == "1";
-  inRelease = ENV[getCLIArgEnvName("release")] == "1";
-  isForDevice = ENV[getCLIArgEnvName("forDevice")] == "1";
-  if inRelease
-    nativescriptCLICommand.push("--release");
-  end
+  cliCommandArgs = getCLIArgsFromEnv([
+    "release", "forDevice", "log", "env.remotePublish", "clean", "hmr",
+    "env.snapshot", "env.production", "env.uglify", "env.sourceMap", "env.hiddenSourceMap",
+    "env.hmr", "env.unitTesting", "env.verbose", "env.snapshotInDocker", "env.skipSnapshotTools",
+    "env.compileSnapshot", "env.appPath", "env.appResourcesPath"]);
+  inRelease = cliCommandArgs.include?("--release");
+  isForDevice = cliCommandArgs.include?("--forDevice");
+  nativescriptCLICommand.push(*cliCommandArgs);
 
-  logEnvVar = getCLIArgEnvName("log");
-  if ENV[logEnvVar]
-    nativescriptCLICommand.push("--log", "\"$#{logEnvVar}\"");
-  end
-  
   defaultProvisionType = inRelease ? "appstore" : "development";
   defaultBuildType = inRelease ? "app-store" : "development";
   defaultBuildConfiguration = inRelease ? "Release" : "Debug";
-  provisionType = ENV["IOS_PROVISION_TYPE_{{CLI_BUILD_ID}}"] || defaultProvisionType;
-  buildType = ENV["IOS_BUILD_TYPE_{{CLI_BUILD_ID}}"] || defaultBuildType;
-  buildConfiguration = ENV["IOS_BUILD_CONFIGURATION_{{CLI_BUILD_ID}}"] || defaultBuildConfiguration;
+  provisionType = getEnvVar("IOS_PROVISION_TYPE") || defaultProvisionType;
+  buildType = getEnvVar("IOS_BUILD_TYPE") || defaultBuildType;
+  buildConfiguration = getEnvVar("IOS_BUILD_CONFIGURATION") || defaultBuildConfiguration;
   
-  # TODO: move config here instead of matchfile?
   match(
     type: provisionType,
-    app_identifier: "{{PROJECT_ID}}"
+    app_identifier: "{{PROJECT_ID}}",
+    git_url: getEnvVar("IOS_SIGNING_REPO_URL"),
+    username: getEnvVar("IOS_APPLE_ID")
   )
 
+  # we are not able to pass ENV variable with dots directly to a bash command as it will fail with 
+  # "Failed to find mobile provision with UUID or Name: .nativescript.cloudTest_developmen"
   matchProvisionName = ENV["sigh_org.nativescript.cloudTest_#{provisionType}"];
   nativescriptCLICommand.push("--provision", "\"#{matchProvisionName}\"")
   
@@ -69,13 +57,12 @@ platform :ios do
     )
   end
 
-  if (shouldPublish)
+  if (cliCommandArgs.include?("--env.remotePublish"))
     upload_to_testflight(
       skip_submission: true,
-      # TODO: or app-specific
-      username: ENV["IOS_APPLE_ID"],
+      username: getEnvVar("IOS_APPLE_ID"),
       app_identifier: "{{PROJECT_ID}}",
-      apple_id: ENV["IOS_APPSTORE_CONNECT_APP_ID_{{CLI_BUILD_ID}}"],
+      apple_id: getEnvVar("IOS_APPSTORE_CONNECT_APP_ID"),
       ipa: "~/fl_output/{{PROJECT_NAME}}.ipa",
       skip_waiting_for_build_processing: true
     )

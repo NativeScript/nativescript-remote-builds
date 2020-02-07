@@ -15,7 +15,7 @@ class GitBasedBuildService {
     }
 
     async build(buildOptions) {
-        const { projectData, cliVersion, cliArgs, envVars, appOutputPath } = buildOptions;
+        const { projectData, dependencies, cliArgs, envVars, appOutputPath } = buildOptions;
         const cliBuildId = uniqueString();
         for (const arg in cliArgs) {
             await this.updateCLIArgEnvVariable(arg, cliArgs[arg], cliBuildId);
@@ -30,7 +30,8 @@ class GitBasedBuildService {
 
         const outputAppFilename = path.basename(appOutputPath);
         const placeholders = {
-            "CLI_VERSION": cliVersion,
+            "CLI_VERSION": dependencies.cliVersion,
+            "IOS_COCOAPODS_VERSION": dependencies.cocoapodsVersion,
             "CLI_BUILD_ID": cliBuildId,
             "NATIVE_PROJECT_ROOT": projectData.nativeProjectRoot,
             "PROJECT_ID": projectData.projectIdentifiers[this.platform],

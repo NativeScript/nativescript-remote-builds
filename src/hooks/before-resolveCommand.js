@@ -8,7 +8,7 @@ module.exports = () => {
             // TODO: if not existing
             argv.push("--for-device");
             argv.push("--release");
-            argv.push("--env.cloudPublish");
+            argv.push("--env.remotePublish");
         }
 
         return { commandName, commandArguments, argv };

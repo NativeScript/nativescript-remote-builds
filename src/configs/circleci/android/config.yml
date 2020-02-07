@@ -42,13 +42,12 @@ jobs:
           paths:
             - vendor/bundle
 
+      # build and publish if needed
       - restore_cache:
           key: gradle-{{ checksum "package.json" }}
-
       - run:
           name: Fastlane
           command: bundle exec fastlane android build
-
       - save_cache:
           key: gradle-{{ checksum "package.json" }}
           paths:
@@ -56,4 +55,5 @@ jobs:
 
       # Expose artifacts
       - store_artifacts:
-          path: "~/output"
+          path: ~/fl_output
+          destination: ~/output

@@ -1,4 +1,5 @@
 {
+    "cocoapodsVersion": "1.8.0",
     "circleci": {
         "sshCloudSyncGitRepository": "git@github.com:DimitarTachev/nativescript-circle-ci-livesync.git"
     },

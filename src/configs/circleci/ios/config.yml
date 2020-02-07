@@ -8,8 +8,10 @@ jobs:
       FL_OUTPUT_DIR: ~/fl_output
     shell: /bin/bash --login -o pipefail
     steps:
-      # setup NPM
+      # load all SSH keys from the CircleCI project settings
+      # in order to be able to pull the ios signing repository
       - add_ssh_keys:
+      # setup NPM
       - run: echo 'export PATH=~/npm_prefix/bin:$PATH' >> $BASH_ENV
       - run: npm config set prefix ~/npm_prefix
 
@@ -30,19 +32,17 @@ jobs:
       # NODE PACKAGES
       - run: npm install
       - run: npm rebuild
-      # INSTALL GEMS (fastlane)
+
+      # INSTALL GEMS
       - restore_cache:
           key: gems-mac-{{ checksum "Gemfile" }}
-      # INSTALL GEMS (fastlane)
       - run: bundle config set path 'vendor/bundle'
       - run: bundle install
       - save_cache:
           key: gems-mac-{{ checksum "Gemfile" }}
           paths:
             - vendor/bundle
-      - run: pip install six
       - run: pod repo update
-      - run: pod --version
       - run:
           name: Fastlane
           command: bundle exec fastlane ios build

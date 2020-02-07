@@ -31,9 +31,14 @@ class CloudBuildService {
 
         const appOutputPath = this._getAppOutputPath(projectData, buildData);
         const cliVersion = this.$staticConfig.version;
+        const dependencies = {
+            cliVersion,
+            cocoapodsVersion: config.cocoapodsVersion || "1.8.4"
+        }
+
         await buildService.build({
             projectData,
-            cliVersion,
+            dependencies,
             cliArgs,
             envVars: config.env,
             appOutputPath
@@ -41,7 +46,7 @@ class CloudBuildService {
     }
 
     validateArgs(buildData) {
-        const publish = !!(buildData.env && buildData.env.cloudPublish);
+        const publish = !!(buildData.env && buildData.env.remotePublish);
         if (publish && (!buildData.release || !buildData.buildForDevice)) {
             throw new Error("Only release builds for device can be published!");
         }

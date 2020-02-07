@@ -1,106 +1,27 @@
 fastlane_version '2.140.0'
-
-def underscore (string)
-  return string.gsub(/::/, '/').
-  gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
-  gsub(/([a-z\d])([A-Z])/,'\1_\2').
-  tr("-", "_").
-  tr(".", "_").
-  upcase
-end
-
-def getCLIArgEnvName (argName)
-  return "CLI_ARG_" + underscore(argName) + "_{{CLI_BUILD_ID}}";
-end
+require_relative './common/utils'
 
 platform :android do
   desc 'Build the Android application.'
   lane :build do
 
-    buildAppPath = File.expand_path("~/output/{{OUTPUT_APP_FILENAME}}");
-    hasAab = ENV[getCLIArgEnvName("aab")] == "1";
-    shouldPublish = ENV[getCLIArgEnvName("env.cloudPublish")] == "1";
+    buildAppPath = File.expand_path("~/fl_output/{{OUTPUT_APP_FILENAME}}");
     nativescriptCLICommand = ["tns", "build", "android", "--copy-to", buildAppPath];
-    if ENV[getCLIArgEnvName("release")]
-      nativescriptCLICommand.push("--release");
-    end
-
-    logEnvVar = getCLIArgEnvName("log");
-    if ENV[logEnvVar]
-      nativescriptCLICommand.push("--log", "\"$#{logEnvVar}\"");
-    end
-
-    # TODO: reuse for cache skipping?
-    if ENV[getCLIArgEnvName("clean")]
-      nativescriptCLICommand.push("--clean");
-    end
-
-    if hasAab
-      nativescriptCLICommand.push("--aab");
-    end
-
-    if ENV[getCLIArgEnvName("hmr")]
-      nativescriptCLICommand.push("--hmr");
-    end
-
-    if ENV[getCLIArgEnvName("env.snapshot")]
-      nativescriptCLICommand.push("--env.snapshot");
-    end
-
-    if ENV[getCLIArgEnvName("env.production")]
-      nativescriptCLICommand.push("--env.production");
-    end
-
-    if ENV[getCLIArgEnvName("env.uglify")]
-      nativescriptCLICommand.push("--env.uglify");
-    end
-
-    if ENV[getCLIArgEnvName("env.sourceMap")]
-      nativescriptCLICommand.push("--env.sourceMap");
-    end
-
-    if ENV[getCLIArgEnvName("env.hiddenSourceMap")]
-      nativescriptCLICommand.push("--env.hiddenSourceMap");
-    end
-
-    if ENV[getCLIArgEnvName("env.hmr")]
-      nativescriptCLICommand.push("--env.hmr");
-    end
-
-    if ENV[getCLIArgEnvName("env.unitTesting")]
-      nativescriptCLICommand.push("--env.unitTesting");
-    end
-
-    if ENV[getCLIArgEnvName("env.verbose")]
-      nativescriptCLICommand.push("--env.verbose");
-    end
-
-    if ENV[getCLIArgEnvName("env.snapshotInDocker")]
-      nativescriptCLICommand.push("--env.snapshotInDocker");
-    end
-
-    if ENV[getCLIArgEnvName("env.skipSnapshotTools")]
-      nativescriptCLICommand.push("--env.skipSnapshotTools");
-    end
-
-    if ENV[getCLIArgEnvName("env.compileSnapshot")]
-      nativescriptCLICommand.push("--env.compileSnapshot");
-    end
-
-    appPathEnvVar = getCLIArgEnvName("env.appPath");
-    if ENV[appPathEnvVar]
-      nativescriptCLICommand.push("--env.appPath", "\"$#{appPathEnvVar}\"");
-    end
-
-    appResourcesPathEnvVar = getCLIArgEnvName("env.appResourcesPath");
-    if ENV[appResourcesPathEnvVar]
-      nativescriptCLICommand.push("--env.appResourcesPath", "\"$#{appResourcesPathEnvVar}\"");
-    end
+    cliCommandArgs = getCLIArgsFromEnv([
+      "release", "forDevice", "log", "env.remotePublish", "clean", "aab", "hmr",
+      "env.snapshot", "env.production", "env.uglify", "env.sourceMap", "env.hiddenSourceMap",
+      "env.hmr", "env.unitTesting", "env.verbose", "env.snapshotInDocker", "env.skipSnapshotTools",
+      "env.compileSnapshot", "env.appPath", "env.appResourcesPath", "key-store-password", "key-store-alias",
+      "key-store-alias-password",
+      ]);
+    nativescriptCLICommand.push(*cliCommandArgs);
+    hasAab = cliCommandArgs.include?("--aab");
+    shouldPublish = cliCommandArgs.include?("--env.remotePublish");
 
     keyStoreEnvVar = getCLIArgEnvName("key-store");
     if ENV[keyStoreEnvVar]
       keyStoreContent = Base64.decode64(ENV[keyStoreEnvVar]);
-      keyStoreFilePath = File.join(File.expand_path("~/{{PROJECT_NAME}}"), "__envKeystore");
+      keyStoreFilePath = File.join(".", "__envKeystore");
       keyStoreDirPath = File.dirname(keyStoreFilePath)
       unless File.directory?(keyStoreDirPath)
         FileUtils.mkdir_p(keyStoreDirPath)
@@ -111,36 +32,18 @@ platform :android do
       nativescriptCLICommand.push("--key-store-path", keyStoreFilePath);
     end
 
-    envArgsEnvVar = getCLIArgEnvName("env-args");
-    if ENV[envArgsEnvVar]
-      nativescriptCLICommand.push("$#{envArgsEnvVar}");
-    end
-
-    keyStorePassEnvVar = getCLIArgEnvName("key-store-password");
-    if ENV[keyStorePassEnvVar]
-      nativescriptCLICommand.push("--key-store-password", "\"$#{keyStorePassEnvVar}\"");
-    end
-
-    keyStoreAliasEnvVar = getCLIArgEnvName("key-store-alias");
-    if ENV[keyStoreAliasEnvVar]
-      nativescriptCLICommand.push("--key-store-alias", "\"$#{keyStoreAliasEnvVar}\"");
-    end
-
-    keyStoreAliasPassEnvVar = getCLIArgEnvName("key-store-alias-password");
-    if ENV[keyStoreAliasPassEnvVar]
-      nativescriptCLICommand.push("--key-store-alias-password", "\"$#{keyStoreAliasPassEnvVar}\"");
-    end
-
     sh(nativescriptCLICommand);
 
     if (shouldPublish)
+      track = getEnvVar("IOS_PUBLISH_TRACK") || "beta";
+      releaseStatus = getEnvVar("IOS_PUBLISH_RELEASE_STATUS") || "draft";
+      trackPromoteTo = getEnvVar("IOS_PUBLISH_TRACK_PROMOTE_TO") || "beta";
       upload_to_play_store(
-        # TODO: expose track
         package_name: '{{PROJECT_ID}}',
-        track: 'beta',
-        release_status: 'draft',
-        track_promote_to: 'beta',
-        json_key_data: Base64.decode64(ENV["PLAYSTORE_ACCOUNT_JSON_DATA"]),
+        track: track,
+        release_status: releaseStatus,
+        track_promote_to: trackPromoteTo,
+        json_key_data: Base64.decode64(getEnvVar("PLAYSTORE_ACCOUNT_JSON_DATA")),
         aab: hasAab ? buildAppPath : nil,
         apk: hasAab ? nil : buildAppPath
       )

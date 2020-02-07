@@ -47,7 +47,9 @@ class GitBasedBuildService {
 
         let buildNumber, isSuccessful;
         try {
-            ({ buildNumber, isSuccessful }) = await this.ciService.build(commitRevision);
+            const buildResult = await this.ciService.build(commitRevision);
+            isSuccessful = buildResult.isSuccessful;
+            buildNumber = buildResult.buildNumber;
         } catch (e) {
             isSuccessful = false;
             // ignore the error in order to clean the state

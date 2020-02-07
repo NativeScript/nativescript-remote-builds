@@ -31,8 +31,13 @@ class CloudBuildService {
 
         const appOutputPath = this._getAppOutputPath(projectData, buildData);
         const cliVersion = this.$staticConfig.version;
-        // TODO: obj
-        await buildService.build(projectData, cliVersion, cliArgs, config.env, appOutputPath);
+        await buildService.build({
+            projectData,
+            cliVersion,
+            cliArgs,
+            envVars: config.env,
+            appOutputPath
+        });
     }
 
     validateArgs(buildData) {
@@ -96,7 +101,7 @@ class CloudBuildService {
                 envValue = [envValue];
             }
 
-            envValue.map((value) => result[`${argName}=${value}`]);
+            envValue.map((value) => result[argName] = value);
         }
 
         return result;

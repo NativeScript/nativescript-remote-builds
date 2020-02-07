@@ -14,7 +14,8 @@ class GitBasedBuildService {
         this.remoteUrl = ciService.sshCloudSyncGitRepository;
     }
 
-    async build(projectData, cliVersion, cliArgs, envVars, appOutputPath) {
+    async build(buildOptions) {
+        const { projectData, cliVersion, cliArgs, envVars, appOutputPath } = buildOptions;
         const cliBuildId = uniqueString();
         for (const arg in cliArgs) {
             await this.updateCLIArgEnvVariable(arg, cliArgs[arg], cliBuildId);

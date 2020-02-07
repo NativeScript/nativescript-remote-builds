@@ -1,6 +1,10 @@
-module.exports = () => {
+module.exports = ($commandsService) => {
+    if ($commandsService.currentCommandData.commandName === "doctor") {
+        // really check the env on `tns doctor`
+        return;
+    }
+
     return () => {
-        // TODO: do not skip if the command is tns doctor
         return {
             canExecute: true
         };

@@ -64,7 +64,10 @@ class CloudBuildService {
     }
 
     _getCliArgs(buildData) {
-        const cliArgs = {};
+        const cliArgs = {
+            "--env.local": "1"
+        };
+
         Object.keys(buildData.env).map(envArg => {
             _.assign(cliArgs, this._getCliArgsFromObj(buildData.env, envArg, `env.${envArg}`));
         });

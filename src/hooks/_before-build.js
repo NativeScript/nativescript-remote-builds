@@ -1,10 +1,9 @@
 const CloudBuildService = require("../services/cloud-build-service").CloudBuildService;
 
 module.exports = (platform) => {
-    return ($staticConfig, $childProcess, $fs, $logger, $platformsDataService, $settingsService, $httpClient) => {
-        if (process.env.CI) {
-            // TODO: replace with --env.local ?
-            // do not override the native build in CI env
+    return (hookArgs, $staticConfig, $childProcess, $fs, $logger, $platformsDataService, $settingsService, $httpClient) => {
+        if ((hookArgs.buildData || hookArgs.androidBuildData || hookArgs.iOSBuildData).env.local) {
+            // let the local build
             return;
         }
 

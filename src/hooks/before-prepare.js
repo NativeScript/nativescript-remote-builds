@@ -1,6 +1,6 @@
 module.exports = (hookArgs) => {
-    if (process.env.CI) {
-        // do not skip the native prepare in the cloud CI
+    if (hookArgs.prepareData.env.local) {
+        // local build
         return;
     }
 

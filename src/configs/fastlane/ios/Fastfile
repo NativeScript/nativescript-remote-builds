@@ -10,7 +10,7 @@ platform :ios do
  lane :build do
   nativescriptCLICommand = ["tns", "prepare", "ios"];
   cliCommandArgs = getCLIArgsFromEnv([
-    "release", "forDevice", "log", "env.remotePublish", "clean", "hmr",
+    "release", "forDevice", "log", "env.local", "env.remotePublish", "clean", "hmr",
     "env.snapshot", "env.production", "env.uglify", "env.sourceMap", "env.hiddenSourceMap",
     "env.hmr", "env.unitTesting", "env.verbose", "env.snapshotInDocker", "env.skipSnapshotTools",
     "env.compileSnapshot", "env.appPath", "env.appResourcesPath"]);

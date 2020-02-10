@@ -8,7 +8,7 @@ platform :android do
     buildAppPath = File.expand_path("~/fl_output/{{OUTPUT_APP_FILENAME}}");
     nativescriptCLICommand = ["tns", "build", "android", "--copy-to", buildAppPath];
     cliCommandArgs = getCLIArgsFromEnv([
-      "release", "forDevice", "log", "env.remotePublish", "clean", "aab", "hmr",
+      "release", "forDevice", "log", "env.local", "env.remotePublish", "clean", "aab", "hmr",
       "env.snapshot", "env.production", "env.uglify", "env.sourceMap", "env.hiddenSourceMap",
       "env.hmr", "env.unitTesting", "env.verbose", "env.snapshotInDocker", "env.skipSnapshotTools",
       "env.compileSnapshot", "env.appPath", "env.appResourcesPath", "key-store-password", "key-store-alias",

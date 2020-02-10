@@ -3,7 +3,7 @@ class FastlaneService {
     }
 
     getRequiredEnvVars(platform, cliArgs) {
-        const shouldPublish = !!cliArgs["--env.remotePublish"];
+        const shouldPublish = !!cliArgs["env.remotePublish"];
         const requiredArgs = [];
         if (platform === "android") {
             if (shouldPublish) {

@@ -82,7 +82,7 @@ class RemoteBuildsService {
 
     _getCliArgs(buildData) {
         const cliArgs = {
-            "--env.local": "1"
+            "env.local": "1"
         };
 
         Object.keys(buildData.env).map(envArg => {

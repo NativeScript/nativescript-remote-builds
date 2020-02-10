@@ -1,5 +1,5 @@
 module.exports = ($commandsService) => {
-    if ($commandsService.currentCommandData.commandName === "doctor") {
+    if (process.argv.indexOf("doctor") > -1) {
         // really check the env on `tns doctor`
         return;
     }

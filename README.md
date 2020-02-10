@@ -1,4 +1,4 @@
-# nativescript-cloud-builds
+# nativescript-remote-builds
 A NativeScript plugin for Circle CI based `tns run android/ios` without env setup.
 
 ## Prerequisites
@@ -9,7 +9,7 @@ A NativeScript plugin for Circle CI based `tns run android/ios` without env setu
 ## Installation
 
 1) `cd {{yourNativeScriptAppRoot}}`
-2) `npm i https://github.com/DimitarTachev/nativescript-cloud-builds/tarball/0.1.0`
+2) `npm i https://github.com/DimitarTachev/nativescript-remote-builds/tarball/0.2.0`
 
 ## Setup
 

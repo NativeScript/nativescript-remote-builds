@@ -1,5 +1,5 @@
 {
-  "name": "nativescript-cloud-builds",
+  "name": "nativescript-remote-builds",
   "version": "0.1.0",
   "description": "Run NativeScript apps with local LiveSync without any local Android/iOS setup.",
   "main": "index.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DimitarTachev/nativescript-cloud-builds.git"
+    "url": "git+https://github.com/DimitarTachev/nativescript-remote-builds.git"
   },
   "keywords": [
     "nativescript",
@@ -25,9 +25,9 @@
   "author": "DimitarTachev",
   "license": "SEE LICENSE IN LICENSE",
   "bugs": {
-    "url": "https://github.com/DimitarTachev/nativescript-cloud-builds/issues"
+    "url": "https://github.com/DimitarTachev/nativescript-remote-builds/issues"
   },
-  "homepage": "https://github.com/DimitarTachev/nativescript-cloud-builds#readme",
+  "homepage": "https://github.com/DimitarTachev/nativescript-remote-builds#readme",
   "nativescript": {
     "hooks": [
       {

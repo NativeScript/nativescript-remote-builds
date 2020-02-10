@@ -32,7 +32,7 @@ class CircleCIService {
 
     getCustomFiles() {
         const mappedFiles = {
-            [`node_modules/nativescript-cloud-builds/src/configs/circleci/${this.platform}/config.yml`]: "./.circleci/config.yml",
+            [`node_modules/nativescript-remote-builds/src/configs/circleci/${this.platform}/config.yml`]: "./.circleci/config.yml",
         };
 
         const fastlaneFiles = this.fastlaneService.getCustomFiles(this.platform);

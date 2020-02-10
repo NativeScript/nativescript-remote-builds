@@ -14,7 +14,7 @@
   "repository": "<fill-your-repository-here>",
   "dependencies": {
     "@nativescript/theme": "~2.2.1",
-    "nativescript-cloud-builds": "https://github.com/DimitarTachev/nativescript-remote-builds/tarball/master",
+    "nativescript-remote-builds": "https://github.com/DimitarTachev/nativescript-remote-builds/tarball/master",
     "nativescript-unit-test-runner": "^0.7.0",
     "tns-core-modules": "~6.3.0"
   },

@@ -1,11 +1,11 @@
-const GitService = require("../services/git-service").GitService;
-const ConfigService = require("../services/config-service").ConfigService;
-const GitBasedBuildService = require("../services/git-based-build-service").GitBasedBuildService;
-const CircleCIService = require("../services/circle-ci-service").CircleCIService
+const GitService = require("../services/common/git-service").GitService;
+const ConfigService = require("../services/common/config-service").ConfigService;
+const GitBasedBuildService = require("../services/common/git-based-build-service").GitBasedBuildService;
+const CircleCIService = require("../services/remotes/circle-ci-service").CircleCIService
 const path = require("path");
 const _ = require("lodash");
 
-class CloudBuildService {
+class RemoteBuildsService {
     constructor(options) {
         _.assign(this, options);
         this.isAndroid = this.platform === "android";
@@ -17,13 +17,15 @@ class CloudBuildService {
         this.validateArgs(buildData);
         const configService = new ConfigService();
         const config = configService.getConfig(projectData.projectDir);
+        const env = configService.getEnv(projectData.projectDir);
+
         const cliArgs = await this._getCliArgs(buildData);
 
         let buildService = null;
         if (config.circleci) {
             const gitDirsPath = this.$settingsService.getProfileDir();
             const gitService = new GitService(this.$childProcess, this.$fs, this.$logger, gitDirsPath, projectData.projectIdentifiers[this.platform], projectData.projectDir);
-            const ciService = new CircleCIService(this.$httpClient, this.$fs, this.$logger, this.platform, config.circleci)
+            const ciService = new CircleCIService(this.$httpClient, this.$fs, this.$logger, this.platform, env.local, config.circleci)
             buildService = new GitBasedBuildService(this.$fs, this.$logger, this.platform, gitService, ciService);
         } else {
             // TODO: refer a README section
@@ -32,18 +34,32 @@ class CloudBuildService {
 
         const appOutputPath = this._getAppOutputPath(projectData, buildData);
         const cliVersion = this.$staticConfig.version;
-        const dependencies = {
+        const envDependencies = {
             cliVersion,
             cocoapodsVersion: config.cocoapodsVersion || "1.8.4"
         }
+        const buildLevelLocalEnvVars = env.local || {};
+        const buildLevelRemoteEnvVars = env.remote || {};
 
+        await this.validateRemoteEnvVars(buildService, cliArgs, buildLevelRemoteEnvVars);
         await buildService.build({
+            envDependencies,
+            buildLevelLocalEnvVars,
+            buildLevelRemoteEnvVars,
             projectData,
-            dependencies,
             cliArgs,
-            envVars: config.env,
             appOutputPath
         });
+    }
+
+    async validateRemoteEnvVars(buildService, cliArgs, buildLevelRemoteEnvVars) {
+        const requiredEnvVars = buildService.getRequiredEnvVars(this.platform, cliArgs);
+        const remoteEnvVars = await buildService.getRemoteEnvVariables(requiredEnvVars.map(v => v.name));
+        for (const envVar of requiredEnvVars) {
+            if (!remoteEnvVars[envVar.name] && !buildLevelRemoteEnvVars[envVar.name]) {
+                throw new Error(`The specified remote environment variables are not properly configured. Error: "${envVar.errorIfMissing}".`);
+            }
+        }
     }
 
     validateArgs(buildData) {
@@ -117,4 +133,4 @@ class CloudBuildService {
     }
 }
 
-module.exports.CloudBuildService = CloudBuildService;
+module.exports.RemoteBuildsService = RemoteBuildsService;

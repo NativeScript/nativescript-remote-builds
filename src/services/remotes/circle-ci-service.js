@@ -1,15 +1,15 @@
 const path = require("path");
 const _ = require("lodash");
-const { sleep } = require("../common/utils");
-const { FastlaneService } = require("./fastlane-service");
-const constants = require("../common/constants");
+const { sleep } = require("../../utils");
+const { FastlaneService } = require("../common/fastlane-service");
+const constants = require("../../constants");
 
 class CircleCIService {
-    constructor($httpClient, $fs, $logger, platform, options) {
-        this.circleCiApiAccessToken = process.env.CIRCLE_CI_API_ACCESS_TOKEN || options.circleCiApiAccessToken;
+    constructor($httpClient, $fs, $logger, platform, localEnv, options) {
+        this.circleCiApiAccessToken = (localEnv && localEnv.CIRCLE_CI_API_ACCESS_TOKEN) || process.env.CIRCLE_CI_API_ACCESS_TOKEN;
         if (!this.circleCiApiAccessToken) {
             //  TODO: refer a README section.
-            throw new Error(`You have to set the CIRCLE_CI_API_ACCESS_TOKEN env variable on your local machine or in the "${constants.configFileName}" file in order to run cloud builds in Circle CI.`);
+            throw new Error(`You have to set the 'CIRCLE_CI_API_ACCESS_TOKEN' env variable on your local machine or in the local variables in the "${constants.envFileName}" file in order to run cloud builds in Circle CI.`);
         }
 
         this.$httpClient = $httpClient;
@@ -17,15 +17,18 @@ class CircleCIService {
         this.$logger = $logger;
         this.platform = platform;
         const githubSshUrlStart = "git@github.com:";
-        if (!options || !options.sshCloudSyncGitRepository || !options.sshCloudSyncGitRepository.startsWith(githubSshUrlStart)) {
-            throw new Error(`"circleci.sshCloudSyncGitRepository" should be a valid github ssh URL. Received: ${options.sshCloudSyncGitRepository}`);
+        if (!options || !options.sshRepositoryURL || !options.sshRepositoryURL.startsWith(githubSshUrlStart)) {
+            throw new Error(`"circleci.sshRepositoryURL" should be a valid github ssh URL. Received: ${options.sshRepositoryURL}`);
         }
 
-        this.sshCloudSyncGitRepository = options.sshCloudSyncGitRepository;
-        this.gitRepositoryName = options.sshCloudSyncGitRepository.replace(/\.git/g, "").substring(githubSshUrlStart.length);
+        this.sshRepositoryURL = options.sshRepositoryURL;
+        this.gitRepositoryName = options.sshRepositoryURL.replace(/\.git/g, "").substring(githubSshUrlStart.length);
         this.fastlaneService = new FastlaneService();
     }
 
+    getRequiredEnvVars(platform, cliArgs) {
+        return this.fastlaneService.getRequiredEnvVars(platform, cliArgs);
+    }
 
     getCustomFiles() {
         const mappedFiles = {
@@ -71,28 +74,65 @@ class CircleCIService {
         }
     }
 
-    async updateEnvVariable(envName, envValue) {
-        const response = await this.$httpClient.httpRequest({
-            url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar?circle-token=${this.circleCiApiAccessToken}`,
-            method: "POST",
-            body: JSON.stringify({ "name": envName, "value": envValue }),
-            headers: {
-                'Content-Type': 'application/json;charset=UTF-8'
-            }
-        });
+    async getRemoteEnvVariables(envVarNames) {
+        let hasError = false;
+        try {
+            const response = await this.$httpClient.httpRequest({
+                url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar?circle-token=${this.circleCiApiAccessToken}`,
+                method: "GET"
+            });
+            hasError = response.response.statusCode !== 200;
+            if (!hasError) {
+                const envVars = JSON.parse(response.body).reduce(function (result, item) {
+                    result[item.name] = item.value;
+                    return result;
+                }, {});
 
-        if (response.response.statusCode !== 201) {
+                return envVars;
+            }
+        } catch (e) {
+            hasError = true;
+        }
+
+        if (hasError) {
+            throw new Error(`Unable to read CircleCI environment variables for project "${this.gitRepositoryName}"`);
+        }
+    }
+
+    async updateRemoteEnvVariable(envName, envValue) {
+        let hasError = false;
+        try {
+            const response = await this.$httpClient.httpRequest({
+                url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar?circle-token=${this.circleCiApiAccessToken}`,
+                method: "POST",
+                body: JSON.stringify({ "name": envName, "value": envValue }),
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8'
+                }
+            });
+            hasError = response.response.statusCode !== 201;
+        } catch (e) {
+            hasError = true;
+        }
+
+        if (hasError) {
             throw new Error(`Unable to update CircleCI environment variables for project "${this.gitRepositoryName}"`);
         }
     }
 
-    async deleteEnvVariable(envName) {
-        const response = await this.$httpClient.httpRequest({
-            url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar/${envName}?circle-token=${this.circleCiApiAccessToken}`,
-            method: "DELETE"
-        });
+    async deleteRemoteEnvVariable(envName) {
+        let hasError = false;
+        try {
+            const response = await this.$httpClient.httpRequest({
+                url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar/${envName}?circle-token=${this.circleCiApiAccessToken}`,
+                method: "DELETE"
+            });
+            hasError = response.response.statusCode !== 200;
+        } catch (e) {
+            hasError = true;
+        }
 
-        if (response.response.statusCode !== 200) {
+        if (hasError) {
             throw new Error(`Unable to remove CircleCI environment variables for project "${this.gitRepositoryName}"`);
         }
     }

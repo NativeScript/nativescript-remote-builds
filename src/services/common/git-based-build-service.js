@@ -1,4 +1,4 @@
-const constants = require("../common/constants");
+const constants = require("../../constants");
 const uniqueString = require('unique-string');
 const path = require("path");
 const _ = require("lodash");
@@ -11,27 +11,37 @@ class GitBasedBuildService {
         this.gitService = gitService;
         // TODO: document all required methods of a ciService
         this.ciService = ciService;
-        this.remoteUrl = ciService.sshCloudSyncGitRepository;
+        this.remoteUrl = ciService.sshRepositoryURL;
+    }
+
+    getRequiredEnvVars(platform, cliArgs) {
+        return this.ciService.getRequiredEnvVars(platform, cliArgs);
+    }
+
+    async getRemoteEnvVariables(envVarNames) {
+        const remoteEnvVars = await this.ciService.getRemoteEnvVariables(envVarNames);
+        return remoteEnvVars;
     }
 
     async build(buildOptions) {
-        const { projectData, dependencies, cliArgs, envVars, appOutputPath } = buildOptions;
+        const { envDependencies, buildLevelRemoteEnvVars, cliArgs, projectData, appOutputPath } = buildOptions;
         const cliBuildId = uniqueString();
         for (const arg in cliArgs) {
             await this.updateCLIArgEnvVariable(arg, cliArgs[arg], cliBuildId);
         }
 
-        for (const varName in envVars) {
-            await this.updateBuildEnvVariable(varName, envVars[varName], cliBuildId);
+        for (const varName in buildLevelRemoteEnvVars) {
+            await this.updateBuildEnvVariable(varName, buildLevelRemoteEnvVars[varName], cliBuildId);
         }
 
         const mappedFiles = this.ciService.getCustomFiles();
         mappedFiles[`node_modules/nativescript-cloud-builds/src/configs/safe-config.json`] = constants.configFileName;
+        mappedFiles[`node_modules/nativescript-cloud-builds/src/configs/safe-config.json`] = constants.envFileName;
 
         const outputAppFilename = path.basename(appOutputPath);
         const placeholders = {
-            "CLI_VERSION": dependencies.cliVersion,
-            "IOS_COCOAPODS_VERSION": dependencies.cocoapodsVersion,
+            "CLI_VERSION": envDependencies.cliVersion,
+            "IOS_COCOAPODS_VERSION": envDependencies.cocoapodsVersion,
             "CLI_BUILD_ID": cliBuildId,
             "NATIVE_PROJECT_ROOT": projectData.nativeProjectRoot,
             "PROJECT_ID": projectData.projectIdentifiers[this.platform],
@@ -74,7 +84,7 @@ class GitBasedBuildService {
 
     async updateBuildEnvVariable(envVarName, value, cliBuildId) {
         envVarName = `${_.snakeCase(envVarName).toUpperCase()}_${cliBuildId}`;
-        await this.ciService.updateEnvVariable(envVarName, value);
+        await this.ciService.updateRemoteEnvVariable(envVarName, value);
         this.buildEnvVars = this.buildEnvVars || {};
         this.buildEnvVars[cliBuildId] = this.buildEnvVars[cliBuildId] || [];
         this.buildEnvVars[cliBuildId].push(envVarName);
@@ -83,7 +93,7 @@ class GitBasedBuildService {
     async cleanEnvVars(cliBuildId) {
         if (this.buildEnvVars[cliBuildId] && this.buildEnvVars[cliBuildId].length) {
             for (const envVar of this.buildEnvVars[cliBuildId]) {
-                await this.ciService.deleteEnvVariable(envVar);
+                await this.ciService.deleteRemoteEnvVariable(envVar);
             }
         }
     }

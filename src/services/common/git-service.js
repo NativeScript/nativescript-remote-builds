@@ -52,7 +52,11 @@ class GitService {
         for (const localFile in mappedFiles) {
             const gitFile = mappedFiles[localFile];
             if (this.$fs.exists(gitFile)) {
-                await this.gitRemoveFile(gitFile);
+                try {
+                    await this.gitRemoveFile(gitFile);
+                } catch (e) {
+                    // already gitignored
+                }
             }
 
             const gitDir = this.getGitDirPath();

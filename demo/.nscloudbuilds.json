@@ -1,9 +1,0 @@
-{
-    "cocoapodsVersion": "1.8.0",
-    "circleci": {
-        "sshCloudSyncGitRepository": "git@github.com:DimitarTachev/nativescript-circle-ci-livesync.git"
-    },
-    "env": {
-        "IOS_APPSTORE_CONNECT_APP_ID": "1497136415"
-    }
-}

@@ -1,4 +1,4 @@
-const CloudBuildService = require("../services/cloud-build-service").CloudBuildService;
+const RemoteBuildsService = require("../services/remote-builds-service").RemoteBuildsService;
 
 module.exports = (platform) => {
     return (hookArgs, $staticConfig, $childProcess, $fs, $logger, $platformsDataService, $settingsService, $httpClient) => {
@@ -7,7 +7,7 @@ module.exports = (platform) => {
             return;
         }
 
-        const buildService = new CloudBuildService({
+        const buildService = new RemoteBuildsService({
             $staticConfig,
             $childProcess,
             $fs,

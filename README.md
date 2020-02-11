@@ -1,67 +1,34 @@
 # nativescript-remote-builds
-A NativeScript plugin for Circle CI based `tns run android/ios` without env setup.
 
-## Prerequisites
+The plugin enables **all NativeScript CLI features** and even adds an **additional `tns publish android`** support **without any local environment requirements for native development**. In other words, the plugin supports:
 
-1) [CircleCI](https://circleci.com/) account integrated with your GitHub organization.
-2) SSH key [configured in your GitHub account](https://help.github.com/en/github/authenticating-to-github/adding-a-new-ssh-key-to-your-github-account).
+* remote builds of NativeScript apps without any local environment requirements for native development.
+* remote publish of NativeScript apps by implementing the `tns publish android` (not available in the CLI without this plugin) and `tns publish ios` commands.
+* a combination of remote builds and local deploy + LiveSync of `tns run`, `tns debug`, `tns test` any other build-related NativeScript CLI command and argument.
 
 ## Installation
 
+It's just a regular NativeScript plugin and could be installed from npm:
 1) `cd {{yourNativeScriptAppRoot}}`
-2) `npm i https://github.com/DimitarTachev/nativescript-remote-builds/tarball/0.2.0`
+2) `npm i nativescript-remote-builds`
+
+In addition, as the plugin is written in JavaScript, it allows a direct GitHub installation:
+1) `cd {{yourNativeScriptAppRoot}}`
+2) `npm i https://github.com/DimitarTachev/nativescript-remote-builds/tarball/master`
 
 ## Setup
 
-1) Create a `.nscloudbuilds.json` file in your app root directory with the following content:
-```
-{
-    "sshCloudSyncGitRepository": "{{an SSH GitHub repository url with enabled CircleCI integration}}"
-}
-```
+The plugin supports two configuration files expected in your **NativeScript app root directory**:
 
-* If your NativeScript app is already pushed to a GitHub repository [integrated with CircleCI](https://circleci.com/docs/2.0/project-build/#adding-projects), you could reuse the same repository as `{{sshCloudSyncGitRepository}}`. The plugin will create temporary branches named `circle-ci{{uniqueId}}` for each cloud operation and will not affect you current branches.
-* If you don't have an already configured GitHub repository for your NativeScript app, you could pass a newly created repository [integrated with CircleCI](https://circleci.com/docs/2.0/project-build/#adding-projects).
+* `.nsremote.config.json` - the main plugin config where you have to select a `remote`, follow the [remote setup section](#remote-setup) for further details.
+* `.nsremote.env.json` - an **optional file** allowing you to override the local and remote **environment variables**, most of them contain **sensitive** information and it's highly recommended to **ignore it from your source control**. 
 
-> WARNING: The `{{sshCloudSyncGitRepository}}` repository will be used to sync your local code changes with the cloud. If the repository is public, make sure that you don't have any sensitive data (e.g. secrets) which are not git ignored in your local app.  
+> NOTE: Both of the files are used only locally and replaced with an empty file when the plugin sends your app to the remote.
 
-> NOTE: The `.nscloudbuilds.json` will NOT be pushed in the `{{sshCloudSyncGitRepository}}` and you could also git ignore it if you assume its content as a sensitive data.
-2) Set the `CIRCLE_CI_API_ACCESS_TOKEN` env variable to your local machine. You could generate one from your [Personal API Tokens](https://circleci.com/account/api) page in Circle CI. Take a look at [this article](https://circleci.com/docs/2.0/managing-api-tokens/#creating-a-personal-api-token) for more details.
+## Remote Setup
 
-> WARNING: You have to be logged in in order to access the [Personal API Tokens](https://circleci.com/account/api) page.  
-
-## iOS Specific Setup
-
-> IMPORTANT: in order to use iOS cloud builds, you need iOS Runtime version >= 6.4.0 (containing a fastlane compatible Xcode project)
-
-> NOTE: If you are building an open source project, you could apply for a free CircleCI iOS builds here: https://circleci.com/open-source 
-
-In order to use iOS cloud build you need to provide a few more `.nscloudbuilds.json` and CircleCI configurations related to the iOS code signing.
-
-> IMPORTANT: You will need an administrator access to a paid apple developer account in order to complete this setup.
-
-1) Run the `fastlane match development` command, follow the `Git Repository` flow. 
-
-> NOTE: You could read more about `fastlane match` and the development provisioning profile generation in the following article: https://docs.fastlane.tools/actions/match/
-
-2) Add the following configurations in your `.nscloudbuilds.json`:
-```
-...
-    "appleId": "{{the apple id used for the fastlane match configurations}}",
-    "iOSSigningPrivateGithubRepository": "{{a private github repository to keep the iOS provisioning profiles used by fastlane}}",
-    "iOSDevProfileName": "{{the name of the development profile created by fastlane match development command}}",
-    "iOSTeamId": "{{the team id used in the fastlane match setup}}"
-...
-```
-
-3) Add a private SSH key (without password) for accessing the `{{iOSSigningPrivateGithubRepository}}` in your CircleCI `{{sshCloudSyncGitRepository}}` `SSH Permissions` settings.
-
-4) Add a `MATCH_PASSWORD` env variable with your `fastlane match` password in your CircleCI `{{sshCloudSyncGitRepository}}` `Environment Variables` settings.
+* [Circle CI](docs/CIRCLECI.md)
 
 ## Usage
 
-TODO: ...
-
-## Security
-
-TODO: ....
+Just use the NativeScript CLI commands as usual. The plugin hooks to the NativeScript CLI build process and replaces it with remote builds. In addition, the `tns publish android` command is now working and publishing the app from the remote.

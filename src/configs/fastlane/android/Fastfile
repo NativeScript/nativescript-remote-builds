@@ -43,7 +43,7 @@ platform :android do
         track: track,
         release_status: releaseStatus,
         track_promote_to: trackPromoteTo,
-        json_key_data: Base64.decode64(getEnvVar("ANDROID_PLAYSTORE_ACCOUNT_JSON_DATA")),
+        json_key_data: Base64.decode64(getEnvVar("PLAYSTORE_ACCOUNT_BASE64_JSON")),
         aab: hasAab ? buildAppPath : nil,
         apk: hasAab ? nil : buildAppPath
       )

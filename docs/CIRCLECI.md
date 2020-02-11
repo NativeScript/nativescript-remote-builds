@@ -45,7 +45,7 @@ No additional configurations needed. Just follow the [basic setup](#basic-setup)
 
 ## iOS Builds Setup
 
-In order to get started with the Fastlane based Circle CI iOS build, you will **a onetime access to a macOS machine and an administration access to a paid apple developer account**.
+In order to get started with the Fastlane based Circle CI iOS build, you will need **an onetime access to a macOS machine and an administration access to a paid apple developer account**.
 
 1) Follow the [basic setup](#basic-setup).
 2) Get a macOS machine (you will need it only during this setup).
@@ -73,7 +73,12 @@ In order to get the Android Publishing working in the Fastlane based Circle CI b
 
 ## iOS Publish Setup
 
-// TODO: describe FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD and IOS_APPSTORE_CONNECT_APP_ID
+In order to setup the iOS publish in the Fastlane based Circle CI flow, you will need **an administration access to a paid apple developer account** and follow the steps below:
+1) Visit appleid.apple.com/account/manage.
+2) Generate a new application specific password.
+3) Set the password to the `FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD` remote environment variable. Take a look at the [Set Remote Environment Variable](#set-remote-environment-variable) section for more details.
+4) Visit appstoreconnect.apple.com
+5) Copy the `apple_id` (should be something like `2457129416`) of the app you want to publish and set it to the `IOS_APPSTORE_CONNECT_APP_ID` remote environment variable. Take a look at the [Set Remote Environment Variable](#set-remote-environment-variable) section for more details.
 
 ## Set Local Environment Variable
 

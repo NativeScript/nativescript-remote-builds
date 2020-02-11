@@ -53,7 +53,15 @@ class RemoteBuildsService {
     }
 
     async validateRemoteEnvVars(buildService, cliArgs, buildLevelRemoteEnvVars) {
+        if (!buildService.getRequiredEnvVars) {
+            return;
+        }
+
         const requiredEnvVars = buildService.getRequiredEnvVars(this.platform, cliArgs);
+        if (!requiredEnvVars || !requiredEnvVars.length) {
+            return;
+        }
+
         const remoteEnvVars = await buildService.getRemoteEnvVariables(requiredEnvVars.map(v => v.name));
         for (const envVar of requiredEnvVars) {
             if (!remoteEnvVars[envVar.name] && !buildLevelRemoteEnvVars[envVar.name]) {

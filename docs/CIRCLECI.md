@@ -112,4 +112,4 @@ If you don't wanna set environment variable in the `sshRepositoryURL` Circle CI 
 
 ## Security
 
-TODO: ....
+The sensitive data is stored in environment variables in the Circle CI project (uploaded using `https` calls) and used directly from the variables. The iOS signing is managed by the `fastlane match` tool and stored encrypted in a private GitHub repository. The android `keystore` provided by `--key-store-path` is preprocessed by the plugin, base64 encoded and uploaded to the above-mentioned Circle CI environment variables.

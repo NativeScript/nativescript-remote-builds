@@ -2,9 +2,9 @@
 
 The plugin enables **all NativeScript CLI features** and even adds an **additional `tns publish android`** support **without any local environment requirements for native development**. In other words, the plugin supports:
 
-* remote builds of NativeScript apps without any local environment requirements for native development.
-* remote publish of NativeScript apps by implementing the `tns publish android` (not available in the CLI without this plugin) and `tns publish ios` commands.
-* a combination of remote builds and local deploy + LiveSync of `tns run`, `tns debug`, `tns test` any other build-related NativeScript CLI command and argument.
+* Remote builds of NativeScript apps without any local environment requirements for native development.
+* Remote publish of NativeScript apps by implementing the `tns publish android` (not available in the CLI without this plugin) and `tns publish ios` commands.
+* A combination of remote builds and local deploy + LiveSync of `tns run`, `tns debug`, `tns test` any other build-related NativeScript CLI command and argument.
 
 ## Installation
 

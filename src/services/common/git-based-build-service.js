@@ -37,6 +37,11 @@ class GitBasedBuildService {
         const mappedFiles = this.ciService.getCustomFiles();
         mappedFiles[`node_modules/nativescript-remote-builds/src/configs/safe-config.json`] = constants.configFileName;
         mappedFiles[`node_modules/nativescript-remote-builds/src/configs/safe-config.json`] = constants.envFileName;
+        Object.keys(mappedFiles).map(function (relativePath) {
+            const fullPath = path.join(projectData.projectDir, relativePath);
+            mappedFiles[fullPath] = mappedFiles[relativePath];
+            delete mappedFiles[relativePath];
+        });
 
         const outputAppFilename = path.basename(appOutputPath);
         const placeholders = {

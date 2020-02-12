@@ -162,7 +162,7 @@ class CircleCIService {
         const build = JSON.parse(buildResponse.body);
         //  :retried, :canceled, :infrastructure_fail, :timeout, :not_run, :running, :failed, :queued, :scheduled, :not_running, :no_tests, :fixed, :success
         if (build.status === "queued" || build.status === "scheduled" || build.status === "running") {
-            await sleep(100);
+            await sleep(500);
             return this._isSuccessfulBuild(buildNumber);
         }
 

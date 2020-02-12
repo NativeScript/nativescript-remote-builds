@@ -2,11 +2,12 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:10.13
+      - image: circleci/node
 
     working_directory: "~/remote-builds"
 
     steps:
+      - add_ssh_keys
       - run: echo 'export PATH=~/npm_prefix/bin:$PATH' >> $BASH_ENV
       - run: npm config set prefix ~/npm_prefix
       - run: npm i -g nativescript@latest

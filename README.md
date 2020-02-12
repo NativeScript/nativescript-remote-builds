@@ -1,6 +1,6 @@
 # nativescript-remote-builds
 
-[![DimitarTachev](https://circleci.com/gh/nativescript-remote-builds.svg?style=svg)](https://circleci.com/gh/DimitarTachev/nativescript-remote-builds/tree/master)
+[![DimitarTachev](https://circleci.com/gh/DimitarTachev/nativescript-remote-builds.svg?style=svg)](https://circleci.com/gh/DimitarTachev/nativescript-remote-builds/tree/master)
 
 The plugin enables **all NativeScript CLI features** and even adds an **additional `tns publish android`** support **without any local environment requirements for native development**. In other words, the plugin supports:
 

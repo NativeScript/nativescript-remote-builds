@@ -34,3 +34,9 @@ The plugin supports two configuration files expected in your **NativeScript app 
 ## Usage
 
 Just use the NativeScript CLI commands as usual. The plugin hooks to the NativeScript CLI build process and replaces it with remote builds. In addition, the `tns publish android` command is now working and publishing the app from the remote.
+
+## Local Builds
+
+You can always use your local machine instead of the remote builds by providing the `--env.local` argument to your CLI commands. For example:
+
+`$ tns run android --env.local`

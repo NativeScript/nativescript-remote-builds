@@ -11,5 +11,4 @@ jobs:
       - run: npm config set prefix ~/npm_prefix
       - run: npm i -g nativescript@latest
       - checkout
-      - run: cd demo
-      - run: tns build android
+      - run: cd demo && tns build android

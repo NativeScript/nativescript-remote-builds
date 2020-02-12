@@ -7,6 +7,8 @@ jobs:
     working_directory: "~/remote-builds"
 
     steps:
+      - run: echo 'export PATH=~/npm_prefix/bin:$PATH' >> $BASH_ENV
+      - run: npm config set prefix ~/npm_prefix
       - run: npm i -g nativescript@latest
       - checkout
       - run: cd demo

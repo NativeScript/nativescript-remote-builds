@@ -14,7 +14,7 @@ matrix:
       node_js: "10"
       env:
         - Build="Android"
-      before_script: npm i
+      before_script: cd demo && npm i
       script: tns build android --path demo
 
 install:

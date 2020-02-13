@@ -8,20 +8,26 @@ matrix:
         - Lint="eslint"
       before_script: npm i
       script: "./node_modules/.bin/eslint src/"
-    - stage: Linux
+    - stage: Build Android
       os: linux
       language: node_js
       node_js: "10"
       env:
-        - Build="Android"
+        - OS="Linux"
       before_script:
         - echo no | npm install -g nativescript
         - tns usage-reporting disable
         - tns error-reporting disable
         - cd demo && npm i
-        # - git config --global user.email "remote-builds-ci@nativescript.org"
-        # - git config --global user.name "Remote Builds CI"
       script: tns build android --path demo
-env:
-  global:
-    secure: gkF39wWL2Y+Cv9UWpIQiQRioQr1SA5Hlyp+fO/+imNa5cG810i5I0tG5Bggjo5hGYaDcy4z1wYs8+3/efmH+OTjYWjHdic6anC7EstQaSHeSLBIpZeoLzumAU4y/RXJbxfN77g8wDuBP0ZmHz15yQ0A5TWRSlegjfbaQ4ZYw63KCcb5BZR5sWR7NvVJwMzhR/V52gsGW2eROxcvMSV329KR0/Z7Ks6PTSQQsw/e+QY6z9XWoO43TkojmKgzGKS0cQX5THjg1+P8ei6K6WO+vPtR2KnSK3Ry95hoQH8uOv9CO8GfX7C7fsnT3RYmzwTapdpiB1EtzkCjovlSEgcKdkyBVOzBJVd8+DKmf9ywy1zNy6Mhdfzt0Jjmw0Nyv1c7ZDBmN8R3BDtdoDlWa4UXRE6BYfhVvRYw3CLj000x2Hkl8f+oR2AQY0oCbZ/1GbH8pHuGGZOd43ZyhGWaCx/JbKKCgVBYRz693bDRvRfxCNrXgwyqziDNfzomE2pwBxVGzwwkO0haEMumBAU08KtOHM3jplcqZQI65mQo3NyS3qUvrXwjqSCIDCjR4FQCt/dIeZHvaxHi+96swyrrDbIF5VLtG6jEgpkxNuu+CCUCT9PkCK5UpZGOZ+Y3iD6il68o7vhIZzDN3b3fUnNGj/Ava9EVFgMo/h/1L3A9GRjLcDEs=
+    - os: windows
+      language: node_js
+      node_js: "10"
+      env:
+        - OS="Windows"
+      before_script:
+        - npm install -g nativescript
+        - tns usage-reporting disable
+        - tns error-reporting disable
+        - cd demo && npm i
+      script: tns build android --path demo

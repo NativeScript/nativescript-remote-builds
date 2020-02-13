@@ -33,12 +33,7 @@ class GitService {
             await this.executeCommand(["config", "--local", "core.autocrlf", "false"]);
         }
 
-        try {
-            await this.executeCommand(["checkout", GitService.BRANCH_NAME_PREFIX + branchId]);
-        }
-        catch (error) {
-            await this.executeCommand(["checkout", "-b", GitService.BRANCH_NAME_PREFIX + branchId]);
-        }
+        await this.checkoutBranch(GitService.BRANCH_NAME_PREFIX + branchId);
         const statusResult = await this.gitStatus();
         this.$logger.trace(`Result of git status: ${statusResult}.`);
         let revision;
@@ -80,7 +75,18 @@ class GitService {
         return revision;
     }
 
+    async checkoutBranch(branchId) {
+        try {
+            await this.executeCommand(["checkout", branchId]);
+        }
+        catch (error) {
+            await this.executeCommand(["checkout", "-b", branchId]);
+        }
+    }
+
     async gitDeleteBranch(cliBuildId) {
+        // in order to delete the local branch, we need to change the checked out one
+        await this.checkoutBranch("master");
         // remove local branch
         await this.executeCommand(["branch", "-D", GitService.BRANCH_NAME_PREFIX + cliBuildId])
         // remove remote branch

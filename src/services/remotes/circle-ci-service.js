@@ -33,7 +33,7 @@ class CircleCIService {
         } else {
             const githubHttpsUrlStart = "https://${GITHUB_TOKEN}@github.com/";
             if (!options.httpsRepositoryURL.startsWith(githubHttpsUrlStart)) {
-                throw new Error(`"circleci.httpsRepositoryURL" should be a valid github https URL with an access token from the GITHUB_TOKEN environment variable. For example: "https://${GITHUB_TOKEN}@github.com/DimitarTachev/nativescript-circle-ci-livesync.git". Received: ${options.httpsRepositoryURL}`);
+                throw new Error(`"circleci.httpsRepositoryURL" should be a valid github https URL with an access token from the GITHUB_TOKEN environment variable. For example: "https://\${GITHUB_TOKEN}@github.com/DimitarTachev/nativescript-circle-ci-livesync.git". Received: ${options.httpsRepositoryURL}`);
             }
 
             this.syncRepositoryURL = options.httpsRepositoryURL;

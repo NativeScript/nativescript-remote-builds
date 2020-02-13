@@ -74,7 +74,7 @@ class CircleCIService {
         }
     }
 
-    async getRemoteEnvVariables(envVarNames) {
+    async getRemoteEnvVariables() {
         let hasError = false;
         try {
             const response = await this.$httpClient.httpRequest({
@@ -161,7 +161,7 @@ class CircleCIService {
         const buildResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${buildNumber}`);
         const build = JSON.parse(buildResponse.body);
         //  :retried, :canceled, :infrastructure_fail, :timeout, :not_run, :running, :failed, :queued, :scheduled, :not_running, :no_tests, :fixed, :success
-        if (build.status === "queued" || build.status === "scheduled" || build.status === "running") {
+        if (build.status === "not_running" || build.status === "queued" || build.status === "scheduled" || build.status === "running") {
             await sleep(500);
             return this._isSuccessfulBuild(buildNumber);
         }

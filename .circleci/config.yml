@@ -1,9 +1,11 @@
 version: 2
 jobs:
   build:
+    branches:
+      only:
+        - release
     docker:
       - image: circleci/node
-
     working_directory: "~/remote-builds"
 
     steps:

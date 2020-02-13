@@ -29,7 +29,7 @@ The plugin supports two configuration files expected in your **NativeScript app 
 
 ## Remote Setup
 
-* [Circle CI](docs/CIRCLECI.md)
+* [Circle CI Setup](docs/CIRCLECI.md)
 
 ## Usage
 

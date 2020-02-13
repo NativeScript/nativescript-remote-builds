@@ -1,0 +1,23 @@
+matrix:
+  include:
+    - stage: "Lint"
+      os: linux
+      language: node_js
+      node_js: "10"
+      env:
+        - Lint="eslint"
+      before_script: npm i
+      script: ./node_modules/.bin/eslint src/
+    - stage: "Linux"
+      os: linux
+      language: node_js
+      node_js: "10"
+      env:
+        - Build="Android"
+      before_script: npm i
+      script: tns build android --path demo
+
+install:
+  - echo no | npm install -g nativescript
+  - tns usage-reporting disable
+  - tns error-reporting disable

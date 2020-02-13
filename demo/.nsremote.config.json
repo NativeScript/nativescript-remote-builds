@@ -1,6 +1,6 @@
 {
     "cocoapodsVersion": "1.8.0",
     "circleci": {
-        "sshRepositoryURL": "https://${GITHUB_TOKEN}@github.com/DimitarTachev/nativescript-circle-ci-livesync.git"
+        "httpsRepositoryURL": "https://${GITHUB_TOKEN}@github.com/DimitarTachev/nativescript-circle-ci-livesync.git"
     }
 }

@@ -11,7 +11,7 @@ class GitBasedBuildService {
         this.gitService = gitService;
         // TODO: document all required methods of a ciService
         this.ciService = ciService;
-        this.remoteUrl = ciService.sshRepositoryURL;
+        this.remoteUrl = ciService.syncRepositoryURL;
     }
 
     getRequiredEnvVars(platform, cliArgs) {

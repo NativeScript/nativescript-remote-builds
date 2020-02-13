@@ -16,13 +16,30 @@ class CircleCIService {
         this.$fs = $fs;
         this.$logger = $logger;
         this.platform = platform;
-        const githubSshUrlStart = "git@github.com:";
-        if (!options || !options.sshRepositoryURL || !options.sshRepositoryURL.startsWith(githubSshUrlStart)) {
-            throw new Error(`"circleci.sshRepositoryURL" should be a valid github ssh URL. Received: ${options.sshRepositoryURL}`);
+        const hasSshUrl = !!options.sshRepositoryURL;
+        const hasHttpsUrl = !!options.httpsRepositoryURL;
+        if ((hasSshUrl && hasHttpsUrl) || (!hasSshUrl && !hasHttpsUrl)) {
+            throw new Error(`One of "circleci.sshRepositoryURL" and "circleci.httpsRepositoryURL" is required.`);
         }
 
-        this.sshRepositoryURL = options.sshRepositoryURL;
-        this.gitRepositoryName = options.sshRepositoryURL.replace(/\.git/g, "").substring(githubSshUrlStart.length);
+        if (hasSshUrl) {
+            const githubSshUrlStart = "git@github.com:";
+            if (!options.sshRepositoryURL.startsWith(githubSshUrlStart)) {
+                throw new Error(`"circleci.sshRepositoryURL" should be a valid github ssh URL. Received: ${options.sshRepositoryURL}`);
+            }
+
+            this.syncRepositoryURL = options.sshRepositoryURL;
+            this.gitRepositoryName = options.sshRepositoryURL.replace(/\.git/g, "").substring(githubSshUrlStart.length);
+        } else {
+            const githubHttpsUrlStart = "https://${GITHUB_TOKEN}@github.com/";
+            if (!options.httpsRepositoryURL.startsWith(githubHttpsUrlStart)) {
+                throw new Error(`"circleci.httpsRepositoryURL" should be a valid github https URL with an access token from the GITHUB_TOKEN environment variable. For example: "https://${GITHUB_TOKEN}@github.com/DimitarTachev/nativescript-circle-ci-livesync.git". Received: ${options.httpsRepositoryURL}`);
+            }
+
+            this.syncRepositoryURL = options.httpsRepositoryURL;
+            this.gitRepositoryName = options.httpsRepositoryURL.replace(/\.git/g, "").substring(githubHttpsUrlStart.length);
+        }
+
         this.fastlaneService = new FastlaneService();
     }
 

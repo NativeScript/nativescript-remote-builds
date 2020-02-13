@@ -7,6 +7,7 @@ const constants = require("../../constants");
 class CircleCIService {
     constructor($httpClient, $fs, $logger, platform, localEnv, options) {
         this.circleCiApiAccessToken = (localEnv && localEnv.CIRCLE_CI_API_ACCESS_TOKEN) || process.env.CIRCLE_CI_API_ACCESS_TOKEN;
+        const githubAccessToken = (localEnv && localEnv.GITHUB_ACCESS_TOKEN) || process.env.GITHUB_ACCESS_TOKEN;
         if (!this.circleCiApiAccessToken) {
             //  TODO: refer a README section.
             throw new Error(`You have to set the 'CIRCLE_CI_API_ACCESS_TOKEN' env variable on your local machine or in the local variables in the "${constants.envFileName}" file in order to run cloud builds in Circle CI.`);
@@ -31,13 +32,21 @@ class CircleCIService {
             this.syncRepositoryURL = options.sshRepositoryURL;
             this.gitRepositoryName = options.sshRepositoryURL.replace(/\.git/g, "").substring(githubSshUrlStart.length);
         } else {
-            const githubHttpsUrlStart = "https://${GITHUB_TOKEN}@github.com/";
+
+            const githubHttpsUrlStart = "https://github.com/";
+            // TODO: add the access token
             if (!options.httpsRepositoryURL.startsWith(githubHttpsUrlStart)) {
-                throw new Error(`"circleci.httpsRepositoryURL" should be a valid github https URL with an access token from the GITHUB_TOKEN environment variable. For example: "https://\${GITHUB_TOKEN}@github.com/DimitarTachev/nativescript-circle-ci-livesync.git". Received: ${options.httpsRepositoryURL}`);
+                throw new Error(`"circleci.httpsRepositoryURL" should be a valid github HTTPS repository URL. For example: "https://github.com/DimitarTachev/nativescript-circle-ci-livesync.git". Received: ${options.httpsRepositoryURL}`);
             }
 
-            this.syncRepositoryURL = options.httpsRepositoryURL;
+            if (!githubAccessToken) {
+                //  TODO: refer a README section.
+                throw new Error(`You have to set the 'GITHUB_ACCESS_TOKEN' env variable on your local machine or in the local variables in the "${constants.envFileName}" file in order to use HTTPS GitHub URLs.`);
+            }
+
             this.gitRepositoryName = options.httpsRepositoryURL.replace(/\.git/g, "").substring(githubHttpsUrlStart.length);
+            const accessTokenStartIndex = "https://".length;
+            this.syncRepositoryURL = options.httpsRepositoryURL.slice(0, accessTokenStartIndex) + `${githubAccessToken}:x-oauth-basic@` + options.httpsRepositoryURL.slice(accessTokenStartIndex);
         }
 
         this.fastlaneService = new FastlaneService();

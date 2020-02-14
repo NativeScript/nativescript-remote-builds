@@ -1,6 +1,6 @@
 # nativescript-remote-builds
 
-[![Build Status](https://travis-ci.com/DimitarTachev/nativescript-remote-builds.svg?branch=master)](https://travis-ci.com/DimitarTachev/nativescript-remote-builds)
+[![Build Status](https://travis-ci.com/NativeScript/nativescript-remote-builds.svg?branch=master)](https://travis-ci.com/NativeScript/nativescript-remote-builds)
 
 The plugin enables **all NativeScript CLI features** and even adds an **additional `tns publish android`** support **without any local environment requirements for native development**. In other words, the plugin supports:
 
@@ -16,7 +16,7 @@ It's just a regular NativeScript plugin and could be installed from npm:
 
 In addition, as the plugin is written in JavaScript, it allows a direct GitHub installation:
 1) `cd {{yourNativeScriptAppRoot}}`
-2) `npm i https://github.com/DimitarTachev/nativescript-remote-builds/tarball/master`
+2) `npm i https://github.com/NativeScript/nativescript-remote-builds/tarball/master`
 
 ## Setup
 

@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DimitarTachev/nativescript-remote-builds.git"
+    "url": "git+https://github.com/NativeScript/nativescript-remote-builds.git"
   },
   "keywords": [
     "nativescript",
@@ -22,12 +22,12 @@
     "local",
     "setup"
   ],
-  "author": "DimitarTachev",
+  "author": "NativeScript",
   "license": "SEE LICENSE IN LICENSE",
   "bugs": {
-    "url": "https://github.com/DimitarTachev/nativescript-remote-builds/issues"
+    "url": "https://github.com/NativeScript/nativescript-remote-builds/issues"
   },
-  "homepage": "https://github.com/DimitarTachev/nativescript-remote-builds#readme",
+  "homepage": "https://github.com/NativeScript/nativescript-remote-builds#readme",
   "nativescript": {
     "hooks": [
       {

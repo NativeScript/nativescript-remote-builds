@@ -1,6 +1,6 @@
 {
   "name": "nativescript-remote-builds",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Run NativeScript apps with local LiveSync without any local Android/iOS setup.",
   "main": "index.js",
   "scripts": {

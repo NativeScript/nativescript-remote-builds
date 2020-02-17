@@ -87,6 +87,8 @@ The local environment variable can be set just like a regular environment variab
 {
     "local": {
         "CIRCLE_CI_API_ACCESS_TOKEN": "{{the value of your Personal API Token mention in the prerequisites section above}}"
+    },
+    "remote": {
     }
 }
 ```
@@ -101,6 +103,8 @@ If you don't wanna set environment variable in the `sshRepositoryURL` Circle CI 
 
 ```
 {
+ "local": {
+ },
     "remote": {
         "IOS_APPLE_ID": "{{the apple id used in the fastlane match commands above}}",
         "IOS_SIGNING_REPO_URL": "{{the private github repository used in the fastlane match commands above}}",

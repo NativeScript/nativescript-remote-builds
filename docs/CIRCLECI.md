@@ -49,7 +49,7 @@ In order to get started with the Fastlane based Circle CI iOS build, you will ne
 
 1) Follow the [basic setup](#basic-setup).
 2) Get a macOS machine (you will need it only during this setup).
-3) Download [Fastlane](fastlane.tools).
+3) Download [Fastlane](https://fastlane.tools).
 4) Setup the iOS signing in a **private GitHub repository** using the `fastlane match development` command and following the `Git Repository` flow. You could also run the `fastlane match appstore` if you plan to use the remote builds for production. You could read more about `fastlane match` features and its the iOS code signing management in the following article: https://docs.fastlane.tools/actions/match/.
 
 

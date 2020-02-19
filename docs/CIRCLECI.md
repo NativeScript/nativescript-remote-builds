@@ -69,7 +69,7 @@ In order to get the Android Publishing working in the Fastlane based Circle CI b
 
 1) Follow the [basic setup](#basic-setup).
 2) Follow the [Fastlane upload_to_play_store setup](https://docs.fastlane.tools/actions/upload_to_play_store/#setup).
-3) Base64 encode the generated json file and set it to the `PLAYSTORE_ACCOUNT_BASE64_JSON` **remote environment variable**. Take a look at the [Set Remote Environment Variable](#set-remote-environment-variable) section for more details.
+3) Base64 encode the generated json file and set it to the `PLAYSTORE_ACCOUNT_BASE_64_JSON` **remote environment variable**. Take a look at the [Set Remote Environment Variable](#set-remote-environment-variable) section for more details.
 
 ## iOS Publish Setup
 
@@ -105,7 +105,7 @@ If you don't wanna set environment variable in the `sshRepositoryURL` Circle CI 
         "IOS_APPLE_ID": "{{the apple id used in the fastlane match commands above}}",
         "IOS_SIGNING_REPO_URL": "{{the private github repository used in the fastlane match commands above}}",
         "MATCH_PASSWORD": "{{the match password set in the match commands above}}",
-        "PLAYSTORE_ACCOUNT_BASE64_JSON": "{{the base64 encoded JSON file generated from your play store account}}"
+        "PLAYSTORE_ACCOUNT_BASE_64_JSON": "{{the base64 encoded JSON file generated from your play store account}}"
     }
 }
 ```

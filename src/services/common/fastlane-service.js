@@ -8,9 +8,9 @@ class FastlaneService {
         if (platform === "android") {
             if (shouldPublish) {
                 requiredArgs.push({
-                    name: "PLAYSTORE_ACCOUNT_BASE64_JSON",
+                    name: "PLAYSTORE_ACCOUNT_BASE_64_JSON",
                     // TODO: refer README
-                    errorIfMissing: "'PLAYSTORE_ACCOUNT_BASE64_JSON' required in order to publish Android apps."
+                    errorIfMissing: "'PLAYSTORE_ACCOUNT_BASE_64_JSON' required in order to publish Android apps."
                 });
             }
         } else {

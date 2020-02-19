@@ -34,7 +34,7 @@ platform :ios do
 
   # we are not able to pass ENV variable with dots directly to a bash command as it will fail with 
   # "Failed to find mobile provision with UUID or Name: .nativescript.cloudTest_developmen"
-  matchProvisionName = ENV["sigh_org.nativescript.cloudTest_#{provisionType}"];
+  matchProvisionName = ENV["sigh_{{PROJECT_ID}}_#{provisionType}"];
   nativescriptCLICommand.push("--provision", "\"#{matchProvisionName}\"")
   
   sh(nativescriptCLICommand);

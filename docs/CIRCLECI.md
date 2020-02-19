@@ -103,7 +103,7 @@ If you don't wanna set environment variable in the `sshRepositoryURL` Circle CI 
 
 ```
 {
- "local": {
+    "local": {
  },
     "remote": {
         "IOS_APPLE_ID": "{{the apple id used in the fastlane match commands above}}",

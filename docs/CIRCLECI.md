@@ -105,7 +105,7 @@ If you don't wanna set environment variable in the `sshRepositoryURL` Circle CI 
         "IOS_APPLE_ID": "{{the apple id used in the fastlane match commands above}}",
         "IOS_SIGNING_REPO_URL": "{{the private github repository used in the fastlane match commands above}}",
         "MATCH_PASSWORD": "{{the match password set in the match commands above}}",
-        "PLAYSTORE_ACCOUNT_BASE64_JSON": "{{the base64 encoded private key generated from your play store account}}"
+        "PLAYSTORE_ACCOUNT_BASE64_JSON": "{{the base64 encoded JSON file generated from your play store account}}"
     }
 }
 ```

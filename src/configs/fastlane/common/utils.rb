@@ -23,7 +23,7 @@ end
 def promoteBuildEnvVarForCurrentProcess (envVarName)
   envVarName = snakeUpperCase(envVarName);
   buildLevelEnvValue = ENV[envVarName + "_{{CLI_BUILD_ID}}"];
-  if buildLevelEnvValue
+  if buildLevelEnvValue && buildLevelEnvValue != ""
     ENV[envVarName] = buildLevelEnvValue;
   end
 end

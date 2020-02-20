@@ -197,7 +197,7 @@ class CircleCIService {
         }
 
         if (!this._hasValidIntegration) {
-            throw new Error(`Unable to integrate the "${this.gitRepositoryName}" project with Circle CI. Ensure that the Circle CI OAuth application is authorized in your GitHub organization - https://circleci.com/integrations/github `)
+            throw new Error(`Unable to integrate the "${this.gitRepositoryName}" project with Circle CI. Make sure that "${this.gitRepositoryName}" is an initialized GitHub repository and the Circle CI OAuth application is authorized in your GitHub organization - https://circleci.com/integrations/github `)
         }
     }
 

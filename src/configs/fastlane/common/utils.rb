@@ -22,7 +22,10 @@ end
 
 def promoteBuildEnvVarForCurrentProcess (envVarName)
   envVarName = snakeUpperCase(envVarName);
-  ENV[envVarName] = ENV[envVarName + "_{{CLI_BUILD_ID}}"];
+  buildLevelEnvValue = ENV[envVarName + "_{{CLI_BUILD_ID}}"];
+  if buildLevelEnvValue
+    ENV[envVarName] = ENV[envVarName + "_{{CLI_BUILD_ID}}"];
+  end
 end
 
 def getCLIArgsFromEnv (argNames)

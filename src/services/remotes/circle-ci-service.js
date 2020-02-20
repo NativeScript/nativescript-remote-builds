@@ -214,7 +214,7 @@ class CircleCIService {
 
         if (this.$cleanupService.removeRequest) {
             this.$cleanupService.removeRequest({
-                url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${targetBuild.build_num}/cancel?circle-token=${this.circleCiApiAccessToken}`,
+                url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${buildNumber}/cancel?circle-token=${this.circleCiApiAccessToken}`,
                 method: "POST"
             });
         }

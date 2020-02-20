@@ -31,7 +31,6 @@ jobs:
 
       # NODE PACKAGES
       - run: npm install
-      - run: npm rebuild
       - restore_cache:
           key: gems-linux-{{ checksum "Gemfile" }}
       # INSTALL GEMS (fastlane)

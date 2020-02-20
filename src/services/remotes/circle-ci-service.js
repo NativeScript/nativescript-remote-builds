@@ -35,7 +35,6 @@ class CircleCIService {
         } else {
 
             const githubHttpsUrlStart = "https://github.com/";
-            // TODO: add the access token
             if (!options.httpsRepositoryURL.startsWith(githubHttpsUrlStart)) {
                 throw new Error(`"circleci.httpsRepositoryURL" should be a valid github HTTPS repository URL. For example: "https://github.com/DimitarTachev/nativescript-circle-ci-livesync.git". Received: ${options.httpsRepositoryURL}`);
             }
@@ -68,6 +67,7 @@ class CircleCIService {
     }
 
     async build(gitRevision) {
+        await this._ensureValidSyncRepository();
         const buildNumber = await this._getBuildNumber(gitRevision);
         const isSuccessful = await this._isSuccessfulBuild(buildNumber);
 
@@ -75,6 +75,7 @@ class CircleCIService {
     }
 
     async downloadBuildArtefact(buildNumber, cloudFileName, destinationFilePath) {
+        await this._ensureValidSyncRepository();
         const artifactsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${buildNumber}/artifacts`);
         const artifacts = JSON.parse(artifactsResponse.body);
 
@@ -102,6 +103,7 @@ class CircleCIService {
     }
 
     async getRemoteEnvVariables() {
+        await this._ensureValidSyncRepository();
         let hasError = false;
         try {
             const response = await this.$httpClient.httpRequest({
@@ -127,6 +129,7 @@ class CircleCIService {
     }
 
     async updateRemoteEnvVariable(envName, envValue) {
+        await this._ensureValidSyncRepository();
         let hasError = false;
         try {
             const response = await this.$httpClient.httpRequest({
@@ -154,6 +157,7 @@ class CircleCIService {
     }
 
     async deleteRemoteEnvVariable(envName) {
+        await this._ensureValidSyncRepository();
         let hasError = false;
         try {
             const response = await this.$httpClient.httpRequest({
@@ -176,6 +180,27 @@ class CircleCIService {
         }
     }
 
+    async _ensureValidSyncRepository() {
+        if (this._hasValidIntegration) {
+            return;
+        }
+
+        try {
+            const followRepoResponse = await this.$httpClient.httpRequest({
+                url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/follow?circle-token=${this.circleCiApiAccessToken}`,
+                method: "POST"
+            });
+
+            this._hasValidIntegration = followRepoResponse.response.statusCode === 200;
+        } catch (e) {
+            this._hasValidIntegration = false;
+        }
+
+        if (!this._hasValidIntegration) {
+            throw new Error(`Unable to integrate the "${this.gitRepositoryName}" project with Circle CI. Ensure that the Circle CI OAuth application is authorized in your GitHub organization - https://circleci.com/integrations/github `)
+        }
+    }
+
     async _getBuildNumber(gitRevision, retryCount) {
         const recentBuildsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/recent-builds?circle-token=${this.circleCiApiAccessToken}`);
         const recentBuilds = JSON.parse(recentBuildsResponse.body);
@@ -188,7 +213,7 @@ class CircleCIService {
         }
 
         if (!targetBuild) {
-            throw new Error(`Timeout while waiting for a CircleCI job. Make sure that the '${this.gitRepositoryName}' project is enabled in CircleCI`)
+            throw new Error(`Timeout while waiting for a CircleCI job.`);
         }
 
         if (this.$cleanupService.addRequest) {

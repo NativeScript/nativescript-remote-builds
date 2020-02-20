@@ -20,7 +20,7 @@ The Circle CI remote enables [Fastlane](https://fastlane.tools/) based remote bu
 
 ## Basic Setup
 
-In order to get started with Circle CI based builds, you need a GitHub repository [integrated with CircleCI](https://circleci.com/docs/2.0/project-build/#adding-projects) for syncing your local app state with the Circle CI virtual machines. You do NOT need any config.yml in your app, you could skip these setup when enabling the Circle CI integration. In this repository, the plugin will create a **temporary branch for each build operation** named `circle-ci{{uniqueBuildId}}` and **will not affect the existing branches**. The repository could be either the **app repository itself** or **any other GitHub repository** and should be specified in the `circleci.sshRepositoryURL` or `circleci.httpsRepositoryURL` properties of your `.nsremote.config.json`.
+In order to get started with Circle CI based builds, you need a GitHub repository for syncing your local app state with the Circle CI virtual machines. In this repository, the plugin will create a **temporary branch for each build operation** named `circle-ci{{uniqueBuildId}}` and **will not affect the existing branches**. The repository could be either the **app repository itself** or **any other GitHub repository** and should be specified in the `circleci.sshRepositoryURL` or `circleci.httpsRepositoryURL` properties of your `.nsremote.config.json`.
 
 For example:
 
@@ -29,7 +29,7 @@ For example:
 ```
 {
     "circleci": {
-        "httpsRepositoryURL": "{{an HTTPS GitHub repository url with enabled CircleCI integration}}"
+        "httpsRepositoryURL": "{{an HTTPS GitHub repository url}}"
     }
 }
 ```
@@ -43,7 +43,7 @@ or
 ```
 {
     "circleci": {
-        "sshRepositoryURL": "{{an SSH GitHub repository url with enabled CircleCI integration}}"
+        "sshRepositoryURL": "{{an SSH GitHub repository url}}"
     }
 }
 ```

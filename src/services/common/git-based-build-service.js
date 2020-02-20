@@ -60,20 +60,21 @@ class GitBasedBuildService {
             placeholders,
             cliBuildId);
 
-        let buildNumber, isSuccessful;
+        let buildNumber, isSuccessful, buildError;
         try {
             const buildResult = await this.ciService.build(commitRevision);
             isSuccessful = buildResult.isSuccessful;
             buildNumber = buildResult.buildNumber;
         } catch (e) {
             isSuccessful = false;
+            buildError = e;
             // ignore the error in order to clean the state
         }
 
         await this.cleanEnvVars(cliBuildId);
         await this.gitService.gitDeleteTempBuildBranch(cliBuildId);
         if (!isSuccessful) {
-            throw new Error("Cloud build failed. Open the link above for more details.");
+            throw (buildError || new Error("Cloud build failed. Open the link above for more details."));
         }
 
         this.$logger.info("Downloading build result.");

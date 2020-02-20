@@ -5,7 +5,7 @@ const { FastlaneService } = require("../common/fastlane-service");
 const constants = require("../../constants");
 
 class CircleCIService {
-    constructor($httpClient, $fs, $logger, platform, localEnv, options) {
+    constructor($httpClient, $fs, $logger, $cleanupService, platform, localEnv, options) {
         this.circleCiApiAccessToken = (localEnv && localEnv.CIRCLE_CI_API_ACCESS_TOKEN) || process.env.CIRCLE_CI_API_ACCESS_TOKEN;
         const githubAccessToken = (localEnv && localEnv.GITHUB_ACCESS_TOKEN) || process.env.GITHUB_ACCESS_TOKEN;
         if (!this.circleCiApiAccessToken) {
@@ -17,6 +17,7 @@ class CircleCIService {
         this.$fs = $fs;
         this.$logger = $logger;
         this.platform = platform;
+        this.$cleanupService = $cleanupService;
         const hasSshUrl = !!options.sshRepositoryURL;
         const hasHttpsUrl = !!options.httpsRepositoryURL;
         if ((hasSshUrl && hasHttpsUrl) || (!hasSshUrl && !hasHttpsUrl)) {
@@ -137,6 +138,12 @@ class CircleCIService {
                 }
             });
             hasError = response.response.statusCode !== 201;
+            if (!hasError && this.$cleanupService.addRequest) {
+                this.$cleanupService.addRequest({
+                    url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar/${envName}?circle-token=${this.circleCiApiAccessToken}`,
+                    method: "DELETE"
+                });
+            }
         } catch (e) {
             hasError = true;
         }
@@ -154,6 +161,12 @@ class CircleCIService {
                 method: "DELETE"
             });
             hasError = response.response.statusCode !== 200;
+            if (!hasError && this.$cleanupService.removeRequest) {
+                this.$cleanupService.removeRequest({
+                    url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar/${envName}?circle-token=${this.circleCiApiAccessToken}`,
+                    method: "DELETE"
+                });
+            }
         } catch (e) {
             hasError = true;
         }
@@ -178,6 +191,13 @@ class CircleCIService {
             throw new Error(`Timeout while waiting for a CircleCI job. Make sure that the '${this.gitRepositoryName}' project is enabled in CircleCI`)
         }
 
+        if (this.$cleanupService.addRequest) {
+            this.$cleanupService.addRequest({
+                url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${targetBuild.build_num}/cancel?circle-token=${this.circleCiApiAccessToken}`,
+                method: "POST"
+            });
+        }
+
         this.$logger.info(`A cloud build has started. Open ${targetBuild.build_url} for more details.`);
 
         return targetBuild.build_num;
@@ -190,6 +210,13 @@ class CircleCIService {
         if (build.status === "not_running" || build.status === "queued" || build.status === "scheduled" || build.status === "running") {
             await sleep(500);
             return this._isSuccessfulBuild(buildNumber);
+        }
+
+        if (this.$cleanupService.removeRequest) {
+            this.$cleanupService.removeRequest({
+                url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${targetBuild.build_num}/cancel?circle-token=${this.circleCiApiAccessToken}`,
+                method: "POST"
+            });
         }
 
         return build.status === "success";

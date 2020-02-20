@@ -71,7 +71,7 @@ class GitBasedBuildService {
         }
 
         await this.cleanEnvVars(cliBuildId);
-        await this.gitService.gitDeleteBranch(cliBuildId);
+        await this.gitService.gitDeleteTempBuildBranch(cliBuildId);
         if (!isSuccessful) {
             throw new Error("Cloud build failed. Open the link above for more details.");
         }

@@ -24,8 +24,8 @@ class RemoteBuildsService {
         let buildService = null;
         if (config.circleci) {
             const gitDirsPath = this.$settingsService.getProfileDir();
-            const gitService = new GitService(this.$childProcess, this.$fs, this.$logger, gitDirsPath, projectData.projectIdentifiers[this.platform], projectData.projectDir);
-            const ciService = new CircleCIService(this.$httpClient, this.$fs, this.$logger, this.platform, env.local, config.circleci)
+            const gitService = new GitService(this.$childProcess, this.$fs, this.$logger, this.$cleanupService, gitDirsPath, projectData.projectIdentifiers[this.platform], projectData.projectDir);
+            const ciService = new CircleCIService(this.$httpClient, this.$fs, this.$logger, this.$cleanupService, this.platform, env.local, config.circleci)
             buildService = new GitBasedBuildService(this.$fs, this.$logger, this.platform, gitService, ciService);
         } else {
             // TODO: refer a README section

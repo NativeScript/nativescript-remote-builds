@@ -16,7 +16,7 @@ The Circle CI remote enables [Fastlane](https://fastlane.tools/) based remote bu
 
 > NOTE: You have to be logged-in in Circle CI in order to see the [Circle CI Personal API Tokens page](https://circleci.com/account/api), 
 
-* An **SSH key without password** [configured in your GitHub user settings](https://help.github.com/en/github/authenticating-to-github/adding-a-new-ssh-key-to-your-github-account). It will be used to push your local changes to a specified GitHub repository in order to sync them with the Circle CI virtual machines.
+* An **SSH key without password** [configured in your GitHub user settings](https://help.github.com/en/github/authenticating-to-github/adding-a-new-ssh-key-to-your-github-account).
 
 ## Basic Setup
 

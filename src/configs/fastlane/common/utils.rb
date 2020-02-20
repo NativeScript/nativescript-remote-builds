@@ -33,9 +33,11 @@ def getCLIArgsFromEnv (argNames)
   argNames.each do |argName|
     envVarName = getCLIArgEnvName(argName);
     envVarValue = ENV[envVarName];
-    if envVarValue
-      if envVarValue == "1"
+    if envVarValue && envVarValue != ""
+      if envVarValue == "true"
         cliArgs.push("--#{argName}");
+      elsif envVarValue == "false"
+        cliArgs.push("--no-#{argName}");
       else
         cliArgs.push("--#{argName}", "\"$#{envVarName}\"");
       end

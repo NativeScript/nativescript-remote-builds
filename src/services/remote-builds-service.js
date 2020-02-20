@@ -90,7 +90,7 @@ class RemoteBuildsService {
 
     _getCliArgs(buildData) {
         const cliArgs = {
-            "env.local": "1"
+            "env.local": "true"
         };
 
         Object.keys(buildData.env).map(envArg => {
@@ -127,7 +127,9 @@ class RemoteBuildsService {
         let envValue = object[propertyName];
         if (typeof envValue === "boolean") {
             if (envValue) {
-                result[`${argName}`] = "1";
+                result[`${argName}`] = "true";
+            } else {
+                result[`${argName}`] = "false";
             }
         } else if (typeof envValue !== "undefined") {
             if (!Array.isArray(envValue)) {

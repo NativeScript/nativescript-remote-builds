@@ -18,6 +18,8 @@ In addition, as the plugin is written in JavaScript, it allows a direct GitHub i
 1) `cd {{yourNativeScriptAppRoot}}`
 2) `npm i https://github.com/NativeScript/nativescript-remote-builds/tarball/master`
 
+> IMPORTANT: The plugin depends on NativeScript CLI hooks even before the CLI installs the node packages. If you delete your `node_modules` folder, ensure that `npm i` is called before the `tns` commands, otherwise you could get unexpected exceptions. 
+
 ## Setup
 
 The plugin supports two configuration files expected in your **NativeScript app root directory**:

@@ -75,10 +75,11 @@ In order to get the Android Publishing working in the Fastlane based Circle CI b
 
 In order to setup the iOS publish in the Fastlane based Circle CI flow, you will need **an administration access to a paid apple developer account** and follow the steps below:
 1) Visit appleid.apple.com/account/manage.
-2) Generate a new application specific password.
-3) Set the password to the `FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD` remote environment variable. Take a look at the [Set Remote Environment Variable](#set-remote-environment-variable) section for more details.
-4) Visit appstoreconnect.apple.com
-5) Copy the `apple_id` (should be something like `2457129416`) of the app you want to publish and set it to the `IOS_APPSTORE_CONNECT_APP_ID` remote environment variable. Take a look at the [Set Remote Environment Variable](#set-remote-environment-variable) section for more details.
+2) Login with the user specified in the `IOS_APPLE_ID` remote environment variable.
+3) Generate a new application specific password.
+4) Set the password to the `FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD` remote environment variable. Take a look at the [Set Remote Environment Variable](#set-remote-environment-variable) section for more details.
+5) Visit appstoreconnect.apple.com
+6) Copy the `apple_id` (should be something like `2457129416`) of the app you want to publish and set it to the `IOS_APPSTORE_CONNECT_APP_ID` remote environment variable. Take a look at the [Set Remote Environment Variable](#set-remote-environment-variable) section for more details.
 
 ## Set Local Environment Variable
 
@@ -102,7 +103,7 @@ If you don't wanna set environment variable in the `sshRepositoryURL` Circle CI 
 ```
 {
     "remote": {
-        "IOS_APPLE_ID": "{{the apple id used in the fastlane match commands above}}",
+        "IOS_APPLE_ID": "{{the apple id used by the Fastlane commands}}",
         "IOS_SIGNING_REPO_URL": "{{the private github repository used in the fastlane match commands above}}",
         "MATCH_PASSWORD": "{{the match password set in the match commands above}}",
         "PLAYSTORE_ACCOUNT_BASE_64_JSON": "{{the base64 encoded JSON file generated from your play store account}}"

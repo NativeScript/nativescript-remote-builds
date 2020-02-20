@@ -20,10 +20,23 @@ The Circle CI remote enables [Fastlane](https://fastlane.tools/) based remote bu
 
 ## Basic Setup
 
-In order to get started with Circle CI based builds, you need a GitHub repository [integrated with CircleCI](https://circleci.com/docs/2.0/project-build/#adding-projects) for syncing your local app state with the Circle CI virtual machines. In this repository, the plugin will create a **temporary branch for each build operation** named `circle-ci{{uniqueBuildId}}` and **will not affect the existing branches**. The repository could be either the **app repository itself** or **any other GitHub repository** and should be specified in the `circleci.sshRepositoryURL` property of your `.nsremote.config.json`.
+In order to get started with Circle CI based builds, you need a GitHub repository [integrated with CircleCI](https://circleci.com/docs/2.0/project-build/#adding-projects) for syncing your local app state with the Circle CI virtual machines. You do NOT need any config.yml in your app, you could skip these setup when enabling the Circle CI integration. In this repository, the plugin will create a **temporary branch for each build operation** named `circle-ci{{uniqueBuildId}}` and **will not affect the existing branches**. The repository could be either the **app repository itself** or **any other GitHub repository** and should be specified in the `circleci.sshRepositoryURL` or `circleci.httpsRepositoryURL` properties of your `.nsremote.config.json`.
 
-The `sshRepositoryURL` value should be a valid GitHub SSH repository URL and you should have an SSH key with a write access configured on your local machine. For example:
+For example:
 
+*{{your-app-root}}/.nsremote.config.json*
+
+```
+{
+    "circleci": {
+        "httpsRepositoryURL": "{{an HTTPS GitHub repository url with enabled CircleCI integration}}"
+    }
+}
+```
+
+> NOTE: When using the HTTPS URL, you should also [set the `GITHUB_ACCESS_TOKEN` Local Environment Variable](#set-local-environment-variable).
+
+or
 
 *{{your-app-root}}/.nsremote.config.json*
 
@@ -35,9 +48,11 @@ The `sshRepositoryURL` value should be a valid GitHub SSH repository URL and you
 }
 ```
 
-> WARNING: The `sshRepositoryURL` will be used to sync your local code changes with the Circle CI virtual machines. **If the specified repository is public, make sure that your app does NOT have any sensitive data (e.g. secrets) which are not git ignored**.  
+> NOTE: When using the SSH URL, you should have an SSH key with a write access configured on your local machine. 
 
-Once you have the `sshRepositoryURL` in place, you just need to set the `CIRCLE_CI_API_ACCESS_TOKEN` environment variable on your **local machine**. Take a look at the [Set Local Environment Variable](#set-local-environment-variable) section for more details.
+> WARNING: This sync repository be used to sync your local code changes with the Circle CI virtual machines. **If the specified repository is public, make sure that your app does NOT have any sensitive data (e.g. secrets) which are not git ignored**.  
+
+Once you setup the sync repository, you just need to set the `CIRCLE_CI_API_ACCESS_TOKEN` environment variable on your **local machine**. Take a look at the [Set Local Environment Variable](#set-local-environment-variable) section for more details.
 
 ## Android Builds Setup
 
@@ -87,18 +102,19 @@ The local environment variable can be set just like a regular environment variab
 ```
 {
     "local": {
-        "CIRCLE_CI_API_ACCESS_TOKEN": "{{the value of your Personal API Token mention in the prerequisites section above}}"
+        "CIRCLE_CI_API_ACCESS_TOKEN": "{{the value of your Personal API Token mention in the prerequisites section above}}",
+        "GITHUB_ACCESS_TOKEN": "{{the GitHub access token for accessing the HTTPS sync repo URL, skipped when using the sshRepositoryURL}}"
     }
 }
 ```
 
 ## Set Remote Environment Variable
 
-If you use the `sshRepositoryURL` for just a single app, you could directly set the environment variables in the `sshRepositoryURL` Circle CI project as shown in the image blow:
+If you use the sync repository for just a single app, you could directly set the environment variables in its Circle CI project as shown in the image blow:
 
 ![Circle CI env vars page](circleci-envvars.png "Circle CI env vars page")
  
-If you don't wanna set environment variable in the `sshRepositoryURL` Circle CI project (e.g. if you want to reuse the same `sshRepositoryURL` for multiple apps with different iOS code signing), the remote environment variables could be set/overridden at app level - in the `remote` property of the git ignored `.nsremote.env.json` file. For example:
+If you don't wanna set environment variable in the sync repository Circle CI project (e.g. if you want to reuse the same sync repository for multiple apps with different iOS code signing), the remote environment variables could be set/overridden at app level using the `remote` property of the git ignored `.nsremote.env.json` file. For example:
 
 ```
 {

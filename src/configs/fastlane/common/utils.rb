@@ -20,6 +20,11 @@ def getEnvVar (envVarName)
   return result;
 end
 
+def promoteBuildEnvVarForCurrentProcess (envVarName)
+  envVarName = snakeUpperCase(envVarName);
+  ENV[envVarName] = ENV[envVarName + "_{{CLI_BUILD_ID}}"];
+end
+
 def getCLIArgsFromEnv (argNames)
   cliArgs = [];
   argNames.each do |argName|

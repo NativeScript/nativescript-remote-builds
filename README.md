@@ -386,7 +386,7 @@ Here's a comparison between the NativeScript CLI, the NativeScript CLI Cloud Ext
             <!-- Remote Builds linux -->
             <td>&nbsp;&nbsp;&nbsp;&nbsp;:warning:<sup>[9]</sup></td>
             <!-- Remote Builds mac -->
-            <td>&nbsp;&nbsp;&nbsp;&nbsp;:warning:<sup>[9][9]</sup></td>
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;:warning:<sup>[9]</sup></td>
         </tr>
     </tbody>
 </table>
@@ -408,7 +408,7 @@ Here's a comparison between the NativeScript CLI, the NativeScript CLI Cloud Ext
 
 [8] The NativeScript Cloud extensions is providing  a limited number of free builds.
 
-[9]: The Circle CI provider of the NativeScript Remote Builds plugin is just depending on the Circle CI pricing. It provides limited number of free Android Builds for everyone and limited number of free iOS builds for open-source projects. 
+[9] The Circle CI provider of the NativeScript Remote Builds plugin is just depending on the Circle CI pricing. It provides limited number of free Android Builds for everyone and limited number of free iOS builds for open-source projects. 
 
 ## Installation
 

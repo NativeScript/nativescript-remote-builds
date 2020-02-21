@@ -367,6 +367,27 @@ Here's a comparison between the NativeScript CLI, the NativeScript CLI Cloud Ext
             <!-- Remote Builds mac -->
             <td>:x:</td>
         </tr>
+        <tr>
+            <td align="left">Free</td>
+            <!-- CLI win -->
+            <td>:white_check_mark:</td>
+            <!-- CLI linux -->
+            <td>:white_check_mark:</td>
+            <!-- CLI mac -->
+            <td>:white_check_mark:</td>
+            <!-- Cloud win -->
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;:warning:<sup>[8]</sup></td>
+            <!-- Cloud linux -->
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;:warning:<sup>[8]</sup></td>
+            <!-- Cloud mac -->
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;:warning:<sup>[8]</sup></td>
+            <!-- Remote Builds win -->
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;:warning:<sup>[9]</sup></td>
+            <!-- Remote Builds linux -->
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;:warning:<sup>[9]</sup></td>
+            <!-- Remote Builds mac -->
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;:warning:<sup>[9]</sup></td>
+        </tr>
     </tbody>
 </table>
 
@@ -383,6 +404,10 @@ Here's a comparison between the NativeScript CLI, the NativeScript CLI Cloud Ext
 [6] Requires native tools setup.
 
 [7] Cannot build in parallel.
+
+[8] The NativeScript Cloud extensions is providing  a limited number of free builds.
+
+[9] The Circle CI provider of the NativeScript Remote Builds plugin is just depending on the Circle CI pricing. It provides limited number of free Android Builds for everyone and limited number of free iOS builds for open-source projects. 
 
 ## Installation
 

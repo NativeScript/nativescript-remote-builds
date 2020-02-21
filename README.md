@@ -392,9 +392,9 @@ Here's a comparison between the NativeScript CLI, the NativeScript CLI Cloud Ext
 </table>
 
 
-[1] If the end-user is responsible for passing the --provision flag and pick the proper certificate based on the current application and build configuration. In this plugin this task is handled out of the box by the Fastlane Match service.
+[1] If the end-user is responsible for passing the `--provision` flag and picking the proper certificate based on current build configuration. In the Remote Builds plugin, this is handled out of the box by the Fastlane Match service.
 
-[2] If the end user can run tests on pull requests or commits. In other words, if it is supported to build multiple versions of the same app in parallel and still stable.
+[2] If the user can run tests on pull requests or commits. In other words, if it is supported to build multiple versions of the same app in parallel and still stable.
 
 [3] If the full environment information is available to the users (e.g. the versions of the CLI, cocoapods, android SDK, OS or xcode).
 

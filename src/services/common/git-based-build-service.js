@@ -60,8 +60,7 @@ class GitBasedBuildService {
         const commitRevision = await this.gitService.gitPushChanges(
             { httpRemoteUrl: this.remoteUrl },
             mappedFiles,
-            placeholders,
-            cliBuildId);
+            placeholders);
 
         let buildNumber, isSuccessful, buildError;
         try {
@@ -75,7 +74,7 @@ class GitBasedBuildService {
         }
 
         await this.cleanEnvVars(cliBuildId);
-        await this.gitService.gitDeleteBranch(cliBuildId);
+        await this.gitService.gitDeleteBranch();
         if (!isSuccessful) {
             throw (buildError || new Error("Cloud build failed. Open the link above for more details."));
         }

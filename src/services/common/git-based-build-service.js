@@ -51,7 +51,8 @@ class GitBasedBuildService {
             "CLI_VERSION": envDependencies.cliVersion,
             "IOS_COCOAPODS_VERSION": envDependencies.cocoapodsVersion,
             "CLI_BUILD_ID": cliBuildId,
-            "NATIVE_PROJECT_ROOT": projectData.nativeProjectRoot,
+            // the path will be used on macOS => replace windows with unix path
+            "NATIVE_PROJECT_ROOT": projectData.nativeProjectRoot.replace(/\\/g, "/"),
             "PROJECT_ID": projectData.projectIdentifiers[this.platform],
             "PROJECT_NAME": projectData.projectName,
             "OUTPUT_APP_FILENAME": outputAppFilename

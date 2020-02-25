@@ -1,9 +1,11 @@
 
-module.exports = (hookArgs) => {
+module.exports = (hookArgs, $platformValidationService) => {
     if (hookArgs.argv.indexOf("--env.local") > -1) {
         // let the local publish
         return;
     }
+
+    $platformValidationService.isPlatformSupportedForOS = () => true;
 
     return (args) => {
         // commandName: string, commandArguments: string[], argv: string[]

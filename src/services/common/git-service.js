@@ -1,8 +1,13 @@
 const path = require("path");
 const _ = require("lodash");
+const commandExistsSync = require('command-exists').sync;
 
 class GitService {
     constructor($childProcess, $fs, $logger, $cleanupService, gitDirsPath, gitRepoName, workingDirectory, uniqueId) {
+        if (!commandExistsSync('git')) {
+            throw new Error("'git' required in your PATH in order to proceed with the remote build.")
+        };
+
         this.$childProcess = $childProcess;
         this.$fs = $fs;
         this.$logger = $logger;

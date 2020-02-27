@@ -21,10 +21,6 @@ class FastlaneService {
                 errorIfMissing: `'IOS_SIGNING_REPO_URL' ${iosBuildError}`
             });
             requiredArgs.push({
-                name: "IOS_APPLE_ID",
-                errorIfMissing: `'IOS_APPLE_ID' ${iosBuildError}`
-            });
-            requiredArgs.push({
                 name: "MATCH_PASSWORD",
                 errorIfMissing: `'MATCH_PASSWORD' ${iosBuildError}`
             });
@@ -35,6 +31,11 @@ class FastlaneService {
                     name: "IOS_APPSTORE_CONNECT_APP_ID",
                     errorIfMissing: `'IOS_APPSTORE_CONNECT_APP_ID' ${iosPublishError}`
                 });
+                requiredArgs.push({
+                    name: "IOS_APPLE_ID",
+                    errorIfMissing: `'IOS_APPLE_ID' ${iosBuildError}`
+                });
+
                 requiredArgs.push({
                     name: "FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD",
                     errorIfMissing: `'FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD' ${iosPublishError}`

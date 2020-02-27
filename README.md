@@ -40,29 +40,31 @@ Here's a comparison table between the NativeScript Cloud Extension and the Nativ
 
 > *The comparison is based on the CircleCI remote of the NativeScript Remote Builds Plugin*
 
-<span id="tooling">native tooling<sup>[1]</sup></span>
-: Any native environment requirements like Java, Android SDK, Android Studio, macOS, Xcode, Cocoapods, Docker and so on.
+<dl>
+  <dt><span id="tooling">native tooling<sup>[1]</sup></span></dt>
+  <dd>Any native environment requirements like Java, Android SDK, Android Studio, macOS, Xcode, Cocoapods, Docker and so on.</dd>
 
-<span id="cloudDebug">cloud extension debug support<sup>[2]</sup></span>
-: It is available only through NativeScript Sidekick.
+  <dt><span id="cloudDebug">cloud extension debug support<sup>[2]</sup></span></dt>
+  <dd>It is available only through NativeScript Sidekick.</dd>
 
-<span id="signing">iOS signing management<sup>[3]</sup></span>
-: If the end-user is responsible for passing the `--provision` flag and picking the proper certificate based on the current build configuration. In the Remote Builds plugin, this is handled out of the box by the [Fastlane Match service](https://docs.fastlane.tools/actions/match/).
+  <dt><span id="signing">iOS signing management<sup>[3]</sup></span></dt>
+  <dd>If the end-user is responsible for passing the `--provision` flag and picking the proper certificate based on the current build configuration. In the Remote Builds plugin, this is handled out of the box by the <a href="https://docs.fastlane.tools/actions/match/">Fastlane Match service</a>.</dd>
 
-<span id="ci">full CI support<sup>[4]</sup></span>
-: If the user can build and run tests on pull requests or commits. In other words, if it is supported to build multiple versions of the same app in parallel.
+  <dt><span id="ci">full CI support<sup>[4]</sup></span></dt>
+  <dd>If the user can build and run tests on pull requests or commits. In other words, if it is supported to build multiple versions of the same app in parallel.</dd>
 
-<span id="envInfo">full environment information<sup>[5]</sup></span>
-: If the full environment information is available to the users (e.g. the versions of the OS and the [native tooling<sup>[1]</sup>](#tooling)).
+  <dt><span id="envInfo">full environment information<sup>[5]</sup></span></dt>
+  <dd>If the full environment information is available to the users (e.g. the versions of the OS and the <a href="#tooling">native tooling<sup>[1]</sup></a>.</dd>
 
-<span id="envControl">full environment control<sup>[6]</sup></span>
-: If the environment setup can be controlled by the user (e.g. change the versions of the os and the [native tooling<sup>[1]</sup>](#tooling)). 
+  <dt><span id="envControl">full environment control<sup>[6]</sup></span></dt>
+  <dd>If the environment setup can be controlled by the user (e.g. change the versions of the os and the <a href="#tooling">native tooling<sup>[1]</sup></a>.</dd>
 
-<span id="cloudPrice">cloud extension price<sup>[7]</sup></span>
-: The NativeScript Cloud extensions is providing a limited number of free builds.
+  <dt><span id="cloudPrice">cloud extension price<sup>[7]</sup></span></dt>
+  <dd>The NativeScript Cloud extensions is providing a limited number of free builds.</dd>
 
-<span id="pluginPrice">remote builds plugin price<sup>[8]</sup></span>
-: The Circle CI provider of the NativeScript Remote Builds plugin is just depending on the [Circle CI pricing](https://circleci.com/pricing/). It provides a limited number of free Android Builds for everyone and a limited number of [free iOS builds for open-source projects](https://circleci.com/open-source/).
+  <dt><span id="pluginPrice">remote builds plugin price<sup>[8]</sup></span></dt>
+  <dd>The Circle CI provider of the NativeScript Remote Builds plugin is just depending on the <a href="https://circleci.com/pricing/">Circle CI pricing</a>. It provides a limited number of free Android Builds for everyone and a limited number of <a href="https://circleci.com/open-source/">free iOS builds for open-source projects</a>.</dd>
+</dl>
 
 
 ## Installation

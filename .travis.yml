@@ -134,9 +134,7 @@ matrix:
         - tns error-reporting disable
         - cd demo && npm i
       script: tns build ios --path demo
-
-
- - stage: Release Build iOS
+    - stage: Release Build iOS
       os: linux
       language: node_js
       node_js: "10"

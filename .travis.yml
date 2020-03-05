@@ -61,9 +61,9 @@ matrix:
         - tns usage-reporting disable
         - tns error-reporting disable
         - cd demo && npm i
-        - echo $KEYSTORE_BASE64_ENCODED > ~/test1111.txt
-        - base64 --decode ~/test1111.txt > ~/Telerik1111.keystore
-      script: tns build android --path demo --release --for-device --key-store-path ~/Telerik.keystore --key-store-password t3l3r1kad --key-store-alias Telerik --key-store-alias-password t3l3r1kad
+        - echo $KEYSTORE_BASE64_ENCODED > ~/keystoreBase64Encoded.txt
+        - base64 --decode ~/keystoreBase64Encoded.txt > ~/Release.keystore
+      script: tns build android --path demo --release --for-device --key-store-path ~/Release.keystore --key-store-password $KEY_STORE_PASSWORD --key-store-alias $KEY_STORE_ALIAS --key-store-alias-password $KEY_STORE_ALIAS_PASSWORD
     - os: windows
       language: node_js
       node_js: "10"
@@ -76,9 +76,9 @@ matrix:
         - tns usage-reporting disable
         - tns error-reporting disable
         - cd demo && npm i
-        - echo $KEYSTORE_BASE64_ENCODED > ~/test1111.txt
-        - base64 --decode ~/test1111.txt > ~/Telerik1111.keystore
-      script: tns build android --path demo --release --for-device --key-store-path ~/Telerik.keystore --key-store-password t3l3r1kad --key-store-alias Telerik --key-store-alias-password t3l3r1kad
+        - echo $KEYSTORE_BASE64_ENCODED > ~/keystoreBase64Encoded.txt
+        - base64 --decode ~/keystoreBase64Encoded.txt > ~/Release.keystore
+      script: tns build android --path demo --release --for-device --key-store-path ~/Release.keystore --key-store-password $KEY_STORE_PASSWORD --key-store-alias $KEY_STORE_ALIAS --key-store-alias-password $KEY_STORE_ALIAS_PASSWORD
     - os: osx
       language: node_js
       node_js: "10"
@@ -91,9 +91,9 @@ matrix:
         - tns usage-reporting disable
         - tns error-reporting disable
         - cd demo && npm i
-        - echo $KEYSTORE_BASE64_ENCODED > ~/test1111.txt
-        - base64 --decode ~/test1111.txt > ~/Telerik1111.keystore
-      script: tns build android --path demo --release --for-device --key-store-path ~/Telerik.keystore --key-store-password t3l3r1kad --key-store-alias Telerik --key-store-alias-password t3l3r1kad
+        - echo $KEYSTORE_BASE64_ENCODED > ~/keystoreBase64Encoded.txt
+        - base64 --decode ~/keystoreBase64Encoded.txt > ~/Release.keystore
+      script: tns build android --path demo --release --for-device --key-store-path ~/Release.keystore --key-store-password $KEY_STORE_PASSWORD --key-store-alias $KEY_STORE_ALIAS --key-store-alias-password $KEY_STORE_ALIAS_PASSWORD
     - stage: Build iOS
       os: linux
       language: node_js

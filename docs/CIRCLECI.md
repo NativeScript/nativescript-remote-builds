@@ -101,10 +101,11 @@ In order to setup the iOS publish in the Fastlane based Circle CI flow, you will
 The local environment variable can be set just like a regular environment variables on your local machine. However, if you don't wanna set environment variable on your local machine or you want to easily share the variables between multiple machines, the local environment variables could be also set in the `local` property of the git ignored `.nsremote.env.json` file. For example:
 ```
 {
-    "local": {
-        "CIRCLE_CI_API_ACCESS_TOKEN": "{{the value of your Personal API Token mention in the prerequisites section above}}",
-        "GITHUB_ACCESS_TOKEN": "{{the GitHub access token for accessing the HTTPS sync repo URL, skipped when using the sshRepositoryURL}}"
-    }
+  "local": {
+    "CIRCLE_CI_API_ACCESS_TOKEN": "{{the value of your Personal API Token mention in the prerequisites section above}}",
+    "GITHUB_ACCESS_TOKEN": "{{the GitHub access token for accessing the HTTPS sync repo URL, skipped when using the sshRepositoryURL}}"
+  },
+  "remote": {}
 }
 ```
 
@@ -118,12 +119,13 @@ If you don't wanna set environment variable in the sync repository Circle CI pro
 
 ```
 {
-    "remote": {
-        "IOS_APPLE_ID": "{{the apple id used by the Fastlane commands}}",
-        "IOS_SIGNING_REPO_URL": "{{the private github repository used in the fastlane match commands above}}",
-        "MATCH_PASSWORD": "{{the match password set in the match commands above}}",
-        "PLAYSTORE_ACCOUNT_BASE_64_JSON": "{{the base64 encoded JSON file generated from your play store account}}"
-    }
+  "local": {},
+  "remote": {
+    "IOS_APPLE_ID": "{{the apple id used by the Fastlane commands}}",
+    "IOS_SIGNING_REPO_URL": "{{the private github repository used in the fastlane match commands above}}",
+    "MATCH_PASSWORD": "{{the match password set in the match commands above}}",
+    "PLAYSTORE_ACCOUNT_BASE_64_JSON": "{{the base64 encoded JSON file generated from your play store account}}"
+  }
 }
 ```
 

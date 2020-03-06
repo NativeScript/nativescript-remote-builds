@@ -1,16 +1,18 @@
 const constants = require("../../constants");
+const GitService = require("./git-service").GitService;
 const uniqueString = require('unique-string');
 const path = require("path");
 const _ = require("lodash");
 
 class GitBasedBuildService {
-    constructor($fs, $logger, platform, gitService, ciService) {
+    constructor($childProcess, $fs, $logger, $cleanupService, ciService, gitDirsPath, platform) {
+        this.$childProcess = $childProcess;
+        this.$cleanupService = $cleanupService;
         this.$fs = $fs;
         this.$logger = $logger;
         this.platform = platform;
-        this.gitService = gitService;
-        // TODO: document all required methods of a ciService
         this.ciService = ciService;
+        this.gitDirsPath = gitDirsPath;
         this.remoteUrl = ciService.syncRepositoryURL;
     }
 
@@ -26,6 +28,7 @@ class GitBasedBuildService {
     async build(buildOptions) {
         const { envDependencies, buildLevelRemoteEnvVars, cliArgs, projectData, appOutputPath } = buildOptions;
         const cliBuildId = uniqueString();
+        this.gitService = new GitService(this.$childProcess, this.$fs, this.$logger, this.$cleanupService, this.gitDirsPath, projectData.projectIdentifiers[this.platform], projectData.projectDir, cliBuildId);
         for (const arg in cliArgs) {
             await this.updateCLIArgEnvVariable(arg, cliArgs[arg], cliBuildId);
         }
@@ -48,7 +51,8 @@ class GitBasedBuildService {
             "CLI_VERSION": envDependencies.cliVersion,
             "IOS_COCOAPODS_VERSION": envDependencies.cocoapodsVersion,
             "CLI_BUILD_ID": cliBuildId,
-            "NATIVE_PROJECT_ROOT": projectData.nativeProjectRoot,
+            // the path will be used on macOS => replace windows with unix path
+            "NATIVE_PROJECT_ROOT": projectData.nativeProjectRoot.replace(/\\/g, "/"),
             "PROJECT_ID": projectData.projectIdentifiers[this.platform],
             "PROJECT_NAME": projectData.projectName,
             "OUTPUT_APP_FILENAME": outputAppFilename
@@ -57,23 +61,23 @@ class GitBasedBuildService {
         const commitRevision = await this.gitService.gitPushChanges(
             { httpRemoteUrl: this.remoteUrl },
             mappedFiles,
-            placeholders,
-            cliBuildId);
+            placeholders);
 
-        let buildNumber, isSuccessful;
+        let buildNumber, isSuccessful, buildError;
         try {
             const buildResult = await this.ciService.build(commitRevision);
             isSuccessful = buildResult.isSuccessful;
             buildNumber = buildResult.buildNumber;
         } catch (e) {
             isSuccessful = false;
+            buildError = e;
             // ignore the error in order to clean the state
         }
 
         await this.cleanEnvVars(cliBuildId);
-        await this.gitService.gitDeleteBranch(cliBuildId);
+        await this.gitService.gitDeleteBranch();
         if (!isSuccessful) {
-            throw new Error("Cloud build failed. Open the link above for more details.");
+            throw (buildError || new Error("Cloud build failed. Open the link above for more details."));
         }
 
         this.$logger.info("Downloading build result.");

@@ -31,7 +31,6 @@ jobs:
 
       # NODE PACKAGES
       - run: npm install
-      - run: npm rebuild
 
       # INSTALL GEMS
       - restore_cache:

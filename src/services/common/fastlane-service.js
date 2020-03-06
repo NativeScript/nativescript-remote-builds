@@ -8,9 +8,9 @@ class FastlaneService {
         if (platform === "android") {
             if (shouldPublish) {
                 requiredArgs.push({
-                    name: "PLAYSTORE_ACCOUNT_BASE64_JSON",
+                    name: "PLAYSTORE_ACCOUNT_BASE_64_JSON",
                     // TODO: refer README
-                    errorIfMissing: "'PLAYSTORE_ACCOUNT_BASE64_JSON' required in order to publish Android apps."
+                    errorIfMissing: "'PLAYSTORE_ACCOUNT_BASE_64_JSON' required in order to publish Android apps."
                 });
             }
         } else {
@@ -19,10 +19,6 @@ class FastlaneService {
             requiredArgs.push({
                 name: "IOS_SIGNING_REPO_URL",
                 errorIfMissing: `'IOS_SIGNING_REPO_URL' ${iosBuildError}`
-            });
-            requiredArgs.push({
-                name: "IOS_APPLE_ID",
-                errorIfMissing: `'IOS_APPLE_ID' ${iosBuildError}`
             });
             requiredArgs.push({
                 name: "MATCH_PASSWORD",
@@ -35,6 +31,11 @@ class FastlaneService {
                     name: "IOS_APPSTORE_CONNECT_APP_ID",
                     errorIfMissing: `'IOS_APPSTORE_CONNECT_APP_ID' ${iosPublishError}`
                 });
+                requiredArgs.push({
+                    name: "IOS_APPLE_ID",
+                    errorIfMissing: `'IOS_APPLE_ID' ${iosBuildError}`
+                });
+
                 requiredArgs.push({
                     name: "FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD",
                     errorIfMissing: `'FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD' ${iosPublishError}`

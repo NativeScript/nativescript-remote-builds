@@ -1,8 +1,8 @@
-
 def snakeUpperCase (string)
   return string.gsub(/::/, '/').
-    gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
-    gsub(/([a-z\d])([A-Z])/,'\1_\2').
+    gsub(/([a-z])([A-Z\d])/,'\1_\2').
+    gsub(/([A-Z])(\d)/,'\1_\2').
+    gsub(/([\d])([A-Za-z])/,'\1_\2').
     tr("-", "_").
     tr(".", "_").
     upcase
@@ -20,14 +20,24 @@ def getEnvVar (envVarName)
   return result;
 end
 
+def promoteBuildEnvVarForCurrentProcess (envVarName)
+  envVarName = snakeUpperCase(envVarName);
+  buildLevelEnvValue = ENV[envVarName + "_{{CLI_BUILD_ID}}"];
+  if buildLevelEnvValue && buildLevelEnvValue != ""
+    ENV[envVarName] = buildLevelEnvValue;
+  end
+end
+
 def getCLIArgsFromEnv (argNames)
   cliArgs = [];
   argNames.each do |argName|
     envVarName = getCLIArgEnvName(argName);
     envVarValue = ENV[envVarName];
-    if envVarValue
-      if envVarValue == "1"
+    if envVarValue && envVarValue != ""
+      if envVarValue == "true"
         cliArgs.push("--#{argName}");
+      elsif envVarValue == "false"
+        cliArgs.push("--no-#{argName}");
       else
         cliArgs.push("--#{argName}", "\"$#{envVarName}\"");
       end

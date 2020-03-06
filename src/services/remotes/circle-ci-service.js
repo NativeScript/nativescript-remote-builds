@@ -5,7 +5,7 @@ const { FastlaneService } = require("../common/fastlane-service");
 const constants = require("../../constants");
 
 class CircleCIService {
-    constructor($httpClient, $fs, $logger, platform, localEnv, options) {
+    constructor($httpClient, $fs, $logger, $cleanupService, platform, localEnv, options) {
         this.circleCiApiAccessToken = (localEnv && localEnv.CIRCLE_CI_API_ACCESS_TOKEN) || process.env.CIRCLE_CI_API_ACCESS_TOKEN;
         const githubAccessToken = (localEnv && localEnv.GITHUB_ACCESS_TOKEN) || process.env.GITHUB_ACCESS_TOKEN;
         if (!this.circleCiApiAccessToken) {
@@ -17,6 +17,7 @@ class CircleCIService {
         this.$fs = $fs;
         this.$logger = $logger;
         this.platform = platform;
+        this.$cleanupService = $cleanupService;
         const hasSshUrl = !!options.sshRepositoryURL;
         const hasHttpsUrl = !!options.httpsRepositoryURL;
         if ((hasSshUrl && hasHttpsUrl) || (!hasSshUrl && !hasHttpsUrl)) {
@@ -34,7 +35,6 @@ class CircleCIService {
         } else {
 
             const githubHttpsUrlStart = "https://github.com/";
-            // TODO: add the access token
             if (!options.httpsRepositoryURL.startsWith(githubHttpsUrlStart)) {
                 throw new Error(`"circleci.httpsRepositoryURL" should be a valid github HTTPS repository URL. For example: "https://github.com/DimitarTachev/nativescript-circle-ci-livesync.git". Received: ${options.httpsRepositoryURL}`);
             }
@@ -67,6 +67,7 @@ class CircleCIService {
     }
 
     async build(gitRevision) {
+        await this._ensureValidSyncRepository();
         const buildNumber = await this._getBuildNumber(gitRevision);
         const isSuccessful = await this._isSuccessfulBuild(buildNumber);
 
@@ -74,6 +75,7 @@ class CircleCIService {
     }
 
     async downloadBuildArtefact(buildNumber, cloudFileName, destinationFilePath) {
+        await this._ensureValidSyncRepository();
         const artifactsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${buildNumber}/artifacts`);
         const artifacts = JSON.parse(artifactsResponse.body);
 
@@ -101,6 +103,7 @@ class CircleCIService {
     }
 
     async getRemoteEnvVariables() {
+        await this._ensureValidSyncRepository();
         let hasError = false;
         try {
             const response = await this.$httpClient.httpRequest({
@@ -126,6 +129,7 @@ class CircleCIService {
     }
 
     async updateRemoteEnvVariable(envName, envValue) {
+        await this._ensureValidSyncRepository();
         let hasError = false;
         try {
             const response = await this.$httpClient.httpRequest({
@@ -137,6 +141,12 @@ class CircleCIService {
                 }
             });
             hasError = response.response.statusCode !== 201;
+            if (!hasError && this.$cleanupService.addRequest) {
+                this.$cleanupService.addRequest({
+                    url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar/${envName}?circle-token=${this.circleCiApiAccessToken}`,
+                    method: "DELETE"
+                });
+            }
         } catch (e) {
             hasError = true;
         }
@@ -147,6 +157,7 @@ class CircleCIService {
     }
 
     async deleteRemoteEnvVariable(envName) {
+        await this._ensureValidSyncRepository();
         let hasError = false;
         try {
             const response = await this.$httpClient.httpRequest({
@@ -154,12 +165,39 @@ class CircleCIService {
                 method: "DELETE"
             });
             hasError = response.response.statusCode !== 200;
+            if (!hasError && this.$cleanupService.removeRequest) {
+                this.$cleanupService.removeRequest({
+                    url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar/${envName}?circle-token=${this.circleCiApiAccessToken}`,
+                    method: "DELETE"
+                });
+            }
         } catch (e) {
             hasError = true;
         }
 
         if (hasError) {
             throw new Error(`Unable to remove CircleCI environment variables for project "${this.gitRepositoryName}"`);
+        }
+    }
+
+    async _ensureValidSyncRepository() {
+        if (this._hasValidIntegration) {
+            return;
+        }
+
+        try {
+            const followRepoResponse = await this.$httpClient.httpRequest({
+                url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/follow?circle-token=${this.circleCiApiAccessToken}`,
+                method: "POST"
+            });
+
+            this._hasValidIntegration = followRepoResponse.response.statusCode === 200;
+        } catch (e) {
+            this._hasValidIntegration = false;
+        }
+
+        if (!this._hasValidIntegration) {
+            throw new Error(`Unable to integrate the "${this.gitRepositoryName}" project with Circle CI. Make sure that "${this.gitRepositoryName}" is an initialized GitHub repository and the Circle CI OAuth application is authorized in your GitHub organization - https://circleci.com/integrations/github `)
         }
     }
 
@@ -175,7 +213,14 @@ class CircleCIService {
         }
 
         if (!targetBuild) {
-            throw new Error(`Timeout while waiting for a CircleCI job. Make sure that the '${this.gitRepositoryName}' project is enabled in CircleCI`)
+            throw new Error(`Timeout while waiting for a CircleCI job.`);
+        }
+
+        if (this.$cleanupService.addRequest) {
+            this.$cleanupService.addRequest({
+                url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${targetBuild.build_num}/cancel?circle-token=${this.circleCiApiAccessToken}`,
+                method: "POST"
+            });
         }
 
         this.$logger.info(`A cloud build has started. Open ${targetBuild.build_url} for more details.`);
@@ -190,6 +235,13 @@ class CircleCIService {
         if (build.status === "not_running" || build.status === "queued" || build.status === "scheduled" || build.status === "running") {
             await sleep(500);
             return this._isSuccessfulBuild(buildNumber);
+        }
+
+        if (this.$cleanupService.removeRequest) {
+            this.$cleanupService.removeRequest({
+                url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${buildNumber}/cancel?circle-token=${this.circleCiApiAccessToken}`,
+                method: "POST"
+            });
         }
 
         return build.status === "success";

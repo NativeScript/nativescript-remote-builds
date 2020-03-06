@@ -25,6 +25,7 @@ platform :ios do
   buildType = getEnvVar("IOS_BUILD_TYPE") || defaultBuildType;
   buildConfiguration = getEnvVar("IOS_BUILD_CONFIGURATION") || defaultBuildConfiguration;
   
+  promoteBuildEnvVarForCurrentProcess("MATCH_PASSWORD");
   match(
     type: provisionType,
     app_identifier: "{{PROJECT_ID}}",
@@ -34,7 +35,7 @@ platform :ios do
 
   # we are not able to pass ENV variable with dots directly to a bash command as it will fail with 
   # "Failed to find mobile provision with UUID or Name: .nativescript.cloudTest_developmen"
-  matchProvisionName = ENV["sigh_org.nativescript.cloudTest_#{provisionType}"];
+  matchProvisionName = ENV["sigh_{{PROJECT_ID}}_#{provisionType}"];
   nativescriptCLICommand.push("--provision", "\"#{matchProvisionName}\"")
   
   sh(nativescriptCLICommand);
@@ -58,6 +59,7 @@ platform :ios do
   end
 
   if (cliCommandArgs.include?("--env.remotePublish"))
+    promoteBuildEnvVarForCurrentProcess("FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD");
     upload_to_testflight(
       skip_submission: true,
       username: getEnvVar("IOS_APPLE_ID"),

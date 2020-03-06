@@ -1,6 +1,6 @@
 {
   "name": "nativescript-remote-builds",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Run NativeScript apps with local LiveSync without any local Android/iOS setup.",
   "main": "index.js",
   "scripts": {
@@ -36,6 +36,11 @@
         "inject": true
       },
       {
+        "type": "before-checkForChanges",
+        "script": "src/hooks/before-checkForChanges.js",
+        "inject": true
+      },
+      {
         "type": "before-prepare",
         "script": "src/hooks/before-prepare.js",
         "inject": true
@@ -55,11 +60,17 @@
         "script": "src/hooks/before-resolveCommand.js",
         "inject": true
       }
-    ]
+    ],
+    "platforms": {
+      "android": "6.4.0",
+      "ios": "6.4.0"
+    }
   },
   "dependencies": {
+    "command-exists": "^1.2.8",
     "lodash": "^4.17.15",
     "nativescript-hook": "^0.2.5",
+    "semver": "^7.1.3",
     "unique-string": "^2.0.0"
   },
   "devDependencies": {

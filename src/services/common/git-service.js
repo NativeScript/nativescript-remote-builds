@@ -1,20 +1,30 @@
 const path = require("path");
 const _ = require("lodash");
+const commandExistsSync = require('command-exists').sync;
 
 class GitService {
-    constructor($childProcess, $fs, $logger, gitDirsPath, gitRepoName, workingDirectory) {
+    constructor($childProcess, $fs, $logger, $cleanupService, gitDirsPath, gitRepoName, workingDirectory, uniqueId) {
+        if (!commandExistsSync('git')) {
+            throw new Error("'git' required in your PATH in order to proceed with the remote build.");
+        }
+
         this.$childProcess = $childProcess;
         this.$fs = $fs;
         this.$logger = $logger;
+        this.$cleanupService = $cleanupService;
         this.gitDirsPath = gitDirsPath;
-        this.gitRepoName = gitRepoName;
+        this.uniqueId = uniqueId;
+        this.gitRepoName = gitRepoName + "-" + uniqueId;
+        this.defaultBranchName = GitService.TEMP_BRANCH_NAME_PREFIX + uniqueId;
         this.workingDirectory = workingDirectory;
     }
 
-    async gitPushChanges(remoteUrl, mappedFiles, placeholders, branchId) {
-        // a workaround for a sporadic "git exited with code 1"
-        this.cleanGitRepository();
+    async gitPushChanges(remoteUrl, mappedFiles, placeholders) {
+        // ensure clean repo as a workaround for a sporadic "git exited with code 1"
+        await this.cleanGitRepository();
         await this.gitInit();
+        // clean on ctrl + c
+        await this.cleanGitRepository(true);
         const isRemoteAdded = await this.gitCheckIfRemoteIsAdded(GitService.REMOTE_NAME);
         if (isRemoteAdded) {
             const isGitRemoteCorrect = await this.isGitRemoteSetToCorrectUrl(remoteUrl);
@@ -33,13 +43,13 @@ class GitService {
             await this.executeCommand(["config", "--local", "core.autocrlf", "false"]);
         }
 
-        await this.checkoutBranch(GitService.BRANCH_NAME_PREFIX + branchId);
+        await this.checkoutBranch();
         const statusResult = await this.gitStatus();
         this.$logger.trace(`Result of git status: ${statusResult}.`);
         let revision;
         if (this.hasNothingToCommit(statusResult.stdout)) {
             this.$logger.trace("Nothing to commit. Just push force the branch.");
-            await this.gitPush(branchId);
+            await this.gitPush();
             revision = await this.getCurrentRevision();
             return revision;
         }
@@ -70,34 +80,41 @@ class GitService {
         }
 
         await this.gitCommit();
-        await this.gitPush(branchId);
+        await this.gitPush();
         revision = await this.getCurrentRevision();
         return revision;
     }
 
-    async checkoutBranch(branchId) {
+    async checkoutBranch(branchName, cleanUpOnly) {
+        branchName = branchName || this.defaultBranchName;
         try {
-            await this.executeCommand(["checkout", branchId]);
+            await this.executeCommand(["checkout", branchName], undefined, false, false, cleanUpOnly);
         }
         catch (error) {
-            await this.executeCommand(["checkout", "-b", branchId]);
+            await this.executeCommand(["checkout", "-b", branchName], undefined, false, false, cleanUpOnly);
+            const tempBranchPrefixIndex = branchName.indexOf(GitService.TEMP_BRANCH_NAME_PREFIX);
+            if (!cleanUpOnly && tempBranchPrefixIndex === 0) {
+                await this.gitDeleteBranch(branchName, true);
+            }
         }
     }
 
-    async gitDeleteBranch(cliBuildId) {
+    async gitDeleteBranch(branchName, cleanUpOnly) {
+        branchName = branchName || this.defaultBranchName;
         // in order to delete the local branch, we need to change the checked out one
-        await this.checkoutBranch("master");
+        await this.checkoutBranch("master", cleanUpOnly);
         // remove local branch
-        await this.executeCommand(["branch", "-D", GitService.BRANCH_NAME_PREFIX + cliBuildId])
+        await this.executeCommand(["branch", "-D", branchName], undefined, false, false, cleanUpOnly)
         // remove remote branch
         const env = _.assign({}, process.env);
-        return this.executeCommand(["push", "-d", GitService.REMOTE_NAME, GitService.BRANCH_NAME_PREFIX + cliBuildId], { env, cwd: this.workingDirectory });
+        return this.executeCommand(["push", "-d", GitService.REMOTE_NAME, branchName], { env, cwd: this.workingDirectory }, false, false, cleanUpOnly);
     }
 
     async getCurrentRevision() {
         const revisionCommandResult = await this.executeCommand(["rev-parse", "HEAD"]);
         return revisionCommandResult.stdout.trim();
     }
+
     async isGitRemoteSetToCorrectUrl(remoteUrl) {
         const result = await this.executeCommand(["remote", "-v"]);
         return result.stdout.indexOf(remoteUrl.httpRemoteUrl) !== -1;
@@ -126,10 +143,12 @@ class GitService {
     async gitStatus() {
         return this.executeCommand(["status"]);
     }
-    async gitPush(cliBuildId) {
+    async gitPush(branchName) {
+        branchName = branchName || this.defaultBranchName;
         const env = _.assign({}, process.env);
-        return this.executeCommand(["push", "--force", GitService.REMOTE_NAME, GitService.BRANCH_NAME_PREFIX + cliBuildId], { env, cwd: this.workingDirectory });
+        return this.executeCommand(["push", "--force", GitService.REMOTE_NAME, branchName], { env, cwd: this.workingDirectory });
     }
+
     async gitRemoteAdd(remoteUrl) {
         return this.executeCommand(["remote", "add", GitService.REMOTE_NAME, remoteUrl.httpRemoteUrl]);
     }
@@ -156,20 +175,25 @@ class GitService {
             return false;
         }
     }
-    async executeCommand(args, options, spawnFromEventOptions, inGitDir) {
+    async executeCommand(args, options, spawnFromEventOptions, inGitDir, addCleanUpCommand) {
         options = options || { cwd: this.workingDirectory };
         const gitDir = this.getGitDirPath();
         this.$fs.ensureDirectoryExists(gitDir);
         args = [`--git-dir=${gitDir}`, `--work-tree=${inGitDir ? gitDir : this.workingDirectory}`].concat(args);
-        return this.$childProcess.spawnFromEvent("git", args, "close", options, spawnFromEventOptions);
+        if (addCleanUpCommand) {
+            await this.$cleanupService.addCleanupCommand({ command: "git", args, options });
+        } else {
+            return this.$childProcess.spawnFromEvent("git", args, "close", options, spawnFromEventOptions);
+        }
     }
-    isGitRepository() {
-        return this.$fs.exists(this.getGitDirPath());
-    }
-    cleanGitRepository() {
+    async cleanGitRepository(cleanUpOnly) {
         const gitDir = this.getGitDirPath();
-        if (this.$fs.exists(gitDir)) {
-            this.$fs.deleteDirectory(gitDir);
+        if (cleanUpOnly) {
+            await this.$cleanupService.addCleanupDeleteAction(gitDir);
+        } else {
+            if (this.$fs.exists(gitDir)) {
+                this.$fs.deleteDirectory(gitDir);
+            }
         }
     }
     getGitDirPath() {
@@ -192,7 +216,7 @@ class GitService {
 }
 
 GitService.REMOTE_NAME = "circleci";
-GitService.BRANCH_NAME_PREFIX = "circle-ci-";
+GitService.TEMP_BRANCH_NAME_PREFIX = "circle-ci-";
 GitService.GIT_DIR_NAME = ".circle-ci-git";
 GitService.GIT_IGNORE_FILE_NAME = ".gitignore";
 

@@ -1,4 +1,3 @@
-const GitService = require("../services/common/git-service").GitService;
 const ConfigService = require("../services/common/config-service").ConfigService;
 const GitBasedBuildService = require("../services/common/git-based-build-service").GitBasedBuildService;
 const CircleCIService = require("../services/remotes/circle-ci-service").CircleCIService
@@ -24,9 +23,8 @@ class RemoteBuildsService {
         let buildService = null;
         if (config.circleci) {
             const gitDirsPath = this.$settingsService.getProfileDir();
-            const gitService = new GitService(this.$childProcess, this.$fs, this.$logger, gitDirsPath, projectData.projectIdentifiers[this.platform], projectData.projectDir);
-            const ciService = new CircleCIService(this.$httpClient, this.$fs, this.$logger, this.platform, env.local, config.circleci)
-            buildService = new GitBasedBuildService(this.$fs, this.$logger, this.platform, gitService, ciService);
+            const ciService = new CircleCIService(this.$httpClient, this.$fs, this.$logger, this.$cleanupService, this.platform, env.local, config.circleci)
+            buildService = new GitBasedBuildService(this.$childProcess, this.$fs, this.$logger, this.$cleanupService, ciService, gitDirsPath, this.platform);
         } else {
             // TODO: refer a README section
             throw new Error("Unsupported build service.");
@@ -90,7 +88,7 @@ class RemoteBuildsService {
 
     _getCliArgs(buildData) {
         const cliArgs = {
-            "env.local": "1"
+            "env.local": "true"
         };
 
         Object.keys(buildData.env).map(envArg => {
@@ -127,7 +125,9 @@ class RemoteBuildsService {
         let envValue = object[propertyName];
         if (typeof envValue === "boolean") {
             if (envValue) {
-                result[`${argName}`] = "1";
+                result[`${argName}`] = "true";
+            } else {
+                result[`${argName}`] = "false";
             }
         } else if (typeof envValue !== "undefined") {
             if (!Array.isArray(envValue)) {

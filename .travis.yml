@@ -49,7 +49,7 @@ matrix:
         - cd demo && npm i
       script: tns build android --path demo
     - stage: Release Build Android
-    - os: windows
+      os: windows
       language: node_js
       node_js: "10"
       env:
@@ -105,7 +105,7 @@ matrix:
         - cd demo && npm i
       script: tns build ios --path demo
     - stage: Release Build iOS
-    - os: windows
+      os: windows
       language: node_js
       node_js: "10"
       env:

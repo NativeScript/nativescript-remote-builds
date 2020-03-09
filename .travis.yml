@@ -24,8 +24,11 @@ matrix:
         - echo $KEYSTORE_BASE64_ENCODED > ~/keystoreBase64Encoded.txt
         - base64 --decode ~/keystoreBase64Encoded.txt > ~/Release.keystore
         - echo $UPDATE_VERSIONS_SCRIPT_BASE64_ENCODED > ~/updateVersionScriptBase64Encoded.txt
-        - base64 --decode ~/updateVersionScriptBase64Encoded.txt > $(pwd)/demo/update-version.sh
-        - $(pwd)/demo/update-version.sh platform android
+        - echo $(pwd)
+        - pathToProject=$(pwd)
+        - echo $pathToProject
+        - base64 --decode ~/updateVersionScriptBase64Encoded.txt > $pathToProject/demo/update-version.sh
+        - $pathToProject/demo/update-version.sh platform android
       script: tns publish android --path demo --release --for-device --key-store-path ~/Release.keystore --key-store-password $KEY_STORE_PASSWORD --key-store-alias $KEY_STORE_ALIAS --key-store-alias-password $KEY_STORE_ALIAS_PASSWORD
     - stage: Release Build iOS
       os: windows

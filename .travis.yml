@@ -27,7 +27,7 @@ matrix:
         - pathToProject=$(pwd)
         - base64 --decode ~/updateVersionScriptBase64Encoded.txt > $pathToProject/update-version.sh
         - $pathToProject/update-version.sh platform android --path-to-n-project $pathToProject
-      script: tns publish android --path demo --release --for-device --key-store-path ~/Release.keystore --key-store-password $KEY_STORE_PASSWORD --key-store-alias $KEY_STORE_ALIAS --key-store-alias-password $KEY_STORE_ALIAS_PASSWORD
+      script: tns publish android --path demo --release --for-device --key-store-path ~/Release.keystore --key-store-password $KEY_STORE_PASSWORD --key-store-alias "$KEY_STORE_ALIAS" --key-store-alias-password $KEY_STORE_ALIAS_PASSWORD
     - stage: Release Build iOS
       os: windows
       language: node_js

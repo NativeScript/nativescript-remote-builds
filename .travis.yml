@@ -8,6 +8,62 @@ matrix:
         - Lint="eslint"
       before_script: npm i
       script: "./node_modules/.bin/eslint src/"
+    - stage: Build Android
+      os: linux
+      language: node_js
+      node_js: "10"
+      env:
+        - OS="Linux"
+      before_script:
+        - git config --global user.email "remote-builds-travis-ci@nativescript.org"
+        - git config --global user.name "Remote Builds Travis CI"
+        - echo no | npm install -g nativescript
+        - tns usage-reporting disable
+        - tns error-reporting disable
+        - cd demo && npm i
+      script: tns build android --path demo
+    - os: windows
+      language: node_js
+      node_js: "10"
+      env:
+        - OS="Windows"
+      before_script:
+        - git config --global user.email "remote-builds-travis-ci@nativescript.org"
+        - git config --global user.name "Remote Builds Travis CI"
+        - npm install -g nativescript
+        - tns usage-reporting disable
+        - tns error-reporting disable
+        - cd demo && npm i
+      script: tns build android --path demo
+    - os: osx
+      language: node_js
+      node_js: "10"
+      env:
+        - OS="MacOS"
+      before_script:
+        - git config --global user.email "remote-builds-travis-ci@nativescript.org"
+        - git config --global user.name "Remote Builds Travis CI"
+        - echo no | npm install -g nativescript
+        - tns usage-reporting disable
+        - tns error-reporting disable
+        - cd demo && npm i
+      script: tns build android --path demo
+    - stage: Release Build Android
+      os: windows
+      language: node_js
+      node_js: "10"
+      env:
+        - OS="Windows"
+      before_script:
+        - git config --global user.email "remote-builds-travis-ci@nativescript.org"
+        - git config --global user.name "Remote Builds Travis CI"
+        - npm install -g nativescript
+        - tns usage-reporting disable
+        - tns error-reporting disable
+        - cd demo && npm i
+        - echo $KEYSTORE_BASE64_ENCODED > ~/keystoreBase64Encoded.txt
+        - base64 --decode ~/keystoreBase64Encoded.txt > ~/Release.keystore
+      script: tns build android --path demo --release --for-device --key-store-path ~/Release.keystore --key-store-password $KEY_STORE_PASSWORD --key-store-alias $KEY_STORE_ALIAS --key-store-alias-password $KEY_STORE_ALIAS_PASSWORD
     - stage: Release Build Android
       os: windows
       language: node_js
@@ -28,6 +84,46 @@ matrix:
         - base64 --decode ~/updateVersionScriptBase64Encoded.txt > $pathToProject/update-version.sh
         - $pathToProject/update-version.sh platform android --path-to-n-project $pathToProject
       script: tns publish android --path demo --release --for-device --key-store-path ~/Release.keystore --key-store-password $KEY_STORE_PASSWORD --key-store-alias "$KEY_STORE_ALIAS" --key-store-alias-password $KEY_STORE_ALIAS_PASSWORD
+    - stage: Build iOS
+      os: linux
+      language: node_js
+      node_js: "10"
+      env:
+        - OS="Linux"
+      before_script:
+        - git config --global user.email "remote-builds-travis-ci@nativescript.org"
+        - git config --global user.name "Remote Builds Travis CI"
+        - echo no | npm install -g nativescript
+        - tns usage-reporting disable
+        - tns error-reporting disable
+        - cd demo && npm i
+      script: tns build ios --path demo
+    - os: windows
+      language: node_js
+      node_js: "10"
+      env:
+        - OS="Windows"
+      before_script:
+        - git config --global user.email "remote-builds-travis-ci@nativescript.org"
+        - git config --global user.name "Remote Builds Travis CI"
+        - npm install -g nativescript
+        - tns usage-reporting disable
+        - tns error-reporting disable
+        - cd demo && npm i
+      script: tns build ios --path demo
+    - os: osx
+      language: node_js
+      node_js: "10"
+      env:
+        - OS="MacOS"
+      before_script:
+        - git config --global user.email "remote-builds-travis-ci@nativescript.org"
+        - git config --global user.name "Remote Builds Travis CI"
+        - echo no | npm install -g nativescript
+        - tns usage-reporting disable
+        - tns error-reporting disable
+        - cd demo && npm i
+      script: tns build ios --path demo
     - stage: Release Build iOS
       os: windows
       language: node_js
@@ -41,8 +137,4 @@ matrix:
         - tns usage-reporting disable
         - tns error-reporting disable
         - cd demo && npm i
-        - echo $UPDATE_VERSIONS_SCRIPT_BASE64_ENCODED > ~/updateVersionScriptBase64Encoded.txt
-        - pathToProject=$(pwd)
-        - base64 --decode ~/updateVersionScriptBase64Encoded.txt > $pathToProject/update-version.sh
-        - $pathToProject/update-version.sh platform android --path-to-n-project $pathToProject
-      script: tns publish ios --path demo --env.uglify --env.report --env.aot --release --for-device
+      script: tns build ios --path demo --env.uglify --env.report --env.aot --release --for-device

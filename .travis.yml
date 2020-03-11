@@ -63,7 +63,7 @@ matrix:
         - cd demo && npm i
         - echo $KEYSTORE_BASE64_ENCODED > ~/keystoreBase64Encoded.txt
         - base64 --decode ~/keystoreBase64Encoded.txt > ~/Release.keystore
-      script: tns build android --path demo --release --for-device --key-store-path ~/Release.keystore --key-store-password $KEY_STORE_PASSWORD --key-store-alias $KEY_STORE_ALIAS --key-store-alias-password $KEY_STORE_ALIAS_PASSWORD
+      script: tns build android --path demo --release --for-device --key-store-path ~/Release.keystore --key-store-password $KEY_STORE_PASSWORD --key-store-alias "$KEY_STORE_ALIAS" --key-store-alias-password $KEY_STORE_ALIAS_PASSWORD
     - stage: Publish Build Android
       os: windows
       language: node_js

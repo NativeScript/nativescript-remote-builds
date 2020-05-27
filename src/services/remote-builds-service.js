@@ -1,7 +1,8 @@
 const GitService = require("../services/common/git-service").GitService;
 const ConfigService = require("../services/common/config-service").ConfigService;
 const GitBasedBuildService = require("../services/common/git-based-build-service").GitBasedBuildService;
-const CircleCIService = require("../services/remotes/circle-ci-service").CircleCIService
+const CircleCIService = require("../services/remotes/circle-ci-service").CircleCIService;
+const SshBuildService = require("./remotes/ssh-build-service").SshBuildService;
 const path = require("path");
 const _ = require("lodash");
 
@@ -28,8 +29,10 @@ class RemoteBuildsService {
             const ciService = new CircleCIService(this.$httpClient, this.$fs, this.$logger, this.platform, env.local, config.circleci)
             buildService = new GitBasedBuildService(this.$fs, this.$logger, this.platform, gitService, ciService);
         } else {
+            console.log("###### SSH now");
+            buildService = new SshBuildService(this.$fs, this.$logger, this.$childProcess, this.platform);
             // TODO: refer a README section
-            throw new Error("Unsupported build service.");
+            // throw new Error("Unsupported build service.");
         }
 
         const appOutputPath = this._getAppOutputPath(projectData, buildData);

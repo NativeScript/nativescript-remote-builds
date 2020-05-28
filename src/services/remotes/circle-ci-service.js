@@ -229,7 +229,7 @@ class CircleCIService {
     }
 
     async _isSuccessfulBuild(buildNumber) {
-        const buildResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${buildNumber}`);
+        const buildResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${buildNumber}?circle-token=${this.circleCiApiAccessToken}`);
         const build = JSON.parse(buildResponse.body);
         //  :retried, :canceled, :infrastructure_fail, :timeout, :not_run, :running, :failed, :queued, :scheduled, :not_running, :no_tests, :fixed, :success
         if (build.status === "not_running" || build.status === "queued" || build.status === "scheduled" || build.status === "running") {

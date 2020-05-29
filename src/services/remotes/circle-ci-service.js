@@ -76,7 +76,7 @@ class CircleCIService {
 
     async downloadBuildArtefact(buildNumber, cloudFileName, destinationFilePath) {
         await this._ensureValidSyncRepository();
-        const artifactsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${buildNumber}/artifacts`);
+        const artifactsResponse = await this.$httpClient.httpRequest(`https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/${buildNumber}/artifacts?circle-token=${this.circleCiApiAccessToken}`);
         const artifacts = JSON.parse(artifactsResponse.body);
 
         const appArtifact = _.find(artifacts, (a) => { return a.path.trim().indexOf(cloudFileName) > -1; });
@@ -93,7 +93,7 @@ class CircleCIService {
         var targetFile = this.$fs.createWriteStream(destinationFilePath);
 
         await this.$httpClient.httpRequest({
-            url: appArtifact.url,
+            url: appArtifact.url + `?circle-token=${this.circleCiApiAccessToken}`,
             pipeTo: targetFile
         });
 

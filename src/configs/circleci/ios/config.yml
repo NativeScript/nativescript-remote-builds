@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     macos:
-      xcode: 11.3.0
+      xcode: 12.3.0
     working_directory: "~/{{PROJECT_NAME}}"
     environment:
       FL_OUTPUT_DIR: ~/fl_output
@@ -11,21 +11,22 @@ jobs:
       # load all SSH keys from the CircleCI project settings
       # in order to be able to pull the ios signing repository
       - add_ssh_keys:
-      # setup NPM
-      - run: echo 'export PATH=~/npm_prefix/bin:$PATH' >> $BASH_ENV
-      - run: npm config set prefix ~/npm_prefix
-
-      # setup global modules - TNS
+      # setup NPM & ns cli
+      - run: mkdir ~/npm_prefix/
+      - run: echo 'export PATH=~/npm_prefix/node_modules/.bin:$PATH' >> $BASH_ENV
+      - run: node -v && npm -v
       - restore_cache:
           keys:
-            - global-modules-mac-{{CLI_VERSION}}
-      - run: tns --version || npm i -g nativescript@{{CLI_VERSION}}
+            - node-modules-macos-{{CLI_VERSION}}
+      - run: ns --version || (pushd ~/npm_prefix && npm i nativescript@{{CLI_VERSION}} && popd)
       - save_cache:
           paths:
-            - ~/npm_prefix
-          key: global-modules-mac-{{CLI_VERSION}}
-      - run: tns usage-reporting disable
-      - run: tns error-reporting disable
+            - ~/npm_prefix/node_modules/
+          key: node-modules-macos-{{CLI_VERSION}}
+      
+      # Disable usage & error reporting
+      - run: ns usage-reporting disable
+      - run: ns error-reporting disable
 
       - checkout
 
@@ -34,11 +35,11 @@ jobs:
 
       # INSTALL GEMS
       - restore_cache:
-          key: gems-mac-{{ checksum "Gemfile" }}
+          key: gems-macos-{{ checksum "Gemfile" }}
       - run: bundle config set path 'vendor/bundle'
       - run: bundle install
       - save_cache:
-          key: gems-mac-{{ checksum "Gemfile" }}
+          key: gems-macos-{{ checksum "Gemfile" }}
           paths:
             - vendor/bundle
       - run: pod repo update

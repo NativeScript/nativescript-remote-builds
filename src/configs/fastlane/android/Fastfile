@@ -1,4 +1,4 @@
-fastlane_version '2.140.0'
+fastlane_version '2.171.0'
 require_relative './common/utils'
 
 platform :android do
@@ -6,7 +6,7 @@ platform :android do
   lane :build do
 
     buildAppPath = File.expand_path("~/fl_output/{{OUTPUT_APP_FILENAME}}");
-    nativescriptCLICommand = ["tns", "build", "android", "--copy-to", buildAppPath];
+    nativescriptCLICommand = ["ns", "build", "android", "--copy-to", buildAppPath];
     cliCommandArgs = getCLIArgsFromEnv([
       "release", "forDevice", "log", "env.local", "env.remotePublish", "clean", "aab", "hmr",
       "env.snapshot", "env.production", "env.uglify", "env.sourceMap", "env.hiddenSourceMap",

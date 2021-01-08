@@ -1,4 +1,4 @@
-fastlane_version '2.140.0'
+fastlane_version '2.171.0'
 require_relative './common/utils'
 
 platform :ios do
@@ -8,7 +8,7 @@ platform :ios do
 
  desc 'Build the iOS application.'
  lane :build do
-  nativescriptCLICommand = ["tns", "prepare", "ios"];
+  nativescriptCLICommand = ["ns", "prepare", "ios"];
   cliCommandArgs = getCLIArgsFromEnv([
     "release", "forDevice", "log", "env.local", "env.remotePublish", "clean", "hmr",
     "env.snapshot", "env.production", "env.uglify", "env.sourceMap", "env.hiddenSourceMap",

@@ -6,34 +6,36 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/android:api-29-node
+      - image: circleci/android:api-30-node
 
     working_directory: "~/{{PROJECT_NAME}}"
 
     steps:
-      # setup NPM
-      - run: echo 'export PATH=~/npm_prefix/bin:$PATH' >> $BASH_ENV
-      - run: npm config set prefix ~/npm_prefix
-
-      # setup TNS
+      # setup NPM & ns cli
+      - run: mkdir ~/npm_prefix/
+      - run: echo 'export PATH=~/npm_prefix/node_modules/.bin:$PATH' >> $BASH_ENV
+      - run: node -v && npm -v
       - restore_cache:
           keys:
-            - global-modules-linux-{{CLI_VERSION}}
-      - run: tns --version || npm i -g nativescript@{{CLI_VERSION}}
+            - node-modules-linux-{{CLI_VERSION}}
+      - run: ns --version || (pushd ~/npm_prefix && npm i nativescript@{{CLI_VERSION}} && popd)
       - save_cache:
           paths:
-            - ~/npm_prefix
-          key: global-modules-linux-{{CLI_VERSION}}
-      - run: tns usage-reporting disable
-      - run: tns error-reporting disable
+            - ~/npm_prefix/node_modules/
+          key: node-modules-linux-{{CLI_VERSION}}
+      
+      # Disable usage & error reporting
+      - run: ns usage-reporting disable
+      - run: ns error-reporting disable
 
       - checkout
 
       # NODE PACKAGES
       - run: npm install
+
+      # INSTALL GEMS
       - restore_cache:
           key: gems-linux-{{ checksum "Gemfile" }}
-      # INSTALL GEMS (fastlane)
       - run: bundle config set path 'vendor/bundle'
       - run: bundle install
       - save_cache:

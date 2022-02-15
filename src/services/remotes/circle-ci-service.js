@@ -110,7 +110,7 @@ class CircleCIService {
                 url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar?circle-token=${this.circleCiApiAccessToken}`,
                 method: "GET"
             });
-            hasError = response.response.statusCode !== 200;
+            hasError = response.response.response.status !== 200;
             if (!hasError) {
                 const envVars = JSON.parse(response.body).reduce(function (result, item) {
                     result[item.name] = item.value;
@@ -140,7 +140,7 @@ class CircleCIService {
                     'Content-Type': 'application/json;charset=UTF-8'
                 }
             });
-            hasError = response.response.statusCode !== 201;
+            hasError = response.response.response.status !== 201;
             if (!hasError && this.$cleanupService.addRequest) {
                 this.$cleanupService.addRequest({
                     url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar/${envName}?circle-token=${this.circleCiApiAccessToken}`,
@@ -164,7 +164,7 @@ class CircleCIService {
                 url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar/${envName}?circle-token=${this.circleCiApiAccessToken}`,
                 method: "DELETE"
             });
-            hasError = response.response.statusCode !== 200;
+            hasError = response.response.response.status !== 200;
             if (!hasError && this.$cleanupService.removeRequest) {
                 this.$cleanupService.removeRequest({
                     url: `https://circleci.com/api/v1.1/project/github/${this.gitRepositoryName}/envvar/${envName}?circle-token=${this.circleCiApiAccessToken}`,
@@ -191,7 +191,7 @@ class CircleCIService {
                 method: "POST"
             });
 
-            this._hasValidIntegration = followRepoResponse.response.statusCode === 200;
+            this._hasValidIntegration = followRepoResponse.response.response.status === 200;
         } catch (e) {
             this._hasValidIntegration = false;
         }
